@@ -14,7 +14,8 @@ module.exports = (sequelize,DataTypes)  =>{
         },
         Content : {
             type : DataTypes.STRING,
-            allowNull : false
+            allowNull : true,
+            defaultValue: ''
         },
         First_Name : {
             type : DataTypes.STRING,
@@ -26,35 +27,35 @@ module.exports = (sequelize,DataTypes)  =>{
         },
         Profile_Img : {
             type : DataTypes.STRING,
-            allowNull : false
+            defaultValue: ''
         },
         Questions_Count  : {
             type : DataTypes.INTEGER,
-            allowNull : false
+            defaultValue: 0
         },
         Answers_Count : {
             type : DataTypes.INTEGER,
-            allowNull : false
+            defaultValue: 0
         },
         Reputation_Score  : {
             type : DataTypes.INTEGER,
-            allowNull : false
+            defaultValue: 0
         },
         Reach : {
             type : DataTypes.INTEGER,
-            allowNull : false
+            defaultValue: 0
         },
         Gold_Badges  : {
             type : DataTypes.INTEGER,
-            allowNull : false
+            defaultValue: 0
         },
         Silver_Badges : {
             type : DataTypes.INTEGER,
-            allowNull : false
+            defaultValue: 0
         },
         Bronze_Badges  : {
             type : DataTypes.INTEGER,
-            allowNull : false
+            defaultValue: 0
         }     
     },{
         updatedAt:false
