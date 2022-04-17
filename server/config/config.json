@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "root",
-    "password": "Akshay@1998",
+    "password": "password",
     "database": "stackoverflow",
     "host": "localhost",
     "dialect": "mysql"

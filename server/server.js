@@ -14,9 +14,10 @@ app.use(passport.initialize())
 
 //kafka consumers
 require('./kafka/UserConsumer')
+require('./kafka/QuestionsConsumer')
 
 db.sequelize.sync().then((req)=>{
-app.listen(5000,(req,res)=>{
+app.listen(8585,(req,res)=>{
     console.log("Srever running on port 8585")
 });
 })

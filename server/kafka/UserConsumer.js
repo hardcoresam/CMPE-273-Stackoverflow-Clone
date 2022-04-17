@@ -13,7 +13,7 @@ kafkaConection.getConsumer('users',(consumer) => {
         
         console.log("1. Cosumed Data at backend...")
 
-        if(action == actions.REGISTER_USER){
+        if(action == actions.REGISTER_USER) {
             UserService.createUser(payload,(err,res)=>{
                 var payload = {}
                     if(err){
@@ -73,7 +73,6 @@ kafkaConection.getConsumer('users',(consumer) => {
                         console.log("2. Sent Acknowledegemt ...\n",data)
                     })
             })
-        }
-      
+        }      
     })
 })

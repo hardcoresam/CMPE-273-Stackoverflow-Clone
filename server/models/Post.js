@@ -36,22 +36,25 @@ module.exports = (sequelize,DataTypes)  =>{
             type : DataTypes.BOOLEAN,
             allowNull : false
         },
-
+        ParentID : {
+            type : DataTypes.STRING,
+            allowNull : false
+        },
     },{
         updatedAt:false
     });
     Post.associate = models => {
-        Post.belongsToMany(models.Tag,{
-            through: models.PostTag,
-            foreignKey : 'TagID',
-            timestamps: false
-        }),
-        Post.belongsTo(models.Post,{
-            foreignKey : {
-                allowNull: false,
-                name : "ParentID"
-            }
-        })
+        // Post.belongsToMany(models.Tag,{
+        //     through: models.PostTag,
+        //     foreignKey : 'TagID',
+        //     timestamps: false
+        // }),
+        // Post.belongsTo(models.Post,{
+        //     foreignKey : {
+        //         allowNull: false,
+        //         name : "ParentID"
+        //     }
+        // })
     }
     return Post;
 }

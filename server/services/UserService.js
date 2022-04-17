@@ -60,7 +60,7 @@ exports.login = async (payload,cb) => {
         console.log("------------------------",payload,process.env.SECRET_KEY)
         jwt.sign(
             payload,
-            process.env.SECRET_KEY,
+            "kkkk",
             {
                 expiresIn: 3600,
             },
