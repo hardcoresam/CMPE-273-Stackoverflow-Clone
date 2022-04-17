@@ -1,6 +1,7 @@
 import React from 'react'
 import { Col, Row } from 'react-bootstrap';
 import MainCard from '../DashboardCards/MainCard';
+import MainTopCard from '../DashboardCards/MainTopCard';
 import SideMenu from '../DashboardCards/SideMenu';
 
 const Dashboard = () => {
@@ -15,11 +16,11 @@ const Dashboard = () => {
     return (
         <div>
             <Row>
-                <Col sm={3}>
+                <Col sm={2}>
                     <SideMenu />
                 </Col>
                 <Col sm={7}>
-                    <h2>Top Questions</h2>
+                    <MainTopCard />
                     <MainCard />
                 </Col>
                 <Col sm={2}>
