@@ -20,7 +20,9 @@ router.post('/askquestion', (req, res, next) => {
     )
     (req, res); 
 }, QuestionController.createQuestion)
-router.get('/',QuestionController.getQuestions)
+router.get('/', passport.authenticate('jwt', {session: false}), QuestionController.getQuestions)
+router.get('/getquestion/:questionId', passport.authenticate('jwt', {session: false}), QuestionController.getQuestion)
+router.put('/bookmark/:questionId', passport.authenticate('jwt', {session: false}), QuestionController.bookmarkQuestion)
 
 
 module.exports = router
