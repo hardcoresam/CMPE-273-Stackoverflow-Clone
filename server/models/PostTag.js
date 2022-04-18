@@ -1,4 +1,4 @@
-module.exports = (sequelize,DataTypes)  =>{
+module.exports = (sequelize)  =>{
     const PostTag = sequelize.define("PostTag",{
         
     },{
@@ -7,17 +7,11 @@ module.exports = (sequelize,DataTypes)  =>{
     });
 
     PostTag.associate = models => {
-        PostTag.belongsTo(models.Post,{
-            foreignKey : {
-                allowNull: false,
-                name : "PostID"
-            }
+        models.Post.belongsToMany(models.Tag,{
+            through: models.PostTag
         }),
-        PostTag.belongsTo(models.Tag,{
-            foreignKey : {
-                allowNull: false,
-                name : "TagID"
-            }
+        models.Tag.belongsToMany(models.Post,{
+            through: models.PostTag
         })
     }
     return PostTag;

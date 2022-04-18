@@ -15,12 +15,5 @@ module.exports = (sequelize,DataTypes)  =>{
     },{
         updatedAt:false
     });
-    Tag.associate = models => {
-        Tag.belongsToMany(models.Post,{
-            through: models.PostTag,
-            foreignKey : 'PostID',
-            timestamps: false
-        })
-    }
     return Tag;
 }
