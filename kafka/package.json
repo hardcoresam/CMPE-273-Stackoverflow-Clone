@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.3",
-    "kafka-node": "^5.0.0"
+    "kafka-node": "^5.0.0",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0"
   }
 }
