@@ -20,9 +20,12 @@ router.post('/askquestion', (req, res, next) => {
     )
         (req, res);
 }, QuestionController.createQuestion)
+
 router.get('/', checkAuth, QuestionController.getQuestions)
 router.get('/getquestion/:questionId', checkAuth, QuestionController.getQuestion)
 router.put('/bookmark/:questionId', checkAuth, QuestionController.bookmarkQuestion)
-
+router.put('/unbookmark/:questionId', checkAuth, QuestionController.unbookmarkQuestion)
+router.put('/upvote/:questionId', checkAuth, QuestionController.upvoteQuestion)
+router.put('/downvote/:questionId', checkAuth, QuestionController.downvoteQuestion)
 
 module.exports = router

@@ -66,3 +66,67 @@ exports.bookmarkQuestion = async (payload,cb) => {
         cb(error,null)
     } 
 }
+
+exports.unbookmarkQuestion = async (payload,cb) => {
+    try {
+        // const {firstName,lastName,email,password,title} = payload
+        // const data = await Post.findOne({ where: { id: payload.questionId } });
+        const data = await Post.update({ Bookmark_Status: false }, {
+            where: {
+                id: payload.questionId
+            }
+          });
+        if(data) {
+            console.log("find questions")
+            console.log(data)
+            cb(null,data)
+        }
+        else cb(err,null)
+    } catch (error) {
+        cb(error,null)
+    } 
+}
+
+exports.upvoteQuestion = async (payload,cb) => {
+    try {
+        // const {firstName,lastName,email,password,title} = payload
+        // const data = await Post.findOne({ where: { id: payload.questionId } });
+        const questiondata = await Post.findOne({ where: { id: payload.questionId } });
+        
+        const data = await Post.update({ Upvotes_Count: questiondata.dataValues.Upvotes_Count + 1 }, {
+            where: {
+                id: payload.questionId
+            }
+          });
+        if(data) {
+            console.log("find questions")
+            console.log(data)
+            cb(null,data)
+        }
+        else cb(err,null)
+    } catch (error) {
+        cb(error,null)
+    } 
+}
+
+exports.downvoteQuestion = async (payload,cb) => {
+    try {
+        // const {firstName,lastName,email,password,title} = payload
+        // const data = await Post.findOne({ where: { id: payload.questionId } });
+        const questiondata = await Post.findOne({ where: { id: payload.questionId } });
+        
+        const data = await Post.update({ Upvotes_Count: questiondata.dataValues.Upvotes_Count - 1 }, {
+            where: {
+                id: payload.questionId
+            }
+          });
+        if(data) {
+            console.log("find questions")
+            console.log(data)
+            cb(null,data)
+        }
+        else cb(err,null)
+    } catch (error) {
+        cb(error,null)
+    } 
+}

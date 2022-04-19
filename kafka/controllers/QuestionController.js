@@ -33,3 +33,27 @@ exports.bookmarkQuestion = async (req, res) => {
         return res.json(data)
     })
 }
+
+exports.unbookmarkQuestion = async (req,res) => {
+    console.log("un bookmark question")
+    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC,{...req.body, questionId: req.params.questionId, action:actions.UNBOOKMARK_QUESTION},(err,data) => {
+        if(err) return res.status(400).json({message:err})
+        return res.json(data)
+    })
+}
+
+exports.upvoteQuestion = async (req,res) => {
+    console.log("up question")
+    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC,{...req.body, questionId: req.params.questionId, action:actions.UPVOTE_QUESTION},(err,data) => {
+        if(err) return res.status(400).json({message:err})
+        return res.json(data)
+    })
+}
+
+exports.downvoteQuestion = async (req,res) => {
+    console.log("down question")
+    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC,{...req.body, questionId: req.params.questionId, action:actions.DOWNVOTE_QUESTION},(err,data) => {
+        if(err) return res.status(400).json({message:err})
+        return res.json(data)
+    })
+}
