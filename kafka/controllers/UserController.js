@@ -12,6 +12,7 @@ exports.createUser = async (req, res) => {
 exports.login = async (req, res) => {
     kafka.sendKafkaRequest(kafkaTopics.USERS_TOPIC, { ...req.body, action: actions.LOGIN }, (err, data) => {
         if (err) return res.status(400).json({ message: err })
+        res.cookie('access-token', data.token, { maxAge: 9000000, httpOnly: false });
         return res.json(data)
     })
 }

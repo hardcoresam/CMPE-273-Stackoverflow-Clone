@@ -9,7 +9,7 @@ opts.secretOrKey = process.env.SECRET_KEY;
 
 const User = require('./../models/User')
 
-//TODO - REMOVE THIS FILE COMPLETELY LATER
+//TODO - @AKSHAY - REMOVE THIS FILE COMPLETELY LATER
 passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
     
     User.findOne({where:{id:jwt_payload.user.id}}, function(err, user) {
