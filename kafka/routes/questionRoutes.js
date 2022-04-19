@@ -1,11 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport');
-// require('../Utils/passport')
-// router.use(passport.initialize());
-//const checkAuth = require('../index');
 const checkAuth = passport.authenticate("jwt", { session: false });
-//import { checkAuth } from '../index';
 
 const QuestionController = require('../controllers/QuestionController')
 
