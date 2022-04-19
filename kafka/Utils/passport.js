@@ -18,7 +18,7 @@ module.exports = (passport) => {
     };
     passport.use(
         new JwtStrategy(opts, (req, jwt_payload, callback) => {
-            req.user = jwt_payload.user;
+            req.body.USER_ID = jwt_payload.user.id;
             callback(null, []);
         })
     )

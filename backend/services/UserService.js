@@ -65,7 +65,7 @@ exports.login = async (payload, cb) => {
                 console.err(err);
                 return cb(err, null)
             }
-            return cb(null, { token: "Bearer " + token })
+            return cb(null, { token: token })
         }
         )
 
