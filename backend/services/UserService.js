@@ -2,8 +2,21 @@ const db = require('../models')
 const User = db.User
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const actions = require('../../util/kafkaActions.json')
 
-exports.createUser = async (payload, cb) => {
+exports.handle_request = (payload, callback) => {
+    const { action } = payload;
+    switch (action) {
+        case actions.REGISTER_USER:
+            createUser(payload, callback);
+            break;
+        case actions.LOGIN:
+            login(payload, callback);
+            break;
+    }
+};
+
+const createUser = async (payload, cb) => {
     try {
         const { firstName, lastName, email, password, title } = payload
         await User.findOne({ where: { Email: email } }).then(async data => {
@@ -35,7 +48,7 @@ exports.createUser = async (payload, cb) => {
     }
 }
 
-exports.login = async (payload, cb) => {
+const login = async (payload, cb) => {
     const { email, password } = payload
     try {
         const user = await User.findOne({ where: { Email: email } })

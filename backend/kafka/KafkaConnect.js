@@ -1,5 +1,4 @@
 const kafka = require('kafka-node')
-
 const latestoffset = require('./latest-offset')
 
 exports.getProducer = () => {
@@ -8,8 +7,7 @@ exports.getProducer = () => {
     return new HighlevelProducer(client)
 }
 
-exports.getConsumer = (topicName,results) => {
-
+exports.getConsumer = (topicName, results) => {
     var lOffset;
     latestoffset.getlatestOffset(topicName, function (returnValue) {
         lOffset = returnValue
@@ -22,12 +20,8 @@ exports.getConsumer = (topicName,results) => {
             fromOffset: 'latest'
         };
 
-        var kafkaConsumer = new Consumer(client, [
-            { topic: topicName, offset: lOffset, partition: 0 },
-        ], options,
-            {
-                autoCommit: false 
-            })
+        var kafkaConsumer = new Consumer(client, [{ topic: topicName, offset: lOffset, partition: 0 }],
+            options, { autoCommit: false })
         return results(kafkaConsumer)
     })
 }

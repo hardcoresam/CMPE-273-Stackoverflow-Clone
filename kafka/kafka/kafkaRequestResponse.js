@@ -37,7 +37,7 @@ module.exports = class KafkaRequestResponse {
     kafkaResponse(next) {
         let requestsWaiting = this.requests
         this.consumer.on('message', function (message) {
-            console.log("Acknowledgement recieved :", message)
+            console.log("Acknowledgement recieved: ", message)
 
             var acknowledgementData = JSON.parse(message.value)
             var correlationId = acknowledgementData.payload.correlationId

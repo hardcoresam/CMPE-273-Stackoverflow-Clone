@@ -8,11 +8,10 @@ exports.getProducer = () => {
 
 exports.getConsumer = (topicName) => {
     console.log(topicName)
-    var client  = new kafka.KafkaClient("localhost:2181")
+    var client = new kafka.KafkaClient("localhost:2181")
     var Consumer = kafka.Consumer
-    var kafkaConsumer = new Consumer(client,[
-        {topic:topicName,partition:0}
- 
+    var kafkaConsumer = new Consumer(client, [
+        { topic: topicName, partition: 0 }
     ])
     return kafkaConsumer
 }
