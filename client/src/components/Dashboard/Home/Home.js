@@ -9,8 +9,6 @@ import SideMenu from '../DashboardCards/SideMenu';
 const Dashboard = () => {
     const obj = useSelector(state => state.DashboardSecondTopSlice)
     const {flag} = obj.value
-
-
     const divStyle = {
         overflowY: 'scroll',
         border: '1px solid',
@@ -30,7 +28,7 @@ const Dashboard = () => {
                     <MainCard />
                 </Col>
                 <Col sm={2}>
-                <h1>RightSide</h1>
+                <h1>{process.env.REACT_APP_BUCKET}</h1>
                 </Col>
             </Row>
 
