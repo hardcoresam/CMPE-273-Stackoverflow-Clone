@@ -26,9 +26,10 @@ const Dashboard = () => {
                 <Col sm={7}>
                   {flag ? <MainTopCard /> : <MainTopSecondCard />}
                     <MainCard />
+                   
                 </Col>
                 <Col sm={2}>
-                <h1>{process.env.REACT_APP_BUCKET}</h1>
+                <h1>Right Side</h1>
                 </Col>
             </Row>
 
