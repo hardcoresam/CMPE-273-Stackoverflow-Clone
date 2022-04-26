@@ -1,0 +1,14 @@
+.tagButton{
+        color: rgb(7, 65, 60); /* Text color */
+        
+        background-color: rgb(208, 226, 232);
+        border-radius: 0;       
+        border: 0ch;  
+}
+
+.tagButton:hover {
+    background-color: LightBlue;
+    color: black;
+    transition: 0.7s;
+}
+/* style={{width:"9rem", color:"DodgerBlue", backgroundColor:"LightBlue"}} */

@@ -5,10 +5,11 @@ import MainCard from '../DashboardCards/MainCard';
 import MainTopCard from '../DashboardCards/MainTopCard';
 import MainTopSecondCard from '../DashboardCards/MainTopSecondCard';
 import SideMenu from '../DashboardCards/SideMenu';
-
+import TagMainCard from '../Tags/TagMainCard';
+import UserMainCard from '../Users/UserMainCard';
 const Dashboard = () => {
     const obj = useSelector(state => state.DashboardSecondTopSlice)
-    const {flag} = obj.value
+    const {flag,tagflag} = obj.value
     const divStyle = {
         overflowY: 'scroll',
         border: '1px solid',
@@ -23,14 +24,16 @@ const Dashboard = () => {
                 <Col sm={2}>
                     <SideMenu />
                 </Col>
-                <Col sm={7}>
+                <Col sm={flag ? 7 : 10}>
                   {flag ? <MainTopCard /> : <MainTopSecondCard />}
-                    <MainCard />
-                   
+                  {flag ? <MainCard /> : tagflag ?  <TagMainCard /> : <UserMainCard />}                   
                 </Col>
-                <Col sm={2}>
-                <h1>Right Side</h1>
-                </Col>
+                {
+                    flag && <Col sm={2}>
+                    <h1>Right Side</h1>
+                    </Col>
+                }
+                
             </Row>
 
         </div>
