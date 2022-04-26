@@ -12,7 +12,7 @@ app.use(express.json())
 
 //app.use(passport.initialize())
 
-const mongoDbUrl = "";
+const mongoDbUrl = "mongodb+srv://stackoverflow:stackoverflow@cluster0.rukm9.mongodb.net/stackoverflow?retryWrites=true&w=majority";
 const mongoose = require('mongoose');
 
 var options = {
