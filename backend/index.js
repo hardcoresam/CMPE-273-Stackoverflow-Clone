@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const db = require('./models');
+const db = require('./models/mysql');
 const dotenv = require('dotenv')
 //const passport = require('passport')
 
@@ -11,6 +11,24 @@ const PORT = process.env.PORT || 5000
 app.use(express.json())
 
 //app.use(passport.initialize())
+
+const mongoDbUrl = "";
+const mongoose = require('mongoose');
+
+var options = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    maxPoolSize: 50
+};
+
+mongoose.connect(mongoDbUrl, options, (err, res) => {
+    if (err) {
+        console.log(err);
+        console.log(`MongoDB Connection Failed`);
+    } else {
+        console.log(`MongoDB Connected`);
+    }
+});
 
 const kafkaConection = require('./kafka/KafkaConnect')
 const kafkaTopics = require('../util/kafkaTopics.json')

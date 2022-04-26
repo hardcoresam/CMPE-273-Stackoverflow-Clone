@@ -1,4 +1,4 @@
-const db = require('../models')
+const db = require('../models/mysql')
 const Post = db.Post
 const sequelize = require('sequelize')
 const actions = require('../../util/kafkaActions.json')
