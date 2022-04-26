@@ -41,7 +41,7 @@ const User = () => {
         </Row>
         </Col>
         <Col sm={2}>
-          <h1>Right Side</h1>
+          <Button style={{marginTop : "28px", color:"Black", borderColor:"black"}} variant='outline-light'>Edit Profile</Button>
         </Col>
       </Row>
 

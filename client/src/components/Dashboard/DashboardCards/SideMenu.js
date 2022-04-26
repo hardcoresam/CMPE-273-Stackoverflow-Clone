@@ -12,7 +12,7 @@ const SideMenu = () => {
             Title : "Top Questions",
             questionCount : ""
         }))
-        dispatch(onShowReducer(true))
+        dispatch(onShowReducer({flag :true,tagflag : true}))
     }
     const questionAction =()=>{
         navigate('/DashBoard')
@@ -20,7 +20,7 @@ const SideMenu = () => {
             Title : "All Questions",
             questionCount : "22,469,947 questions"
         }))
-        dispatch(onShowReducer(true))
+        dispatch(onShowReducer({flag :true,tagflag : true}))
     }
     const tagAction=()=>{
         navigate('/DashBoard')
@@ -28,7 +28,7 @@ const SideMenu = () => {
             Title : "Tags",
             Description : "A tag is a keyword or label that categorizes your question with other, similar questions. Using the right tags makes it easier for others to find and answer your question."
         }))
-        dispatch(onShowReducer(false))
+        dispatch(onShowReducer({flag :false,tagflag : true}))
     }
 
     const userAction = () =>{
@@ -37,7 +37,7 @@ const SideMenu = () => {
             Title : "Users",
             Description : ""
         }))
-        dispatch(onShowReducer(false))
+        dispatch(onShowReducer({flag :false, tagflag : false}))
     }
     const gotouser = () =>{
         
