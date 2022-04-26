@@ -5,6 +5,8 @@ const kafkaTopics = require('../../util/kafkaTopics.json')
 module.exports = class KafkaRequestResponse {
 
     requests = {}
+    responseQueue = false
+
     constructor() { }
 
     consumer = kafkaConnection.getConsumer(kafkaTopics.ACKNOWLEDGE_TOPIC)
@@ -36,6 +38,11 @@ module.exports = class KafkaRequestResponse {
 
     kafkaResponse(next) {
         let requestsWaiting = this.requests
+        
+        if(this.responseQueue){
+            return next()
+        }
+        
         this.consumer.on('message', function (message) {
             console.log("Acknowledgement recieved: ", message)
 
@@ -59,6 +66,7 @@ module.exports = class KafkaRequestResponse {
                 entry.results('Server Error', null)
             }
         });
+        this.responseQueue = true
         this.requests = requestsWaiting
         return next()
     }
