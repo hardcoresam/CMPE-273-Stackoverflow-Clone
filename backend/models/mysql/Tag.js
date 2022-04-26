@@ -8,15 +8,11 @@ module.exports = (sequelize, DataTypes) => {
         },
         name: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         description: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        admin_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false
+            type: DataTypes.STRING
         },
         created_date: {
             type: DataTypes.DATE,
@@ -30,5 +26,20 @@ module.exports = (sequelize, DataTypes) => {
         tableName: "tag",
         timestamps: false
     });
+
+    Tag.associate = models => {
+        Tag.belongsTo(models.User, {
+            foreignKey: {
+                allowNull: false,
+                name: "admin_id"
+            }
+        }),
+        Tag.belongsToMany(models.Post, {
+            through: models.PostTag,
+            foreignKey: 'tag_id',
+            timestamps: false
+        });
+    };
+
     return Tag;
 }

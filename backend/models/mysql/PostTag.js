@@ -9,8 +9,9 @@ module.exports = (sequelize, DataTypes) => {
             }
         }
     }, {
-        tableName: "posttag",
+        tableName: "post_tag",
         timestamps: false
     });
+
     return PostTag;
 }

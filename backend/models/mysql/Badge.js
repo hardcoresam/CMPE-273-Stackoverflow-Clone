@@ -26,5 +26,15 @@ module.exports = (sequelize, DataTypes) => {
         tableName: "badge",
         timestamps: false
     });
+
+    Badge.associate = models => {
+        Badge.belongsTo(models.User, {
+            foreignKey: {
+                allowNull: false,
+                name: "user_id"
+            }
+        });
+    };
+
     return Badge;
 }

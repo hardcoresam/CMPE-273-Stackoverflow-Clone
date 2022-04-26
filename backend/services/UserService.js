@@ -1,5 +1,4 @@
-const db = require('../models/mysql')
-const User = db.User
+const { User } = require("../models/mysql");
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const actions = require('../../util/kafkaActions.json')

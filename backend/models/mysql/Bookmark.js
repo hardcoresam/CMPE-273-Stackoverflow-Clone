@@ -18,5 +18,21 @@ module.exports = (sequelize, DataTypes) => {
         tableName: "bookmark",
         timestamps: false
     });
+
+    Bookmark.associate = models => {
+        Bookmark.belongsTo(models.Post, {
+            foreignKey: {
+                allowNull: false,
+                name: "post_id"
+            }
+        }),
+        Bookmark.belongsTo(models.User, {
+            foreignKey: {
+                allowNull: false,
+                name: "user_id"
+            }
+        });
+    };
+
     return Bookmark;
 }

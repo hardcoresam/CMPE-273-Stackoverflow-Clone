@@ -1,12 +1,12 @@
 const express = require('express')
 const app = express()
-const db = require('./models/mysql');
+const { sequelize } = require("./models/mysql/index");
 const dotenv = require('dotenv')
 //const passport = require('passport')
 
 dotenv.config();
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 8585
 
 app.use(express.json())
 
@@ -79,8 +79,8 @@ function handleTopicRequest(topic_name, serviceObject) {
 handleTopicRequest(kafkaTopics.USERS_TOPIC, UserService);
 handleTopicRequest(kafkaTopics.POSTS_TOPIC, QuestionService);
 
-db.sequelize.sync().then((req) => {
-    app.listen(8585, (req, res) => {
-        console.log("Server running on port 8585")
+sequelize.sync().then((req) => {
+    app.listen(PORT, (req, res) => {
+        console.log("Server running on port - ", PORT);
     });
 })

@@ -20,8 +20,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         photo: {
-            type: DataTypes.STRING,
-            defaultValue: ''
+            type: DataTypes.STRING
         },
         about: {
             type: DataTypes.STRING
@@ -55,17 +54,17 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         gold_badges_count: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
             defaultValue: 0
         },
         silver_badges_count: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
             defaultValue: 0
         },
         bronze_badges_count: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
             defaultValue: 0
         }
@@ -73,5 +72,27 @@ module.exports = (sequelize, DataTypes) => {
         tableName: "user",
         timestamps: false
     });
+
+    User.associate = models => {
+        User.hasMany(models.Badge, {
+            foreignKey: {
+                allowNull: false,
+                name: "user_id"
+            }
+        }),
+        User.hasMany(models.Post, {
+            foreignKey: {
+                allowNull: false,
+                name: "owner_id"
+            }
+        }),
+        User.hasMany(models.Bookmark, {
+            foreignKey: {
+                allowNull: false,
+                name: "user_id"
+            }
+        });
+    };
+
     return User;
 }

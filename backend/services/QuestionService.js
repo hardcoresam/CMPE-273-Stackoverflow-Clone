@@ -1,6 +1,5 @@
-const db = require('../models/mysql')
-const Post = db.Post
-const sequelize = require('sequelize')
+const { Post } = require("../models/mysql");
+const { sequelize } = require("../models/mysql/index");
 const actions = require('../../util/kafkaActions.json')
 
 exports.handle_request = (payload, callback) => {
@@ -49,7 +48,7 @@ const askQuestion = async (payload, cb) => {
 const getQuestions = async (payload, cb) => {
     try {
         // const {firstName,lastName,email,password,title} = payload
-        const data = await db.sequelize.query("SELECT * FROM `Posts`")
+        const data = await sequelize.query("SELECT * FROM `Posts`")
         if (data) {
             console.log("find questions")
             console.log(data)

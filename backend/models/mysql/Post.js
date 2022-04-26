@@ -6,10 +6,6 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true
         },
-        owner_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false
-        },
         type: {
             type: DataTypes.ENUM("QUESTION", "ANSWER"),
             allowNull: false
@@ -31,10 +27,10 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             get() {
                 return this.getDataValue('tags').split(',')
-            },
-            set(val) {
-                this.setDataValue('tags', val.join(','));
-            },
+            }
+            // set(val) {
+            //     this.setDataValue('tags', val.join(','));
+            // },
         },
         score: {
             type: DataTypes.INTEGER,
@@ -42,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 0
         },
         views_count: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
             defaultValue: 0
         },
@@ -50,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER
         },
         answers_count: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
             defaultValue: 0
         },
@@ -77,17 +73,44 @@ module.exports = (sequelize, DataTypes) => {
         tableName: "post",
         timestamps: false
     });
+
     Post.associate = models => {
-        models.User.hasMany(models.Post, {
+        Post.belongsTo(models.User, {
             foreignKey: {
-                name: "USER_ID"
+                allowNull: false,
+                name: "owner_id"
             }
-        })
-        models.Post.hasMany(models.Post, {
+        }),
+        Post.belongsTo(models.Post, {
             foreignKey: {
-                name: "ParentID"
+                name: "parent_id",
+                as: "question"
             }
-        })
-    }
+        }),
+        Post.hasMany(models.Post, {
+            foreignKey: {
+                name: "parent_id",
+                as: "answers"
+            }
+        }),
+        Post.belongsTo(models.Post, {
+            foreignKey: {
+                name: "accepted_answer_id",
+                as: "accepted_answer"
+            }
+        }),
+        Post.belongsToMany(models.Tag, {
+            through: models.PostTag, 
+            foreignKey: 'post_id',
+            timestamps: false
+        }),
+        Post.hasMany(models.Comment, {
+            foreignKey: {
+                allowNull: false,
+                name: "post_id"
+            }
+        });
+    };
+
     return Post;
 }
