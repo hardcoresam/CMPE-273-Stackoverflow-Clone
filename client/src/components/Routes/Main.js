@@ -1,6 +1,7 @@
 import React from 'react'
 import { Routes, Route } from "react-router"
 import Home from '../Dashboard/Home/Home'
+import AskQuestion from '../Dashboard/Questions/AskQuestion'
 import NavBar from '../NavBar'
 import User from '../User/User'
 const Main = () => {
@@ -9,7 +10,8 @@ const Main = () => {
             <Routes>
                 <Route path="/" element={<NavBar />} >
                 <Route path="/Dashboard" element= {<Home />} />
-                <Route path="/User" element= {<User />} />
+                <Route path="/User/:userid" element= {<User />} />
+                <Route path = "/askQuestion" element = {<AskQuestion />} />
                 </Route>
             </Routes>
         </div>

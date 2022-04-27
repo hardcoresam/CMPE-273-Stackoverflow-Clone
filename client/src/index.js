@@ -8,6 +8,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import DashboardTop from './features/DashboardTopSlice';
 import DashboardSecondTop from './features/DashboardSecondTopSlice';
+import User from './features/UserSlice';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -15,7 +16,8 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 const store = configureStore({
   reducer: {
     DashboardTopSlice: DashboardTop,
-    DashboardSecondTopSlice : DashboardSecondTop
+    DashboardSecondTopSlice : DashboardSecondTop,
+    UserSlice : User
   },
 })
 
