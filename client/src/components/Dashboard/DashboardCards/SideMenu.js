@@ -4,6 +4,7 @@ import { clickReducer } from '../../../features/DashboardTopSlice';
 import { onclickReducer, onShowReducer } from '../../../features/DashboardSecondTopSlice';
 import {Navigate, useNavigate} from 'react-router-dom'
 const SideMenu = () => {
+    const testuser = 12345;
     const dispatch = useDispatch();
     var navigate = useNavigate();
     const homeAction =()=>{
@@ -41,7 +42,7 @@ const SideMenu = () => {
     }
     const gotouser = () =>{
         
-        navigate('/User')
+        navigate(`/User/${testuser}`)
     }
     const divStyle = {
         overflowY: 'scroll',
