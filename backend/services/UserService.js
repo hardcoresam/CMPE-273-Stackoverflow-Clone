@@ -40,7 +40,7 @@ exports.handle_request = (payload, callback) => {
 
 const createUser = async (payload, callback) => {
     const { displayName, email, password } = payload;
-    const previousMember = await User.findOne({ email: email.toLowerCase() });
+    const previousMember = await User.findOne({ where : { email: email.toLowerCase() }});
     if (previousMember !== null) {
         return callback({ errors: { email: { msg: `Email ${email} is already registered. Please login or use a different email` } } }, null);
     }
@@ -58,7 +58,7 @@ const createUser = async (payload, callback) => {
 //TODO - Sai Krishna - Update login time after each login
 const login = async (payload, callback) => {
     const { email, password } = payload;
-    const member = await User.findOne({ email: email.toLowerCase() });
+    const member = await User.findOne({ where :{ email: email.toLowerCase() }});
     if (member === null) {
         return callback({ errors: { email: { msg: `Email ${email} is not registed with us` } } }, null);
     }
