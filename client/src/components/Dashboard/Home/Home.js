@@ -1,5 +1,5 @@
 import React from 'react'
-import { Col, Row } from 'react-bootstrap';
+import { Col, Row, Card } from 'react-bootstrap';
 import { useSelector } from 'react-redux'
 import MainCard from '../DashboardCards/MainCard';
 import MainTopCard from '../DashboardCards/MainTopCard';
@@ -22,15 +22,17 @@ const Dashboard = () => {
         <div>
             <Row>
                 <Col sm={2}>
-                    <SideMenu />
+                    
                 </Col>
                 <Col sm={flag ? 7 : 10}>
                   {flag ? <MainTopCard /> : <MainTopSecondCard />}
                   {flag ? <MainCard /> : tagflag ?  <TagMainCard /> : <UserMainCard />}                   
                 </Col>
                 {
-                    flag && <Col sm={2}>
-                    <h1>Right Side</h1>
+                    flag && <Col sm={3}>
+                    <Card style={{width:"17rem",height:"17rem", backgroundColor:"#ffdd99"}}>
+                        
+                    </Card>
                     </Col>
                 }
                 
