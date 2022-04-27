@@ -2,6 +2,7 @@ import React from 'react'
 import { Routes, Route } from "react-router"
 import Home from '../Dashboard/Home/Home'
 import AskQuestion from '../Dashboard/Questions/AskQuestion'
+import QuestionOverview from '../Dashboard/Questions/QuestionOverview'
 import NavBar from '../NavBar'
 import User from '../User/User'
 const Main = () => {
@@ -12,6 +13,7 @@ const Main = () => {
                 <Route path="/Dashboard" element= {<Home />} />
                 <Route path="/User/:userid" element= {<User />} />
                 <Route path = "/askQuestion" element = {<AskQuestion />} />
+                <Route path = "/questions/:qid" element ={<QuestionOverview />} />
                 </Route>
             </Routes>
         </div>
