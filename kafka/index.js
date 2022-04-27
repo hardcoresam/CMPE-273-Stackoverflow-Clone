@@ -14,7 +14,7 @@ let passport = require("passport");
 require('./Utils/passport')(passport)
 
 app.use('/api/users', require('./routes/userRoutes'))
-app.use('/api/post/question', require('./routes/postRoutes'))
+app.use('/api/post', require('./routes/postRoutes'))
 app.use('/api/admin', require('./routes/adminRoutes'))
 app.use('/api/chat',require('./routes/messageRoutes'))
 
