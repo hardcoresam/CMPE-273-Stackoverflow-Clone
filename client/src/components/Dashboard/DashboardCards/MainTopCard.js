@@ -1,18 +1,24 @@
 import React from 'react'
 import { Button, Row, Col } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
+import {useNavigate} from 'react-router-dom'
 const MainTopCard = () => {
   const obj = useSelector(state => state.DashboardTopSlice)
   const {Title,questionCount} = obj.value
+
+  var navigate = useNavigate();
+  const askquestion =()=>{
+    navigate('/askQuestion')
+  }
   return (
-    <div >
+    <div>
     <div style={{marginTop : "1rem", marginLeft:"-15px"}}>
     <Row>
         <Col sm={9}>
           <text style={{fontSize : "1.9rem", PaddingBottom:"1rem"}}>{Title}</text>
         </Col>
         <Col>
-          <Button>Ask Question</Button>
+          <Button onClick={askquestion}>Ask Question</Button>
         </Col>
       </Row>
       <Row style={{marginTop:"2rem"}}>

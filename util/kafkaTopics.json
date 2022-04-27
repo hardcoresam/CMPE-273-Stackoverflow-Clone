@@ -2,5 +2,7 @@
     "USERS_TOPIC": "users",
     "POSTS_TOPIC": "posts",
     "ACKNOWLEDGE_TOPIC": "acknowledge",
-    "MESSAGES_TOPIC":"messages"
+    "MESSAGES_TOPIC":"messages",
+    "BADGE_CALCULATIONS_TOPIC": "badge_calculations",
+    "TAGS_TOPIC": "tags"
 }

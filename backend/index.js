@@ -33,8 +33,10 @@ mongoose.connect(mongoDbUrl, options, (err, res) => {
 const kafkaConection = require('./kafka/KafkaConnect')
 const kafkaTopics = require('../util/kafkaTopics.json')
 const UserService = require('./services/UserService')
-const QuestionService = require('./services/QuestionService')
+const PostService = require('./services/PostService')
 const MessageService = require("./services/MessageService")
+const BadgeService = require('./services/BadgeService')
+const TagService = require('./services/TagService')
 
 function handleTopicRequest(topic_name, serviceObject) {
     kafkaConection.getConsumer(topic_name, (consumer) => {
@@ -78,10 +80,22 @@ function handleTopicRequest(topic_name, serviceObject) {
 }
 
 handleTopicRequest(kafkaTopics.USERS_TOPIC, UserService);
-handleTopicRequest(kafkaTopics.POSTS_TOPIC, QuestionService);
+handleTopicRequest(kafkaTopics.POSTS_TOPIC, PostService);
 handleTopicRequest(kafkaTopics.MESSAGES_TOPIC, MessageService);
+handleTopicRequest(kafkaTopics.TAGS_TOPIC, TagService);
 
-sequelize.sync().then((req) => {
+const startBadgeConsumer = () => {
+    const badgeConsumer = kafkaConection.getConsumerForBadges(kafkaTopics.BADGE_CALCULATIONS_TOPIC);
+    badgeConsumer.on('message', function (message) {
+        var data = JSON.parse(message.value);
+        const { payload } = data;
+        console.log("Message received in badges topic with payload: ", payload);
+        BadgeService.checkAndAwardBadges(payload);
+    });
+}
+startBadgeConsumer();
+
+sequelize.sync({ alter: true }).then((req) => {
     app.listen(PORT, (req, res) => {
         console.log("Server running on port - ", PORT);
     });
