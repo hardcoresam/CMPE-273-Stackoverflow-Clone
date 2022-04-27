@@ -8,6 +8,9 @@ exports.handle_request = (payload, callback) => {
         case actions.GET_QUESTIONS_FOR_TAG:
             getQuestionsForTag(payload, callback);
             break;
+        case actions.NEW_TAG:
+            createNewTag(payload,callback)
+            break
     }
 };
 
@@ -44,4 +47,16 @@ const getQuestionsForTag = async (payload, callback) => {
 
     
     return callback(null, null);
+}
+
+
+const createNewTag = async (payload,callback) => {
+    console.log("creatingnew tag ----")
+    const {name,description,admin_id} = payload
+    const existingtag = await Tag.findOne({where:{name}})
+    if(existingtag){
+        return callback(null,{ error: "Tag already exists" })
+    }
+    const newtag = await new Tag({name,description,admin_id}).save()
+    return callback(null,newtag)
 }
