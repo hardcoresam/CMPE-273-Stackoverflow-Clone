@@ -33,7 +33,7 @@ mongoose.connect(mongoDbUrl, options, (err, res) => {
 const kafkaConection = require('./kafka/KafkaConnect')
 const kafkaTopics = require('../util/kafkaTopics.json')
 const UserService = require('./services/UserService')
-const QuestionService = require('./services/QuestionService')
+const PostService = require('./services/PostService')
 const MessageService = require("./services/MessageService")
 
 function handleTopicRequest(topic_name, serviceObject) {
@@ -78,7 +78,7 @@ function handleTopicRequest(topic_name, serviceObject) {
 }
 
 handleTopicRequest(kafkaTopics.USERS_TOPIC, UserService);
-handleTopicRequest(kafkaTopics.POSTS_TOPIC, QuestionService);
+handleTopicRequest(kafkaTopics.POSTS_TOPIC, PostService);
 handleTopicRequest(kafkaTopics.MESSAGES_TOPIC, MessageService);
 
 sequelize.sync().then((req) => {

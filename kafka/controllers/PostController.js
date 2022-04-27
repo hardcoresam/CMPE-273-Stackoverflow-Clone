@@ -1,4 +1,4 @@
-const kafka = require('./../kafka/kafka')
+const kafka = require('../kafka/kafka')
 const actions = require('../../util/kafkaActions.json')
 const kafkaTopics = require('../../util/kafkaTopics.json')
 
