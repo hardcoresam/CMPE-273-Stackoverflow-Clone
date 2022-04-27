@@ -39,7 +39,7 @@ client.on('connect',function(error){
     console.log("Redis connected")
 })
 
-client.connect()
+// client.connect()
 
 const kafkaConection = require('./kafka/KafkaConnect')
 const kafkaTopics = require('../util/kafkaTopics.json')
