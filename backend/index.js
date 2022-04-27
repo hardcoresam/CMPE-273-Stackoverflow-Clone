@@ -9,8 +9,6 @@ const PORT = process.env.PORT || 8585
 
 app.use(express.json())
 
-//app.use(passport.initialize())
-
 const mongoDbUrl = "mongodb+srv://stackoverflow:stackoverflow@cluster0.rukm9.mongodb.net/stackoverflow?retryWrites=true&w=majority";
 const mongoose = require('mongoose');
 
@@ -31,11 +29,11 @@ mongoose.connect(mongoDbUrl, options, (err, res) => {
 
 const redis = require('redis')
 const client = redis.createClient();
- 
+
 client.on("error", (error) => {
- console.error(error);
+    console.error(error);
 });
-client.on('connect',function(error){
+client.on('connect', function (error) {
     console.log("Redis connected")
 })
 
@@ -95,16 +93,7 @@ handleTopicRequest(kafkaTopics.POSTS_TOPIC, PostService);
 handleTopicRequest(kafkaTopics.MESSAGES_TOPIC, MessageService);
 handleTopicRequest(kafkaTopics.TAGS_TOPIC, TagService);
 
-const startBadgeConsumer = () => {
-    const badgeConsumer = kafkaConection.getConsumerForBadges(kafkaTopics.BADGE_CALCULATIONS_TOPIC);
-    badgeConsumer.on('message', function (message) {
-        var data = JSON.parse(message.value);
-        const { payload } = data;
-        console.log("Message received in badges topic with payload: ", payload);
-        BadgeService.checkAndAwardBadges(payload);
-    });
-}
-startBadgeConsumer();
+BadgeService.startBadgeConsumer();
 
 sequelize.sync({ alter: true }).then((req) => {
     app.listen(PORT, (req, res) => {

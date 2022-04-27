@@ -38,10 +38,33 @@ exports.getUserActivityTags = async (userId, shouldLimit) => {
     return userTags;
 }
 
-//TODO - Sai Krishna - Complete this
 const getQuestionsForTag = async (payload, callback) => {
     const tagId = payload.params.tagId;
+    const filterBy = payload.query.filterBy;
+    let whereStatement = {};
+    if (filterBy === 'unanswered') {
+        whereStatement.answers_count = 0;
+    }
+    let orderBy;
+    if (filterBy === 'score' || filterBy === 'unanswered') {
+        orderBy = 'score';
+    } else if (filterBy === 'hot') {
+        orderBy = 'views_count';
+    } else if (filterBy === 'interesting') {
+        orderBy = 'modified_date';
+    }
 
-    
-    return callback(null, null);
+    const tagQuestions = await Tag.findOne({
+        where: { id: tagId }, include: {
+            model: Post,
+            where: whereStatement,
+            include: [{
+                model: User,
+                attributes: ['id', 'username', 'photo', 'reputation']
+            }],
+            required: true
+        },
+        order: [[Post, orderBy, 'DESC']]
+    });
+    return callback(null, tagQuestions);
 }

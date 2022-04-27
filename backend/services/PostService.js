@@ -1,6 +1,7 @@
 const { Post, Bookmark, Comment, User } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
-const actions = require('../../util/kafkaActions.json')
+const PostHistory = require("../models/mongodb/PostHistory");
+const actions = require('../../util/kafkaActions.json');
 
 exports.handle_request = (payload, callback) => {
     const { action } = payload;
@@ -88,6 +89,16 @@ const addComment = async (payload, callback) => {
         post_id: postId,
         user_id: loggedInUserId
     }).save();
+
+    const postHistory = await new PostHistory({
+        post_id: postId,
+        user_id: loggedInUserId,
+        user_display_name: loggedInUser.username,
+        comment: payload.content,
+        type: "COMMENT_ADDED"
+    }).save();
+
+    //TODO - Sai Krishna - Need to call badge calculation logic here
     return callback(null, newComment);
 }
 

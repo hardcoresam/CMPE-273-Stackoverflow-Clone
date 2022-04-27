@@ -38,6 +38,16 @@ exports.checkAndAwardBadges = (payload) => {
     }
 }
 
+exports.startBadgeConsumer = () => {
+    const badgeConsumer = kafkaConection.getConsumerForBadges(kafkaTopics.BADGE_CALCULATIONS_TOPIC);
+    badgeConsumer.on('message', (message) => {
+        var data = JSON.parse(message.value);
+        const { payload } = data;
+        console.log("Message received in badges topic with payload: ", payload);
+        this.checkAndAwardBadges(payload);
+    });
+}
+
 exports.pushIntoBadgeTopic = (payload) => {
     var producer = kafkaConection.getProducer();
     producer.on('ready', () => {
