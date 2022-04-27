@@ -1,4 +1,4 @@
-const { Post } = require("../models/mysql");
+const { Post, Comment, User } = require("../models/mysql");
 const { sequelize } = require("../models/mysql/index");
 const actions = require('../../util/kafkaActions.json')
 
@@ -25,6 +25,9 @@ exports.handle_request = (payload, callback) => {
             break;
         case actions.DOWNVOTE_QUESTION:
             downvoteQuestion(payload, callback);
+            break;
+        case actions.ADD_COMMENT:
+            addComment(payload, callback);
             break;
     }
 };
@@ -157,4 +160,26 @@ const downvoteQuestion = async (payload, cb) => {
     } catch (error) {
         cb(error, null)
     }
+}
+
+const addComment = async (payload, callback) => {
+    const loggedInUserId = payload.USER_ID;
+    const postId = payload.params.postId;
+
+    const loggedInUser = await User.findOne({
+        where: { id: loggedInUserId },
+        attrbutes: ['id', 'username']
+    });
+    const post = await Post.findOne({ where: { id: postId } });
+    if (post === null) {
+        return callback({ error: "Invalid post id specified" }, null);
+    }
+
+    const newComment = await new Comment({
+        content: payload.content,
+        user_display_name: loggedInUser.username,
+        post_id: postId,
+        user_id: loggedInUserId
+    }).save();
+    return callback(null, newComment);
 }

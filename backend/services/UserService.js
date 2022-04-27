@@ -45,7 +45,7 @@ const createUser = async (payload, callback) => {
     }
 
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const newMember = await new Member({
+    const newMember = await new User({
         email: email.toLowerCase(),
         password: hashedPassword,
         username: displayName
@@ -54,6 +54,7 @@ const createUser = async (payload, callback) => {
     return callback(null, newMember);
 }
 
+//TODO - Sai Krishna - Update login time after each login
 const login = async (payload, callback) => {
     const { email, password } = payload;
     const member = await User.findOne({ email: email.toLowerCase() });
