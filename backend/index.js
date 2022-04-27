@@ -34,6 +34,7 @@ const kafkaConection = require('./kafka/KafkaConnect')
 const kafkaTopics = require('../util/kafkaTopics.json')
 const UserService = require('./services/UserService')
 const QuestionService = require('./services/QuestionService')
+const MessageService = require("./services/MessageService")
 
 function handleTopicRequest(topic_name, serviceObject) {
     kafkaConection.getConsumer(topic_name, (consumer) => {
@@ -78,6 +79,7 @@ function handleTopicRequest(topic_name, serviceObject) {
 
 handleTopicRequest(kafkaTopics.USERS_TOPIC, UserService);
 handleTopicRequest(kafkaTopics.POSTS_TOPIC, QuestionService);
+handleTopicRequest(kafkaTopics.MESSAGES_TOPIC, MessageService);
 
 sequelize.sync().then((req) => {
     app.listen(PORT, (req, res) => {

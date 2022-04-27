@@ -1,5 +1,6 @@
 {
     "USERS_TOPIC": "users",
     "POSTS_TOPIC": "posts",
-    "ACKNOWLEDGE_TOPIC": "acknowledge"
+    "ACKNOWLEDGE_TOPIC": "acknowledge",
+    "MESSAGES_TOPIC":"messages"
 }
