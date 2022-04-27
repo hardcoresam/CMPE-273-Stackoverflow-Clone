@@ -3,5 +3,6 @@
     "POSTS_TOPIC": "posts",
     "ACKNOWLEDGE_TOPIC": "acknowledge",
     "MESSAGES_TOPIC":"messages",
-    "BADGE_CALCULATIONS_TOPIC": "badge_calculations"
+    "BADGE_CALCULATIONS_TOPIC": "badge_calculations",
+    "TAGS_TOPIC": "tags"
 }

@@ -9,7 +9,7 @@ exports.getPendingApprovalQuestions = async (req, res) => {
     })
 }
 
-exports.approveQuestion = async (req,res) => {
+exports.approveQuestion = async (req, res) => {
     kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, action: actions.APPROVE_QUESTION }, (err, data) => {
         if (err) return res.status(400).json({ message: err })
         return res.json(data)

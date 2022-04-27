@@ -36,6 +36,7 @@ const UserService = require('./services/UserService')
 const PostService = require('./services/PostService')
 const MessageService = require("./services/MessageService")
 const BadgeService = require('./services/BadgeService')
+const TagService = require('./services/TagService')
 
 function handleTopicRequest(topic_name, serviceObject) {
     kafkaConection.getConsumer(topic_name, (consumer) => {
@@ -81,6 +82,7 @@ function handleTopicRequest(topic_name, serviceObject) {
 handleTopicRequest(kafkaTopics.USERS_TOPIC, UserService);
 handleTopicRequest(kafkaTopics.POSTS_TOPIC, PostService);
 handleTopicRequest(kafkaTopics.MESSAGES_TOPIC, MessageService);
+handleTopicRequest(kafkaTopics.TAGS_TOPIC, TagService);
 
 const startBadgeConsumer = () => {
     const badgeConsumer = kafkaConection.getConsumerForBadges(kafkaTopics.BADGE_CALCULATIONS_TOPIC);

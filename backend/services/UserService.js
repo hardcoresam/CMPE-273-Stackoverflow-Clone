@@ -1,5 +1,6 @@
 const { User, Badge, Post, Bookmark } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
+const TagService = require('./TagService')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const actions = require('../../util/kafkaActions.json')
@@ -121,7 +122,7 @@ const getUserProfile = async (payload, callback) => {
         }
     });
 
-    let userTags = await getUserActivityTags(userId, true);
+    let userTags = await TagService.getUserActivityTags(userId, true);
 
     user.setDataValue('topTags', userTags);
     user.setDataValue('answersCount', answersCount);
@@ -224,33 +225,6 @@ const getUserBadges = async (payload, callback) => {
 
 const getUserTags = async (payload, callback) => {
     const userId = payload.params.userId;
-    let userTags = await getUserActivityTags(userId, false);
+    let userTags = await TagService.getUserActivityTags(userId, false);
     return callback(null, userTags);
-}
-
-const getUserActivityTags = async (userId, shouldLimit) => {
-    let sqlQuery = "select pt.tag_id, t.name, sum(p.score) as score, count(p.id) as no_of_posts from post p " +
-        "inner join post_tag pt on p.id = pt.post_id inner join tag t on t.id = pt.tag_id " +
-        "where p.owner_id = :userId and p.type = 'QUESTION' group by pt.tag_id order by score desc";
-
-    if (shouldLimit) {
-        sqlQuery = sqlQuery + " limit 6";
-    }
-
-    const sqlResults = await sequelize.query(sqlQuery, {
-        replacements: { userId: userId },
-        type: Sequelize.QueryTypes.SELECT
-    });
-
-    let userTags = [];
-    for (const result of sqlResults) {
-        var userTag = {
-            id: result.tag_id,
-            name: result.name,
-            score: result.score,
-            totalPosts: result.no_of_posts
-        }
-        userTags.push(userTag);
-    }
-    return userTags;
 }
