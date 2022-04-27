@@ -5,13 +5,11 @@ const checkAuth = passport.authenticate("jwt", { session: false });
 
 const PostController = require('../controllers/PostController')
 
-router.post('/question/askquestion', checkAuth, PostController.createQuestion)
-router.get('/', checkAuth, PostController.getQuestions)
-router.get('/getquestion/:questionId', checkAuth, PostController.getQuestion)
-router.put('/bookmark/:questionId', checkAuth, PostController.bookmarkQuestion)
-router.put('/unbookmark/:questionId', checkAuth, PostController.unbookmarkQuestion)
-router.put('/upvote/:questionId', checkAuth, PostController.upvoteQuestion)
-router.put('/downvote/:questionId', checkAuth, PostController.downvoteQuestion)
-router.post('/:postId/comment', checkAuth, PostController.addComment)
+router.post('/question', checkAuth, PostController.createQuestion)
+router.get('/', PostController.getQuestions)
+router.get('/:questionId', checkAuth, PostController.getQuestion)
+router.post('/bookmark/:questionId', checkAuth, PostController.bookmarkQuestion)
+router.post('/unbookmark/:questionId', checkAuth, PostController.unbookmarkQuestion)
+router.put('/vote/:postId', checkAuth, PostController.votePost)
 
 module.exports = router

@@ -95,7 +95,7 @@ const startBadgeConsumer = () => {
 }
 startBadgeConsumer();
 
-sequelize.sync().then((req) => {
+sequelize.sync({ alter: true }).then((req) => {
     app.listen(PORT, (req, res) => {
         console.log("Server running on port - ", PORT);
     });

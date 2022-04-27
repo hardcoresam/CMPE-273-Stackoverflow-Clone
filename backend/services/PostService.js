@@ -1,12 +1,12 @@
-const { Post, Comment, User } = require("../models/mysql");
-const { sequelize } = require("../models/mysql/index");
+const { Post, Bookmark, Comment, User } = require("../models/mysql");
+const { sequelize, Sequelize } = require("../models/mysql/index");
 const actions = require('../../util/kafkaActions.json')
 
 exports.handle_request = (payload, callback) => {
     const { action } = payload;
     switch (action) {
         case actions.ASK_QUESTION:
-            askQuestion(payload, callback);
+            createQuestion(payload, callback);
             break;
         case actions.GET_QUESTIONS:
             getQuestions(payload, callback);
@@ -20,11 +20,8 @@ exports.handle_request = (payload, callback) => {
         case actions.UNBOOKMARK_QUESTION:
             unbookmarkQuestion(payload, callback);
             break;
-        case actions.UPVOTE_QUESTION:
-            upvoteQuestion(payload, callback);
-            break;
-        case actions.DOWNVOTE_QUESTION:
-            downvoteQuestion(payload, callback);
+        case actions.VOTE_POST:
+            votePost(payload, callback);
             break;
         case actions.ADD_COMMENT:
             addComment(payload, callback);
@@ -32,134 +29,44 @@ exports.handle_request = (payload, callback) => {
     }
 };
 
-
-const askQuestion = async (payload, cb) => {
-    try {
-        // const {firstName,lastName,email,password,title} = payload        
-        console.log(payload)
-        Post.create(payload).then(data => {
-            cb(null, data)
-        })
-            .catch(err => {
-                cb(err, null)
-            })
-    } catch (error) {
-        cb(error, null)
-    }
+const createQuestion = async (payload, callback) => {
+    let status = (payload.isImage !== undefined) ? "PENDING" : "ACTIVE"
+    const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
+    return callback(null, newQuestion);
 }
 
-const getQuestions = async (payload, cb) => {
-    try {
-        // const {firstName,lastName,email,password,title} = payload
-        const data = await sequelize.query("SELECT * FROM `Posts`")
-        if (data) {
-            console.log("find questions")
-            console.log(data)
-            cb(null, data[0])
-        }
-        else cb(err, null)
-    } catch (error) {
-        cb(error, null)
-    }
+const getQuestions = async (payload, callback) => {
+    const questions = await Post.findAll({
+        where: { type: "QUESTION" }
+    });
+    return callback(null, questions);
 }
 
-const getQuestion = async (payload, cb) => {
-    try {
-        // const {firstName,lastName,email,password,title} = payload
-        const data = await Post.findOne({ where: { id: payload.questionId } });
-        if (data) {
-            console.log("find questions")
-            console.log(data.dataValues)
-            cb(null, data.dataValues)
-        }
-        else cb(err, null)
-    } catch (error) {
-        cb(error, null)
-    }
+const getQuestion = async (payload, callback) => {
+    const data = await Post.findOne({ where: { id: payload.params.questionId } });
+    let count = data.views_count + 1;
+    let sqlQuery = "update post set views_count = :count where id = :questionId"
+    await sequelize.query(sqlQuery, {
+        replacements: { count: count, questionId: payload.params.questionId },
+        type: Sequelize.QueryTypes.UPDATE
+    });
+    callback(null, data);
 }
 
-const bookmarkQuestion = async (payload, cb) => {
-    try {
-        // const {firstName,lastName,email,password,title} = payload
-        // const data = await Post.findOne({ where: { id: payload.questionId } });
-        const data = await Post.update({ Bookmark_Status: true }, {
-            where: {
-                id: payload.questionId
-            }
-        });
-        if (data) {
-            console.log("find questions")
-            console.log(data)
-            cb(null, data)
-        }
-        else cb(err, null)
-    } catch (error) {
-        cb(error, null)
-    }
+const bookmarkQuestion = async (payload, callback) => {
+    let bookmark = { post_id: payload.params.questionId, user_id: payload.USER_ID }
+    const data = await new Bookmark(bookmark).save();
+    callback(null, data)
 }
 
-const unbookmarkQuestion = async (payload, cb) => {
-    try {
-        // const {firstName,lastName,email,password,title} = payload
-        // const data = await Post.findOne({ where: { id: payload.questionId } });
-        const data = await Post.update({ Bookmark_Status: false }, {
-            where: {
-                id: payload.questionId
-            }
-        });
-        if (data) {
-            console.log("find questions")
-            console.log(data)
-            cb(null, data)
-        }
-        else cb(err, null)
-    } catch (error) {
-        cb(error, null)
-    }
-}
-
-const upvoteQuestion = async (payload, cb) => {
-    try {
-        // const {firstName,lastName,email,password,title} = payload
-        // const data = await Post.findOne({ where: { id: payload.questionId } });
-        const questiondata = await Post.findOne({ where: { id: payload.questionId } });
-
-        const data = await Post.update({ Upvotes_Count: questiondata.dataValues.Upvotes_Count + 1 }, {
-            where: {
-                id: payload.questionId
-            }
-        });
-        if (data) {
-            console.log("find questions")
-            console.log(data)
-            cb(null, data)
-        }
-        else cb(err, null)
-    } catch (error) {
-        cb(error, null)
-    }
-}
-
-const downvoteQuestion = async (payload, cb) => {
-    try {
-        // const {firstName,lastName,email,password,title} = payload
-        // const data = await Post.findOne({ where: { id: payload.questionId } });
-        const questiondata = await Post.findOne({ where: { id: payload.questionId } });
-
-        const data = await Post.update({ Upvotes_Count: questiondata.dataValues.Upvotes_Count - 1 }, {
-            where: {
-                id: payload.questionId
-            }
-        });
-        if (data) {
-            console.log("find questions")
-            console.log(data)
-            cb(null, data)
-        }
-        else cb(err, null)
-    } catch (error) {
-        cb(error, null)
-    }
+const unbookmarkQuestion = async (payload, callback) => {
+    let sqlQuery = "delete from bookmark where post_id = :questionId and user_id = :userId"
+    const data = await sequelize.query(sqlQuery, {
+        replacements: { questionId: payload.params.questionId, userId: payload.USER_ID },
+        type: Sequelize.QueryTypes.DELETE
+    });
+    console.log(data);
+    callback(null, "deleted bookmark successfully");
 }
 
 const addComment = async (payload, callback) => {
@@ -183,3 +90,17 @@ const addComment = async (payload, callback) => {
     }).save();
     return callback(null, newComment);
 }
+
+// const votePost = async (payload, callback) => {
+//     // const data = await Post.update({ score: payload.score }, {
+//     //     where: {
+//     //         id: payload.params.postId
+//     //     }
+//     // });
+//     let sqlQuery = "update post set score = :score where id = :postId"
+//     const data = await sequelize.query(sqlQuery, {
+//         replacements: { score: score, postId: payload.params.postId },
+//         type: Sequelize.QueryTypes.UPDATE
+//     });
+//     callback(null, data)
+// }
