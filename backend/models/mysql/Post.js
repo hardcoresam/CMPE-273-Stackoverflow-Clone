@@ -82,22 +82,16 @@ module.exports = (sequelize, DataTypes) => {
             }
         }),
         Post.belongsTo(models.Post, {
-            foreignKey: {
-                name: "parent_id",
-                as: "question"
-            }
+            foreignKey: "parent_id",
+            as: "question"
         }),
         Post.hasMany(models.Post, {
-            foreignKey: {
-                name: "parent_id",
-                as: "answers"
-            }
+            foreignKey: "parent_id",
+            as: "answers"
         }),
         Post.belongsTo(models.Post, {
-            foreignKey: {
-                name: "accepted_answer_id",
-                as: "accepted_answer"
-            }
+            foreignKey: "accepted_answer_id",
+            as: "accepted_answer"
         }),
         Post.belongsToMany(models.Tag, {
             through: models.PostTag, 
