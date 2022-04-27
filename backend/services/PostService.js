@@ -1,6 +1,7 @@
 const { Post, Bookmark, Comment, User } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
-const actions = require('../../util/kafkaActions.json')
+const PostHistory = require("../models/mongodb/PostHistory");
+const actions = require('../../util/kafkaActions.json');
 
 exports.handle_request = (payload, callback) => {
     const { action } = payload;
@@ -26,6 +27,9 @@ exports.handle_request = (payload, callback) => {
         case actions.ADD_COMMENT:
             addComment(payload, callback);
             break;
+        case actions.POST_ACTIVITY:
+            postActivity(payload,callback)
+            break
     }
 };
 
@@ -107,14 +111,30 @@ const addComment = async (payload, callback) => {
         post_id: postId,
         user_id: loggedInUserId
     }).save();
+
+    const postHistory = await new PostHistory({
+        post_id: postId,
+        user_id: loggedInUserId,
+        user_display_name: loggedInUser.username,
+        comment: payload.content,
+        type: "COMMENT_ADDED"
+    }).save();
+
+    //TODO - Sai Krishna - Need to call badge calculation logic here
     return callback(null, newComment);
 }
 
 const votePost = async (payload, callback) => {
     let sqlQuery = "update post set score = :score where id = :postId"
     const data = await sequelize.query(sqlQuery, {
-        replacements: { score: payload.score, postId: payload.params.postId },
+        replacements: { score: score, postId: payload.params.postId },
         type: Sequelize.QueryTypes.UPDATE
     });
     callback(null, data)
+}
+
+const postActivity = async (payload,callback) => {
+    const postId = payload.params.postId
+    const postHistory = await PostHistory.find({post_id:postId}).exec() 
+    return callback(null,postHistory)
 }

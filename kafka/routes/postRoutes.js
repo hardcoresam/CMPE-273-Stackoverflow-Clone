@@ -12,4 +12,6 @@ router.post('/bookmark/:questionId', checkAuth, PostController.bookmarkQuestion)
 router.post('/unbookmark/:questionId', checkAuth, PostController.unbookmarkQuestion)
 router.put('/vote/:postId', checkAuth, PostController.votePost)
 
+router.post('/activities/:postId', checkAuth, PostController.postActivity)
+
 module.exports = router

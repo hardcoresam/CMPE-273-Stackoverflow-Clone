@@ -8,6 +8,9 @@ exports.handle_request = (payload, callback) => {
         case actions.GET_QUESTIONS_FOR_TAG:
             getQuestionsForTag(payload, callback);
             break;
+        case actions.NEW_TAG:
+            createNewTag(payload, callback)
+            break
     }
 };
 
@@ -38,10 +41,43 @@ exports.getUserActivityTags = async (userId, shouldLimit) => {
     return userTags;
 }
 
-//TODO - Sai Krishna - Complete this
 const getQuestionsForTag = async (payload, callback) => {
     const tagId = payload.params.tagId;
+    const filterBy = payload.query.filterBy;
+    let whereStatement = {};
+    if (filterBy === 'unanswered') {
+        whereStatement.answers_count = 0;
+    }
+    let orderBy;
+    if (filterBy === 'score' || filterBy === 'unanswered') {
+        orderBy = 'score';
+    } else if (filterBy === 'hot') {
+        orderBy = 'views_count';
+    } else if (filterBy === 'interesting') {
+        orderBy = 'modified_date';
+    }
 
-    
-    return callback(null, null);
+    const tagQuestions = await Tag.findOne({
+        where: { id: tagId }, include: {
+            model: Post,
+            where: whereStatement,
+            include: [{
+                model: User,
+                attributes: ['id', 'username', 'photo', 'reputation']
+            }],
+            required: true
+        },
+        order: [[Post, orderBy, 'DESC']]
+    });
+    return callback(null, tagQuestions);
+}
+
+const createNewTag = async (payload, callback) => {
+    const { name, description, admin_id } = payload
+    const existingtag = await Tag.findOne({ where: { name } })
+    if (existingtag) {
+        return callback({ errors: { name: { msg: `Tag ${name} already exists` } } }, null);
+    }
+    const newtag = await new Tag({ name, description, admin_id }).save()
+    return callback(null, newtag)
 }

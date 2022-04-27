@@ -43,7 +43,7 @@ const User = () => {
     <div>
       <Row>
         <Col sm={2}>
-          <SideMenu />
+          
         </Col>
         <Col sm={8}>
           <Row style={{ marginTop: "28px", marginLeft: "-30px" }}>
