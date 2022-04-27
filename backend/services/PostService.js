@@ -27,6 +27,9 @@ exports.handle_request = (payload, callback) => {
         case actions.ADD_COMMENT:
             addComment(payload, callback);
             break;
+        case actions.POST_ACTIVITY:
+            postActivity(payload,callback)
+            break
     }
 };
 
@@ -115,3 +118,9 @@ const addComment = async (payload, callback) => {
 //     });
 //     callback(null, data)
 // }
+
+const postActivity = async (payload,callback) => {
+    const postId = payload.params.postId
+    const postHistory = await PostHistory.find({post_id:postId}).exec() 
+    return callback(null,postHistory)
+}

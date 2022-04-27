@@ -73,7 +73,6 @@ const getQuestionsForTag = async (payload, callback) => {
 }
 
 const createNewTag = async (payload, callback) => {
-    console.log("creatingnew tag ----")
     const { name, description, admin_id } = payload
     const existingtag = await Tag.findOne({ where: { name } })
     if (existingtag) {
