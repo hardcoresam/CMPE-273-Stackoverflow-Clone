@@ -11,6 +11,9 @@ exports.handle_request = (payload, callback) => {
         case actions.NEW_TAG:
             createNewTag(payload, callback)
             break
+        case actions.FILTER_TAG_NAME:
+            filterByTagName(payload,callback)
+            break
     }
 };
 
@@ -80,4 +83,14 @@ const createNewTag = async (payload, callback) => {
     }
     const newtag = await new Tag({ name, description, admin_id }).save()
     return callback(null, newtag)
+}
+
+const filterByTagName = async (payload,callback) => {
+    const name = payload.params.tagname
+    const tags = await Tag.findAll()
+    if(tags){
+        const filteredtags = tags.filter(tag => tag.name.includes(name) == true)
+        return callback(null,filteredtags)
+    }
+    return callback(null,[])
 }
