@@ -9,6 +9,9 @@ exports.handle_request = (payload, callback) => {
         case actions.ASK_QUESTION:
             createQuestion(payload, callback);
             break;
+        case actions.WRITE_ANSWER:
+            createAnswer(payload, callback);
+            break;            
         case actions.GET_QUESTIONS:
             getQuestions(payload, callback);
             break;
@@ -39,6 +42,16 @@ const createQuestion = async (payload, callback) => {
     return callback(null, newQuestion);
 }
 
+const createAnswer = async (payload, callback) => {
+    const newAnswer = await new Post({ ...payload, owner_id: payload.USER_ID }).save();
+    let sqlQuery = "update post set answers_count = :answerCount where id = :questionId"
+    await sequelize.query(sqlQuery, {
+        replacements: { answerCount: payload.answers_count + 1, questionId: payload.question_id },
+        type: Sequelize.QueryTypes.UPDATE
+    });
+    return callback(null, newAnswer);
+}
+
 const getQuestions = async (payload, callback) => {
     const questions = await Post.findAll({
         where: { type: "QUESTION" }
@@ -58,6 +71,8 @@ const getQuestion = async (payload, callback) => {
         replacements: { questionId: payload.params.questionId },
         type: Sequelize.QueryTypes.SELECT
     });
+
+    data = data[0]
 
     let isBookmark = await Bookmark.findOne({
         where: { user_id: data.owner_id, post_id: payload.params.questionId }
@@ -127,7 +142,7 @@ const addComment = async (payload, callback) => {
 const votePost = async (payload, callback) => {
     let sqlQuery = "update post set score = :score where id = :postId"
     const data = await sequelize.query(sqlQuery, {
-        replacements: { score: score, postId: payload.params.postId },
+        replacements: { score: payload.score, postId: payload.params.postId },
         type: Sequelize.QueryTypes.UPDATE
     });
     callback(null, data)
