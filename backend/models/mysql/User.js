@@ -8,7 +8,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         email: {
             type: DataTypes.STRING,
-            primaryKey: true,
             allowNull: false
         },
         username: {
@@ -80,18 +79,18 @@ module.exports = (sequelize, DataTypes) => {
                 name: "user_id"
             }
         }),
-        User.hasMany(models.Post, {
-            foreignKey: {
-                allowNull: false,
-                name: "owner_id"
-            }
-        }),
-        User.hasMany(models.Bookmark, {
-            foreignKey: {
-                allowNull: false,
-                name: "user_id"
-            }
-        });
+            User.hasMany(models.Post, {
+                foreignKey: {
+                    allowNull: false,
+                    name: "owner_id"
+                }
+            }),
+            User.hasMany(models.Bookmark, {
+                foreignKey: {
+                    allowNull: false,
+                    name: "user_id"
+                }
+            });
     };
 
     return User;

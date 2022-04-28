@@ -40,21 +40,6 @@ const createQuestion = async (payload, callback) => {
     return callback(null, newQuestion);
 }
 
-// const createQuestion = async (payload, callback) => {
-//     let status = (payload.isImage !== undefined) ? "PENDING" : "ACTIVE"
-    
-//     elastClient.index({
-//         index:'posts',
-//         body:{ ...payload, owner_id: payload.USER_ID, status: status }
-//     }).then(async resp=> {
-//         const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
-//         return callback(null, newQuestion);
-//     }).catch(err=>{
-//         return callback({ errors: { name: { msg: 'Error creating new Post' } } },null)
-//     })
-    
-// }
-
 const getQuestions = async (payload, callback) => {
     const questions = await Post.findAll({
         where: { type: "QUESTION" }
@@ -63,14 +48,33 @@ const getQuestions = async (payload, callback) => {
 }
 
 const getQuestion = async (payload, callback) => {
-    const data = await Post.findOne({ where: { id: payload.params.questionId } });
+
+    let questionQuery = "select p.id, p.type, p.status, p.title, p.body," +
+        "p.tags, p.score, p.views_count, p.answers_count, accepted_answer_id as answerAccepted," +
+        "u.photo, u.id as owner_id " +
+        "from post as p inner join user as u " +
+        "on p.owner_id = u.id where p.id = :questionId"
+
+    let data = await sequelize.query(questionQuery, {
+        replacements: { questionId: payload.params.questionId },
+        type: Sequelize.QueryTypes.SELECT
+    });
+
+    let isBookmark = await Bookmark.findOne({
+        where: { user_id: data.owner_id, post_id: payload.params.questionId }
+    })
+
+    if (isBookmark == null) isBookmark = false
+    else isBookmark = true
+
     let count = data.views_count + 1;
     let sqlQuery = "update post set views_count = :count where id = :questionId"
     await sequelize.query(sqlQuery, {
         replacements: { count: count, questionId: payload.params.questionId },
         type: Sequelize.QueryTypes.UPDATE
     });
-    callback(null, data);
+    
+    callback(null, { ...data, bookmarked: isBookmark });
 }
 
 const bookmarkQuestion = async (payload, callback) => {
@@ -121,19 +125,14 @@ const addComment = async (payload, callback) => {
     return callback(null, newComment);
 }
 
-// const votePost = async (payload, callback) => {
-//     // const data = await Post.update({ score: payload.score }, {
-//     //     where: {
-//     //         id: payload.params.postId
-//     //     }
-//     // });
-//     let sqlQuery = "update post set score = :score where id = :postId"
-//     const data = await sequelize.query(sqlQuery, {
-//         replacements: { score: score, postId: payload.params.postId },
-//         type: Sequelize.QueryTypes.UPDATE
-//     });
-//     callback(null, data)
-// }
+const votePost = async (payload, callback) => {
+    let sqlQuery = "update post set score = :score where id = :postId"
+    const data = await sequelize.query(sqlQuery, {
+        replacements: { score: score, postId: payload.params.postId },
+        type: Sequelize.QueryTypes.UPDATE
+    });
+    callback(null, data)
+}
 
 const postActivity = async (payload,callback) => {
     const postId = payload.params.postId
