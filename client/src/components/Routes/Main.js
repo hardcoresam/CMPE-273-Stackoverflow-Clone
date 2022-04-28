@@ -3,7 +3,9 @@ import { Routes, Route } from "react-router"
 import Home from '../Dashboard/Home/Home'
 import AskQuestion from '../Dashboard/Questions/AskQuestion'
 import QuestionOverview from '../Dashboard/Questions/QuestionOverview'
+import Login from '../Login/Login'
 import NavBar from '../NavBar'
+import Register from '../Register/Register'
 import User from '../User/User'
 const Main = () => {
     return (
