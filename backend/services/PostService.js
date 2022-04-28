@@ -2,6 +2,7 @@ const { Post, Bookmark, Comment, User } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
 const PostHistory = require("../models/mongodb/PostHistory");
 const actions = require('../../util/kafkaActions.json');
+const elastClient = require('./../config/ElasticClient')
 
 exports.handle_request = (payload, callback) => {
     const { action } = payload;

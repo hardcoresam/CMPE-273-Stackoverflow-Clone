@@ -12,6 +12,7 @@
   "dependencies": {
     "bcrypt": "^5.0.1",
     "dotenv": "^16.0.0",
+    "elasticsearch": "^16.7.3",
     "express": "^4.17.3",
     "fs": "^0.0.1-security",
     "jsonwebtoken": "^8.5.1",
