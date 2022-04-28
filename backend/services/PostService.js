@@ -2,6 +2,7 @@ const { Post, Bookmark, Comment, User } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
 const PostHistory = require("../models/mongodb/PostHistory");
 const actions = require('../../util/kafkaActions.json');
+const elastClient = require('./../config/ElasticClient')
 
 exports.handle_request = (payload, callback) => {
     const { action } = payload;
@@ -38,6 +39,21 @@ const createQuestion = async (payload, callback) => {
     const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
     return callback(null, newQuestion);
 }
+
+// const createQuestion = async (payload, callback) => {
+//     let status = (payload.isImage !== undefined) ? "PENDING" : "ACTIVE"
+    
+//     elastClient.index({
+//         index:'posts',
+//         body:{ ...payload, owner_id: payload.USER_ID, status: status }
+//     }).then(async resp=> {
+//         const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
+//         return callback(null, newQuestion);
+//     }).catch(err=>{
+//         return callback({ errors: { name: { msg: 'Error creating new Post' } } },null)
+//     })
+    
+// }
 
 const getQuestions = async (payload, callback) => {
     const questions = await Post.findAll({
