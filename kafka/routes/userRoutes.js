@@ -12,6 +12,8 @@ router.get('/:userId/activity/questions', UserController.getUserQuestions)
 router.get('/:userId/activity/bookmarks', UserController.getUserBookmarks)
 router.get('/:userId/activity/badges', UserController.getUserBadges)
 router.get('/:userId/activity/tags', UserController.getUserTags)
+router.get('/:username',UserController.getUser)
+
 
 
 module.exports = router

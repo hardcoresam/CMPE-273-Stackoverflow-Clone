@@ -27,18 +27,6 @@ mongoose.connect(mongoDbUrl, options, (err, res) => {
     }
 });
 
-const redis = require('redis')
-const client = redis.createClient();
-
-client.on("error", (error) => {
-    console.error(error);
-});
-client.on('connect', function (error) {
-    console.log("Redis connected")
-})
-
-// client.connect()
-
 const kafkaConection = require('./kafka/KafkaConnect')
 const kafkaTopics = require('../util/kafkaTopics.json')
 const UserService = require('./services/UserService')

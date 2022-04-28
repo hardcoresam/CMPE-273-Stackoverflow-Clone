@@ -70,3 +70,10 @@ exports.getUserTags = async (req, res) => {
         return res.json(data)
     })
 }
+
+exports.getUser = async (req,res) => {
+    kafka.sendKafkaRequest(kafkaTopics.USERS_TOPIC, { ...req.body, params: req.params, action: actions.GET_USER }, (err, data) => {
+        if (err) return res.status(400).json({ message: err })
+        return res.json(data)
+    })
+}
