@@ -8,3 +8,10 @@ exports.getQuestionsForTag = async (req, res) => {
         return res.json(data)
     })
 }
+
+exports.filterByTagName = async (req,res) => {
+    kafka.sendKafkaRequest(kafkaTopics.TAGS_TOPIC, { ...req.body, params: req.params, query: req.query, action: actions.FILTER_TAG_NAME }, (err, data) => {
+        if (err) return res.status(400).json({ message: err })
+        return res.json(data)
+    })
+}

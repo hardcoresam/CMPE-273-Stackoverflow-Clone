@@ -3,7 +3,9 @@ const { sequelize, Sequelize } = require("../models/mysql/index");
 const TagService = require('./TagService')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const actions = require('../../util/kafkaActions.json')
+const actions = require('../../util/kafkaActions.json');
+const {cacheGet,cacheAdd} = require('./../config/RedisClient')
+
 
 exports.handle_request = (payload, callback) => {
     const { action } = payload;
@@ -35,6 +37,9 @@ exports.handle_request = (payload, callback) => {
         case actions.GET_USER_TAGS:
             getUserTags(payload, callback);
             break;
+        case actions.GET_USER:
+            getUser(payload,callback)
+            break
     }
 };
 
@@ -227,4 +232,20 @@ const getUserTags = async (payload, callback) => {
     const userId = payload.params.userId;
     let userTags = await TagService.getUserActivityTags(userId, false);
     return callback(null, userTags);
+}
+
+const getUser = async (payload,callback) => {
+    const userName = payload.params.username
+    cacheGet(userName, async (err,res)=>{
+        if(err){
+            const user = await User.findOne({where:{username:userName}})
+            if(user){
+                cacheAdd(userName,user.dataValues)
+                return callback(null,user.dataValues)
+            }
+            return callback(null,{})
+        }
+        console.log(res)
+        return callback(null,res)
+    })
 }

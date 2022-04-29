@@ -8,11 +8,20 @@ import { useNavigate } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import SideMenu from './Dashboard/DashboardCards/SideMenu'
 import logo from './images/stackoverflowlogo.PNG'
+import Login from './Login/Login'
+import Register from './Register/Register'
 const NavBar = () => {
     const location = useLocation()
     const [Flag, setFlag] = useState(false);
-    
-
+    const navigate = useNavigate();
+    const [modalShow,setModalShow] = useState(false);
+    const [registermodal,setregistermodal] = useState(false);
+    const login =()=>{
+        setModalShow(true);
+    }
+    const register =()=>{
+        setregistermodal(true)
+    }
     return (
         <div>
             <Navbar collapseOnSelect expand="lg" bg="light" variant="light" sticky="top">
@@ -32,8 +41,8 @@ const NavBar = () => {
                             </Form>
                         </Col>
                         <Col sm={2}>
-                            <Button variant="outline-primary">Log in</Button>
-                            <Button variant="outline-primary">Sign up</Button>
+                            <Button variant="outline-primary" onClick={login}>Log in</Button>
+                            <Button variant="outline-primary" onClick={register}>Sign up</Button>
                         </Col>
                     </Navbar.Collapse>
                 </Container>
@@ -41,6 +50,18 @@ const NavBar = () => {
             </Navbar>
             <SideMenu />
             <Outlet />
+
+            <Login
+        show={modalShow}
+        setModalShow = {setModalShow}
+        onHide={() => setModalShow(false)}
+      />
+
+      <Register
+        show={registermodal}
+        setModalShow = {setregistermodal}
+        onHide={() => setregistermodal(false)}
+      />
         </div>
     )
 }
