@@ -12,9 +12,9 @@ exports.handle_request = (payload, callback) => {
             break;
         case actions.WRITE_ANSWER:
             createAnswer(payload, callback);
-            break;            
-        case actions.GET_QUESTIONS:
-            getQuestions(payload, callback);
+            break;
+        case actions.GET_QUESTIONS_FOR_DASHBOARD:
+            getQuestionsForDashboard(payload, callback);
             break;
         case actions.GET_QUESTION:
             getQuestion(payload, callback);
@@ -32,7 +32,7 @@ exports.handle_request = (payload, callback) => {
             addComment(payload, callback);
             break;
         case actions.POST_ACTIVITY:
-            postActivity(payload,callback)
+            postActivity(payload, callback)
             break
     }
 };
@@ -74,14 +74,33 @@ const createAnswer = async (payload, callback) => {
     return callback(null, newAnswer);
 }
 
-const getQuestions = async (payload, callback) => {
-    const questions = await Post.findAll({
-        where: { type: "QUESTION" }, include: {
+const getQuestionsForDashboard = async (payload, callback) => {
+    const filterBy = payload.query.filterBy;
+    let whereStatement = {
+        type: "QUESTION"
+    };
+    if (filterBy === 'unanswered') {
+        whereStatement.answers_count = 0;
+    }
+    let orderBy;
+    if (filterBy === 'score' || filterBy === 'unanswered') {
+        orderBy = 'score';
+    } else if (filterBy === 'hot') {
+        orderBy = 'views_count';
+    } else if (filterBy === 'interesting') {
+        orderBy = 'modified_date';
+    }
+
+    const guestionsForDashboard = await Post.findAll({
+        where: whereStatement,
+        include: {
             model: User,
-            attributes: ['id', 'username', 'photo', 'reputation']
-        }
+            attributes: ['id', 'username', 'photo', 'reputation'],
+            required: true
+        },
+        order: [[orderBy, 'DESC']]
     });
-    return callback(null, questions);
+    return callback(null, guestionsForDashboard);
 }
 
 const getQuestion = async (payload, callback) => {
@@ -119,7 +138,7 @@ const getQuestion = async (payload, callback) => {
         replacements: { count: count, questionId: payload.params.questionId },
         type: Sequelize.QueryTypes.UPDATE
     });
-    
+
     callback(null, { ...data, bookmarked: isBookmark });
 }
 
@@ -180,8 +199,8 @@ const votePost = async (payload, callback) => {
     callback(null, data)
 }
 
-const postActivity = async (payload,callback) => {
+const postActivity = async (payload, callback) => {
     const postId = payload.params.postId
-    const postHistory = await PostHistory.find({post_id:postId}).exec() 
-    return callback(null,postHistory)
+    const postHistory = await PostHistory.find({ post_id: postId }).exec()
+    return callback(null, postHistory)
 }

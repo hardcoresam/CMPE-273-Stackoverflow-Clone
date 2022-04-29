@@ -7,7 +7,7 @@ const PostController = require('../controllers/PostController')
 
 router.post('/question', checkAuth, PostController.createQuestion)
 router.post('/answer', checkAuth, PostController.createAnswer)
-router.get('/', PostController.getQuestions)
+router.get('/dashboard', PostController.getQuestionsForDashboard)
 router.get('/:questionId', checkAuth, PostController.getQuestion)
 router.post('/bookmark/:questionId', checkAuth, PostController.bookmarkQuestion)
 router.post('/unbookmark/:questionId', checkAuth, PostController.unbookmarkQuestion)

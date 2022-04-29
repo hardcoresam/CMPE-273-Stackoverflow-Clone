@@ -18,9 +18,8 @@ exports.createAnswer = async (req, res) => {
     })
 }
 
-exports.getQuestions = async (req, res) => {
-    console.log("get questions")
-    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, action: actions.GET_QUESTIONS }, (err, data) => {
+exports.getQuestionsForDashboard = async (req, res) => {
+    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, query: req.query, action: actions.GET_QUESTIONS_FOR_DASHBOARD }, (err, data) => {
         if (err) return res.status(400).json({ message: err })
         return res.json(data)
     })
@@ -42,18 +41,18 @@ exports.bookmarkQuestion = async (req, res) => {
     })
 }
 
-exports.unbookmarkQuestion = async (req,res) => {
+exports.unbookmarkQuestion = async (req, res) => {
     console.log("un bookmark question")
-    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC,{...req.body, params: req.params, action:actions.UNBOOKMARK_QUESTION},(err,data) => {
-        if(err) return res.status(400).json({message:err})
+    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, params: req.params, action: actions.UNBOOKMARK_QUESTION }, (err, data) => {
+        if (err) return res.status(400).json({ message: err })
         return res.json(data)
     })
 }
 
-exports.votePost = async (req,res) => {
+exports.votePost = async (req, res) => {
     console.log("up question")
-    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC,{...req.body, params: req.params, action:actions.VOTE_POST},(err,data) => {
-        if(err) return res.status(400).json({message:err})
+    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, params: req.params, action: actions.VOTE_POST }, (err, data) => {
+        if (err) return res.status(400).json({ message: err })
         return res.json(data)
     })
 }
@@ -65,7 +64,7 @@ exports.addComment = async (req, res) => {
     })
 }
 
-exports.postActivity = async (req,res) => {
+exports.postActivity = async (req, res) => {
     kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, params: req.params, action: actions.POST_ACTIVITY }, (err, data) => {
         if (err) return res.status(400).json({ message: err })
         return res.json(data)
