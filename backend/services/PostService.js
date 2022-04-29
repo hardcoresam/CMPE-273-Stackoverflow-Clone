@@ -1,9 +1,8 @@
-const { Post, Bookmark, Comment, User } = require("../models/mysql");
+const { Post, Bookmark, Comment, User, Tag, PostTag } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
 const PostHistory = require("../models/mongodb/PostHistory");
 const actions = require('../../util/kafkaActions.json');
 const elastClient = require('./../config/ElasticClient');
-const PostTag = require("../models/MySql/PostTag");
 
 exports.handle_request = (payload, callback) => {
     const { action } = payload;
@@ -40,12 +39,25 @@ exports.handle_request = (payload, callback) => {
 
 const createQuestion = async (payload, callback) => {
 
-    //create record in post
-    //in PostTag
     //post activiy
+
+    let tags = payload.tags
+    var tagArr = tags.split(',');
 
     let status = (payload.isImage !== undefined) ? "PENDING" : "ACTIVE"
     const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
+    
+    for(let i = 0; i < tagArr.length; i++) {
+        let data = await Tag.findOne({where: {name: tagArr[i]}});
+        await new PostTag({
+            post_id: newQuestion.id,
+            tag_id: data.id,
+            created_date: Date.now()
+        }).save()
+    }
+    
+
+
     return callback(null, newQuestion);
 }
 
