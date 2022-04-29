@@ -13,7 +13,7 @@ exports.handle_request = (payload, callback) => {
             break;
         case actions.WRITE_ANSWER:
             createAnswer(payload, callback);
-            break;            
+            break;
         case actions.GET_QUESTIONS:
             getQuestions(payload, callback);
             break;
@@ -33,24 +33,24 @@ exports.handle_request = (payload, callback) => {
             addComment(payload, callback);
             break;
         case actions.POST_ACTIVITY:
-            postActivity(payload,callback)
+            postActivity(payload, callback)
             break
         case actions.ACCEPT_ANSWER:
-            acceptAnswer(payload,callback)
+            acceptAnswer(payload, callback)
             break
     }
 };
 
 const createQuestion = async (payload, callback) => {
-    
+
     let tags = payload.tags
     var tagArr = tags.split(',');
 
     let status = (payload.isImage !== undefined) ? "PENDING" : "ACTIVE"
     const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
-    
-    for(let i = 0; i < tagArr.length; i++) {
-        let data = await Tag.findOne({where: {name: tagArr[i]}});
+
+    for (let i = 0; i < tagArr.length; i++) {
+        let data = await Tag.findOne({ where: { name: tagArr[i] } });
         await new PostTag({
             post_id: newQuestion.id,
             tag_id: data.id,
@@ -68,7 +68,7 @@ const createQuestion = async (payload, callback) => {
         comment: payload.title,
         type: "QUESTION_ASKED"
     }).save();
-    
+
 
     return callback(null, newQuestion);
 }
@@ -119,24 +119,24 @@ const getQuestion = async (payload, callback) => {
     //comments for answers
     //increase the view count
     let vote = await Vote.findOne({
-        where: {post_id: payload.params.questionId, user_id: payload.USER_ID}
+        where: { post_id: payload.params.questionId, user_id: payload.USER_ID }
     })
     let isUpVote = false
     let isDownVote = false
     console.log(vote)
-    if(vote === null) {}
-    else if(vote.type === "UPVOTE") isUpVote = true
-    else if(vote.type === "DOWNVOTE") isDownVote = true
+    if (vote === null) { }
+    else if (vote.type === "UPVOTE") isUpVote = true
+    else if (vote.type === "DOWNVOTE") isDownVote = true
 
     let getQuestionComments = await Comment.findAll({
-        where: {post_id: payload.params.questionId}
+        where: { post_id: payload.params.questionId }
     })
     console.log(getQuestionComments)
     let data = await Post.findOne(
         {
-            where: {id: payload.params.questionId}, include: {
+            where: { id: payload.params.questionId }, include: {
                 model: User,
-                attrbutes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count' ]
+                attrbutes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
             }
         }
     )
@@ -155,7 +155,7 @@ const getQuestion = async (payload, callback) => {
         replacements: { count: count, questionId: payload.params.questionId },
         type: Sequelize.QueryTypes.UPDATE
     });
-    
+
     callback(null, { ...data, bookmarked: isBookmark, isUpVote: isUpVote, isDownVote: isDownVote });
 }
 
@@ -216,43 +216,48 @@ const votePost = async (payload, callback) => {
     callback(null, data)
 }
 
-const postActivity = async (payload,callback) => {
+const postActivity = async (payload, callback) => {
     const postId = payload.params.postId
-    const postHistory = await PostHistory.find({post_id:postId}).exec() 
-    return callback(null,postHistory)
+    const postHistory = await PostHistory.find({ post_id: postId }).exec()
+    return callback(null, postHistory)
 }
 
-const acceptAnswer = async (payload,callback) => {
-    const {answerId} = payload
-    const answer = await Post.findOne({where : 
+const acceptAnswer = async (payload, callback) => {
+    const { answerId } = payload
+    const answer = await Post.findOne({
+        where:
         {
-            id:answerId
-        }})
-    if(answer){
+            id: answerId
+        }
+    })
 
+    if (answer) {
         try {
+            //Check for previous accepted answers and decrement repuation score -15
+            const question = await Post.findOne({ where: { id: answer.parent_id } })
+            if (question.accepted_answer_id) {
+                const previous_accepted_answer = await Post.findOne({ where: { id: question.accepted_answer_id } })
+                const previous_user = await User.findOne({ where: { id: previous_accepted_answer.owner_id } })
+                const decrementReputaionQuery = 'update user set reputation = :oldReputation where id = :userId'
+                var new_rep = previous_user.reputation - 15
+                if (previous_user.reputation < 15) {
+                    new_rep = 0
+                }
+                const data = await sequelize.query(decrementReputaionQuery, {
+                    replacements: { oldReputation: new_rep, userId: previous_user.id },
+                    type: Sequelize.QueryTypes.UPDATE
+                });
+            }
+
+            //update accepeted answer id
             let sqlQuery = "update post set accepted_answer_id = :answerId where id = :questionId"
             const data = await sequelize.query(sqlQuery, {
                 replacements: { answerId: answerId, questionId: answer.parent_id },
                 type: Sequelize.QueryTypes.UPDATE
             });
 
-
-            //Check for previous accepted answers and decrement repuation score -15
-            const question = await Post.findOne({where:{id:answer.parent_id}})
-            if(question.accepted_answer_id){
-                const previous_accepted_answer = await Post.findOne({where:{id:question.accepted_answer_id}})
-                const previous_user = await User.findOne({where:{id:previous_accepted_answer.owner_id}})
-                const decrementReputaionQuery = 'update user set reputation = :oldReputation where id = :userId'
-                console.log("Previous user", previous_user)
-                const data = await sequelize.query(decrementReputaionQuery, {
-                    replacements: { oldReputation: previous_user.reputation - 15, userId: previous_user.id },
-                    type: Sequelize.QueryTypes.UPDATE
-                });
-            }
-
             //+15 to reputation score
-            const user = await User.findOne({where:{id:answer.owner_id}})
+            const user = await User.findOne({ where: { id: answer.owner_id } })
             let userQuery = "update user set reputation = :newReputation where id = :userId"
             const data1 = await sequelize.query(userQuery, {
                 replacements: { newReputation: user.reputation + 15, userId: user.id },
@@ -261,19 +266,19 @@ const acceptAnswer = async (payload,callback) => {
 
             //log repuation data
             const reputationdata = new ReputationHistory({
-                    post_id:answer.parent_id,
-                    post_title:answer.title,
-                    user_id:answer.owner_id,
-                    type:"ACCEPTED_ANSWER"
+                post_id: answer.parent_id,
+                post_title: answer.title,
+                user_id: answer.owner_id,
+                type: "ACCEPTED_ANSWER"
             })
-            await reputationdata.save((err,res)=>{
-                if(err) throw err
-                if(res) return callback(null,"Accepted answer")
+            await reputationdata.save((err, res) => {
+                if (err) throw err
+                if (res) return callback(null, "Accepted answer")
             })
         } catch (error) {
-            console.log(error)
-            callback({ errors: { name: { msg: "Failed to accept the answer, try again!" } } },null)
+            return callback({ errors: { name: { msg: "Failed to accept the answer, try again!" } } }, null)
         }
-
+    }else{
+        return callback({ errors: { name: { msg: "No such answer found, try again!" } } }, null)
     }
 }
