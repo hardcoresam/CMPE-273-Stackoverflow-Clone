@@ -1,6 +1,7 @@
 const { Post, Bookmark, Comment, User, Tag, PostTag } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
 const PostHistory = require("../models/mongodb/PostHistory");
+const BadgeService = require('./BadgeService');
 const actions = require('../../util/kafkaActions.json');
 const elastClient = require('./../config/ElasticClient');
 
@@ -46,16 +47,16 @@ const createQuestion = async (payload, callback) => {
 
     let status = (payload.isImage !== undefined) ? "PENDING" : "ACTIVE"
     const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
-    
-    for(let i = 0; i < tagArr.length; i++) {
-        let data = await Tag.findOne({where: {name: tagArr[i]}});
+
+    for (let i = 0; i < tagArr.length; i++) {
+        let data = await Tag.findOne({ where: { name: tagArr[i] } });
         await new PostTag({
             post_id: newQuestion.id,
             tag_id: data.id,
             created_date: Date.now()
         }).save()
     }
-    
+
 
 
     return callback(null, newQuestion);
@@ -71,6 +72,8 @@ const createAnswer = async (payload, callback) => {
         replacements: { answerCount: payload.answers_count + 1, questionId: payload.question_id },
         type: Sequelize.QueryTypes.UPDATE
     });
+
+    BadgeService.pushIntoBadgeTopic({ action: "ANSWER_POSTED", answer: newAnswer });
     return callback(null, newAnswer);
 }
 
@@ -116,9 +119,9 @@ const getQuestion = async (payload, callback) => {
 
     let data = await Post.findOne(
         {
-            where: {id: payload.params.questionId}, include: {
+            where: { id: payload.params.questionId }, include: {
                 model: User,
-                attrbutes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count' ]
+                attrbutes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
             }
         }
     )
@@ -186,7 +189,7 @@ const addComment = async (payload, callback) => {
         type: "COMMENT_ADDED"
     }).save();
 
-    //TODO - Sai Krishna - Need to call badge calculation logic here
+    BadgeService.pushIntoBadgeTopic({ action: "COMMENT_ADDED", comment: newComment });
     return callback(null, newComment);
 }
 
