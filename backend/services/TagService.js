@@ -12,7 +12,7 @@ exports.handle_request = (payload, callback) => {
             createNewTag(payload, callback)
             break
         case actions.FILTER_TAG_NAME:
-            filterByTagName(payload,callback)
+            filterByTagName(payload, callback)
             break
     }
 };
@@ -45,8 +45,13 @@ exports.getUserActivityTags = async (userId, shouldLimit) => {
 }
 
 const getQuestionsForTag = async (payload, callback) => {
-    const tagId = payload.params.tagId;
+    const tagName = payload.params.tagName;
     const filterBy = payload.query.filterBy;
+    const show_user_posts = payload.query.show_user_posts;
+    let whereCondition = {};
+    if (show_user_posts && payload.USER_ID) {
+        whereCondition.id = payload.USER_ID;
+    }
     let whereStatement = {};
     if (filterBy === 'unanswered') {
         whereStatement.answers_count = 0;
@@ -61,11 +66,12 @@ const getQuestionsForTag = async (payload, callback) => {
     }
 
     const tagQuestions = await Tag.findOne({
-        where: { id: tagId }, include: {
+        where: { name: tagName }, include: {
             model: Post,
             where: whereStatement,
             include: [{
                 model: User,
+                where: whereCondition,
                 attributes: ['id', 'username', 'photo', 'reputation']
             }],
             required: true
@@ -85,12 +91,12 @@ const createNewTag = async (payload, callback) => {
     return callback(null, newtag)
 }
 
-const filterByTagName = async (payload,callback) => {
+const filterByTagName = async (payload, callback) => {
     const name = payload.params.tagname
     const tags = await Tag.findAll()
-    if(tags){
+    if (tags) {
         const filteredtags = tags.filter(tag => tag.name.includes(name) == true)
-        return callback(null,filteredtags)
+        return callback(null, filteredtags)
     }
-    return callback(null,[])
+    return callback(null, [])
 }

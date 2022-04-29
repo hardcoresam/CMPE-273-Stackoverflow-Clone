@@ -1,6 +1,7 @@
 const { Post, Bookmark, Comment, User, Tag, PostTag, Vote } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
 const PostHistory = require("../models/mongodb/PostHistory");
+const ReputationHistory = require('./../models/mongodb/ReputationHistory')
 const actions = require('../../util/kafkaActions.json');
 const elastClient = require('./../config/ElasticClient');
 
@@ -33,6 +34,9 @@ exports.handle_request = (payload, callback) => {
             break;
         case actions.POST_ACTIVITY:
             postActivity(payload,callback)
+            break
+        case actions.ACCEPT_ANSWER:
+            acceptAnswer(payload,callback)
             break
     }
 };
@@ -216,4 +220,60 @@ const postActivity = async (payload,callback) => {
     const postId = payload.params.postId
     const postHistory = await PostHistory.find({post_id:postId}).exec() 
     return callback(null,postHistory)
+}
+
+const acceptAnswer = async (payload,callback) => {
+    const {answerId} = payload
+    const answer = await Post.findOne({where : 
+        {
+            id:answerId
+        }})
+    if(answer){
+
+        try {
+            let sqlQuery = "update post set accepted_answer_id = :answerId where id = :questionId"
+            const data = await sequelize.query(sqlQuery, {
+                replacements: { answerId: answerId, questionId: answer.parent_id },
+                type: Sequelize.QueryTypes.UPDATE
+            });
+
+
+            //Check for previous accepted answers and decrement repuation score -15
+            const question = await Post.findOne({where:{id:answer.parent_id}})
+            if(question.accepted_answer_id){
+                const previous_accepted_answer = await Post.findOne({where:{id:question.accepted_answer_id}})
+                const previous_user = await User.findOne({where:{id:previous_accepted_answer.owner_id}})
+                const decrementReputaionQuery = 'update user set reputation = :oldReputation where id = :userId'
+                console.log("Previous user", previous_user)
+                const data = await sequelize.query(decrementReputaionQuery, {
+                    replacements: { oldReputation: previous_user.reputation - 15, userId: previous_user.id },
+                    type: Sequelize.QueryTypes.UPDATE
+                });
+            }
+
+            //+15 to reputation score
+            const user = await User.findOne({where:{id:answer.owner_id}})
+            let userQuery = "update user set reputation = :newReputation where id = :userId"
+            const data1 = await sequelize.query(userQuery, {
+                replacements: { newReputation: user.reputation + 15, userId: user.id },
+                type: Sequelize.QueryTypes.UPDATE
+            });
+
+            //log repuation data
+            const reputationdata = new ReputationHistory({
+                    post_id:answer.parent_id,
+                    post_title:answer.title,
+                    user_id:answer.owner_id,
+                    type:"ACCEPTED_ANSWER"
+            })
+            await reputationdata.save((err,res)=>{
+                if(err) throw err
+                if(res) return callback(null,"Accepted answer")
+            })
+        } catch (error) {
+            console.log(error)
+            callback({ errors: { name: { msg: "Failed to accept the answer, try again!" } } },null)
+        }
+
+    }
 }
