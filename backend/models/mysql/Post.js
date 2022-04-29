@@ -24,7 +24,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         tags: {
             type: DataTypes.STRING,
-            allowNull: false,
             get() {
                 return this.getDataValue('tags').split(',')
             }

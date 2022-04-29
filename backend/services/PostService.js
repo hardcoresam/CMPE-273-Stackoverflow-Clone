@@ -2,7 +2,8 @@ const { Post, Bookmark, Comment, User } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
 const PostHistory = require("../models/mongodb/PostHistory");
 const actions = require('../../util/kafkaActions.json');
-const elastClient = require('./../config/ElasticClient')
+const elastClient = require('./../config/ElasticClient');
+const PostTag = require("../models/MySql/PostTag");
 
 exports.handle_request = (payload, callback) => {
     const { action } = payload;
@@ -38,12 +39,20 @@ exports.handle_request = (payload, callback) => {
 };
 
 const createQuestion = async (payload, callback) => {
+
+    //create record in post
+    //in PostTag
+    //post activiy
+
     let status = (payload.isImage !== undefined) ? "PENDING" : "ACTIVE"
     const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
     return callback(null, newQuestion);
 }
 
 const createAnswer = async (payload, callback) => {
+
+    //post history insert a record
+
     const newAnswer = await new Post({ ...payload, owner_id: payload.USER_ID }).save();
     let sqlQuery = "update post set answers_count = :answerCount where id = :questionId"
     await sequelize.query(sqlQuery, {
@@ -55,25 +64,35 @@ const createAnswer = async (payload, callback) => {
 
 const getQuestions = async (payload, callback) => {
     const questions = await Post.findAll({
-        where: { type: "QUESTION" }
+        where: { type: "QUESTION" }, include: {
+            model: User,
+            attributes: ['id', 'username', 'photo', 'reputation']
+        }
     });
     return callback(null, questions);
 }
 
 const getQuestion = async (payload, callback) => {
 
-    let questionQuery = "select p.id, p.type, p.status, p.title, p.body," +
-        "p.tags, p.score, p.views_count, p.answers_count, accepted_answer_id as answerAccepted," +
-        "u.photo, u.id as owner_id " +
-        "from post as p inner join user as u " +
-        "on p.owner_id = u.id where p.id = :questionId"
 
-    let data = await sequelize.query(questionQuery, {
-        replacements: { questionId: payload.params.questionId },
-        type: Sequelize.QueryTypes.SELECT
-    });
+    //join post and user
+    //call bookmark
+    //call vote
+    //comments table
+    //asnwers
+    //comments for answers
+    //increase the view count
 
-    data = data[0]
+    let data = await Post.findOne(
+        {
+            where: {id: payload.params.questionId}, include: {
+                model: User,
+                attrbutes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count' ]
+            }
+        }
+    )
+    console.log(data)
+    data = data.dataValues
 
     let isBookmark = await Bookmark.findOne({
         where: { user_id: data.owner_id, post_id: payload.params.questionId }
