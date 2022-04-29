@@ -71,3 +71,10 @@ exports.postActivity = async (req,res) => {
         return res.json(data)
     })
 }
+
+exports.acceptAnswer = async (req,res) => {
+    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, params: req.params, action: actions.ACCEPT_ANSWER }, (err, data) => {
+        if (err) return res.status(400).json({ message: err })
+        return res.json(data)
+    })
+}
