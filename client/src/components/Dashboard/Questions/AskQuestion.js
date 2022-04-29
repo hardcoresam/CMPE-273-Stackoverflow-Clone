@@ -5,7 +5,8 @@ const AskQuestion = () => {
     return (
         <div style={{ backgroundColor: "#f2f2f2", width: "auto", height: "60rem" }}>
             <Row>
-                <Col style={{ marginLeft: "2rem", marginTop: "30px" }}>
+            <Col sm={2}></Col>
+                <Col style={{marginTop: "30px" }}>
                     <text style={{ fontSize: "30px" }}>Ask a public question</text>
                 </Col>
                 <Col>
@@ -13,7 +14,8 @@ const AskQuestion = () => {
                 </Col>
             </Row>
             <Row>
-                <Col style={{ marginLeft: "2rem"}}>
+            <Col sm={2}></Col>
+                <Col>
                     <Card style={{width:"53rem"}}>
                         <div style={{ margin: "1rem" , display:"flex", flexDirection:"column"}}>
                             <Card.Title>
