@@ -78,7 +78,7 @@ const createAnswer = async (payload, callback) => {
     const newAnswer = await new Post({ ...payload, owner_id: payload.USER_ID }).save();
     let sqlQuery = "update post set answers_count = :answerCount where id = :questionId"
     await sequelize.query(sqlQuery, {
-        replacements: { answerCount: payload.answers_count + 1, questionId: payload.question_id },
+        replacements: { answerCount: payload.answers_count + 1, questionId: payload.parent_id },
         type: Sequelize.QueryTypes.UPDATE
     });
 
@@ -109,15 +109,6 @@ const getQuestions = async (payload, callback) => {
 }
 
 const getQuestion = async (payload, callback) => {
-
-
-    //join post and user
-    //call bookmark
-    //call vote
-    //comments table
-    //asnwers
-    //comments for answers
-    //increase the view count
     let vote = await Vote.findOne({
         where: { post_id: payload.params.questionId, user_id: payload.USER_ID }
     })
@@ -127,17 +118,22 @@ const getQuestion = async (payload, callback) => {
     if (vote === null) { }
     else if (vote.type === "UPVOTE") isUpVote = true
     else if (vote.type === "DOWNVOTE") isDownVote = true
-
-    let getQuestionComments = await Comment.findAll({
-        where: { post_id: payload.params.questionId }
-    })
-    console.log(getQuestionComments)
     let data = await Post.findOne(
         {
-            where: { id: payload.params.questionId }, include: {
+            where: { id: payload.params.questionId },
+            include: [{
                 model: User,
                 attrbutes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
+            }, {
+                model: Comment
+            },
+            {
+                model: Post,
+                as: "answers", include: {
+                    model: Comment
+                }
             }
+            ]
         }
     )
     data = data.dataValues
@@ -158,6 +154,7 @@ const getQuestion = async (payload, callback) => {
 
     callback(null, { ...data, bookmarked: isBookmark, isUpVote: isUpVote, isDownVote: isDownVote });
 }
+
 
 const bookmarkQuestion = async (payload, callback) => {
     let bookmark = { post_id: payload.params.questionId, user_id: payload.USER_ID }
@@ -230,7 +227,6 @@ const acceptAnswer = async (payload, callback) => {
             id: answerId
         }
     })
-
     if (answer) {
         try {
             //Check for previous accepted answers and decrement repuation score -15
