@@ -14,7 +14,7 @@ const User = () => {
   const {username} = obj.value
   const dispatch = useDispatch();
   const { userid } = useParams();
-  const [tabflag, settabflag] = useState(false)
+  const [tabflag, settabflag] = useState(true)
 
 
   useEffect(()=>{
@@ -58,9 +58,9 @@ const User = () => {
             </Col>
           </Row>
           <Row style={{ marginTop: "1rem" }}>
-            <Col sm={1}><Button variant="warning" className='rounded-pill' onClick={profileSubTab}>Profile</Button></Col>
+            <Col sm={1}><Button variant={tabflag ? "warning" : "light"} className='rounded-pill' onClick={profileSubTab}>Profile</Button></Col>
             <Col sm={1}></Col>
-            <Col sm={1} style={{ marginLeft: "-2rem" }}><Button variant="warning" className='rounded-pill' onClick={activitySubTab}>Activity</Button></Col>
+            <Col sm={1} style={{ marginLeft: "-2rem" }}><Button variant={!tabflag ? "warning" : "light"} className='rounded-pill' onClick={activitySubTab}>Activity</Button></Col>
           </Row>
         <Row>
         {tabflag ? <ProfileSubTab /> : <ActivitySubTab />}

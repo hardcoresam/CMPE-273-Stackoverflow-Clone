@@ -2,12 +2,34 @@ import React from 'react'
 import { Card, Row, Col, Modal, Button } from 'react-bootstrap'
 import { Alert, Spinner } from 'react-bootstrap'
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
+import Axios from 'axios'
+import Constants from '../util/Constants.json'
 const Login = (props) => {
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const signInUser = async () => {
-
+        Axios.post(`${Constants.uri}/api/users/login`,{
+            email : email,
+            password : password
+          },{
+            withCredentials : true
+            // validateStatus: status => status<500
+          }).then((r)=>{
+            if(r.status===200){
+            //   dispatch(loginSuccess())
+              props.setModalShow(false)
+              if(r.data.is_admin)
+              navigate('/AdminDashBoard')
+              else
+              navigate('/DashBoard')
+            }
+            else{
+            //   dispatch(loginFail(r.data.message.msg))
+            }
+          })
     }
     return (
         <Modal
