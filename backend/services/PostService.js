@@ -1,4 +1,4 @@
-const { Post, Bookmark, Comment, User, Tag, PostTag } = require("../models/mysql");
+const { Post, Bookmark, Comment, User, Tag, PostTag, Vote } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
 const PostHistory = require("../models/mongodb/PostHistory");
 const actions = require('../../util/kafkaActions.json');
@@ -38,9 +38,7 @@ exports.handle_request = (payload, callback) => {
 };
 
 const createQuestion = async (payload, callback) => {
-
-    //post activiy
-
+    
     let tags = payload.tags
     var tagArr = tags.split(',');
 
@@ -55,15 +53,23 @@ const createQuestion = async (payload, callback) => {
             created_date: Date.now()
         }).save()
     }
+    const loggedInUser = await User.findOne({
+        where: { id: payload.USER_ID },
+        attrbutes: ['username']
+    });
+    await new PostHistory({
+        post_id: newQuestion.id,
+        user_id: payload.USER_ID,
+        user_display_name: loggedInUser.username,
+        comment: payload.title,
+        type: "QUESTION_ASKED"
+    }).save();
     
-
 
     return callback(null, newQuestion);
 }
 
 const createAnswer = async (payload, callback) => {
-
-    //post history insert a record
 
     const newAnswer = await new Post({ ...payload, owner_id: payload.USER_ID }).save();
     let sqlQuery = "update post set answers_count = :answerCount where id = :questionId"
@@ -71,6 +77,20 @@ const createAnswer = async (payload, callback) => {
         replacements: { answerCount: payload.answers_count + 1, questionId: payload.question_id },
         type: Sequelize.QueryTypes.UPDATE
     });
+
+    const loggedInUser = await User.findOne({
+        where: { id: payload.USER_ID },
+        attrbutes: ['username']
+    });
+
+    await new PostHistory({
+        post_id: newAnswer.id,
+        user_id: payload.USER_ID,
+        user_display_name: loggedInUser.username,
+        comment: payload.body,
+        type: "ANSWER_POSTED"
+    }).save();
+
     return callback(null, newAnswer);
 }
 
@@ -94,7 +114,20 @@ const getQuestion = async (payload, callback) => {
     //asnwers
     //comments for answers
     //increase the view count
+    let vote = await Vote.findOne({
+        where: {post_id: payload.params.questionId, user_id: payload.USER_ID}
+    })
+    let isUpVote = false
+    let isDownVote = false
+    console.log(vote)
+    if(vote === null) {}
+    else if(vote.type === "UPVOTE") isUpVote = true
+    else if(vote.type === "DOWNVOTE") isDownVote = true
 
+    let getQuestionComments = await Comment.findAll({
+        where: {post_id: payload.params.questionId}
+    })
+    console.log(getQuestionComments)
     let data = await Post.findOne(
         {
             where: {id: payload.params.questionId}, include: {
@@ -103,7 +136,6 @@ const getQuestion = async (payload, callback) => {
             }
         }
     )
-    console.log(data)
     data = data.dataValues
 
     let isBookmark = await Bookmark.findOne({
@@ -120,7 +152,7 @@ const getQuestion = async (payload, callback) => {
         type: Sequelize.QueryTypes.UPDATE
     });
     
-    callback(null, { ...data, bookmarked: isBookmark });
+    callback(null, { ...data, bookmarked: isBookmark, isUpVote: isUpVote, isDownVote: isDownVote });
 }
 
 const bookmarkQuestion = async (payload, callback) => {
