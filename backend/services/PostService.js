@@ -1,9 +1,9 @@
-const { Post, Bookmark, Comment, User } = require("../models/mysql");
+const { Post, Bookmark, Comment, User, Tag, PostTag, Vote } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
 const PostHistory = require("../models/mongodb/PostHistory");
+const ReputationHistory = require('./../models/mongodb/ReputationHistory')
 const actions = require('../../util/kafkaActions.json');
 const elastClient = require('./../config/ElasticClient');
-const PostTag = require("../models/MySql/PostTag");
 
 exports.handle_request = (payload, callback) => {
     const { action } = payload;
@@ -35,23 +35,45 @@ exports.handle_request = (payload, callback) => {
         case actions.POST_ACTIVITY:
             postActivity(payload,callback)
             break
+        case actions.ACCEPT_ANSWER:
+            acceptAnswer(payload,callback)
+            break
     }
 };
 
 const createQuestion = async (payload, callback) => {
-
-    //create record in post
-    //in PostTag
-    //post activiy
+    
+    let tags = payload.tags
+    var tagArr = tags.split(',');
 
     let status = (payload.isImage !== undefined) ? "PENDING" : "ACTIVE"
     const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
+    
+    for(let i = 0; i < tagArr.length; i++) {
+        let data = await Tag.findOne({where: {name: tagArr[i]}});
+        await new PostTag({
+            post_id: newQuestion.id,
+            tag_id: data.id,
+            created_date: Date.now()
+        }).save()
+    }
+    const loggedInUser = await User.findOne({
+        where: { id: payload.USER_ID },
+        attrbutes: ['username']
+    });
+    await new PostHistory({
+        post_id: newQuestion.id,
+        user_id: payload.USER_ID,
+        user_display_name: loggedInUser.username,
+        comment: payload.title,
+        type: "QUESTION_ASKED"
+    }).save();
+    
+
     return callback(null, newQuestion);
 }
 
 const createAnswer = async (payload, callback) => {
-
-    //post history insert a record
 
     const newAnswer = await new Post({ ...payload, owner_id: payload.USER_ID }).save();
     let sqlQuery = "update post set answers_count = :answerCount where id = :questionId"
@@ -59,6 +81,20 @@ const createAnswer = async (payload, callback) => {
         replacements: { answerCount: payload.answers_count + 1, questionId: payload.question_id },
         type: Sequelize.QueryTypes.UPDATE
     });
+
+    const loggedInUser = await User.findOne({
+        where: { id: payload.USER_ID },
+        attrbutes: ['username']
+    });
+
+    await new PostHistory({
+        post_id: newAnswer.id,
+        user_id: payload.USER_ID,
+        user_display_name: loggedInUser.username,
+        comment: payload.body,
+        type: "ANSWER_POSTED"
+    }).save();
+
     return callback(null, newAnswer);
 }
 
@@ -82,7 +118,20 @@ const getQuestion = async (payload, callback) => {
     //asnwers
     //comments for answers
     //increase the view count
+    let vote = await Vote.findOne({
+        where: {post_id: payload.params.questionId, user_id: payload.USER_ID}
+    })
+    let isUpVote = false
+    let isDownVote = false
+    console.log(vote)
+    if(vote === null) {}
+    else if(vote.type === "UPVOTE") isUpVote = true
+    else if(vote.type === "DOWNVOTE") isDownVote = true
 
+    let getQuestionComments = await Comment.findAll({
+        where: {post_id: payload.params.questionId}
+    })
+    console.log(getQuestionComments)
     let data = await Post.findOne(
         {
             where: {id: payload.params.questionId}, include: {
@@ -91,7 +140,6 @@ const getQuestion = async (payload, callback) => {
             }
         }
     )
-    console.log(data)
     data = data.dataValues
 
     let isBookmark = await Bookmark.findOne({
@@ -108,7 +156,7 @@ const getQuestion = async (payload, callback) => {
         type: Sequelize.QueryTypes.UPDATE
     });
     
-    callback(null, { ...data, bookmarked: isBookmark });
+    callback(null, { ...data, bookmarked: isBookmark, isUpVote: isUpVote, isDownVote: isDownVote });
 }
 
 const bookmarkQuestion = async (payload, callback) => {
@@ -172,4 +220,60 @@ const postActivity = async (payload,callback) => {
     const postId = payload.params.postId
     const postHistory = await PostHistory.find({post_id:postId}).exec() 
     return callback(null,postHistory)
+}
+
+const acceptAnswer = async (payload,callback) => {
+    const {answerId} = payload
+    const answer = await Post.findOne({where : 
+        {
+            id:answerId
+        }})
+    if(answer){
+
+        try {
+            let sqlQuery = "update post set accepted_answer_id = :answerId where id = :questionId"
+            const data = await sequelize.query(sqlQuery, {
+                replacements: { answerId: answerId, questionId: answer.parent_id },
+                type: Sequelize.QueryTypes.UPDATE
+            });
+
+
+            //Check for previous accepted answers and decrement repuation score -15
+            const question = await Post.findOne({where:{id:answer.parent_id}})
+            if(question.accepted_answer_id){
+                const previous_accepted_answer = await Post.findOne({where:{id:question.accepted_answer_id}})
+                const previous_user = await User.findOne({where:{id:previous_accepted_answer.owner_id}})
+                const decrementReputaionQuery = 'update user set reputation = :oldReputation where id = :userId'
+                console.log("Previous user", previous_user)
+                const data = await sequelize.query(decrementReputaionQuery, {
+                    replacements: { oldReputation: previous_user.reputation - 15, userId: previous_user.id },
+                    type: Sequelize.QueryTypes.UPDATE
+                });
+            }
+
+            //+15 to reputation score
+            const user = await User.findOne({where:{id:answer.owner_id}})
+            let userQuery = "update user set reputation = :newReputation where id = :userId"
+            const data1 = await sequelize.query(userQuery, {
+                replacements: { newReputation: user.reputation + 15, userId: user.id },
+                type: Sequelize.QueryTypes.UPDATE
+            });
+
+            //log repuation data
+            const reputationdata = new ReputationHistory({
+                    post_id:answer.parent_id,
+                    post_title:answer.title,
+                    user_id:answer.owner_id,
+                    type:"ACCEPTED_ANSWER"
+            })
+            await reputationdata.save((err,res)=>{
+                if(err) throw err
+                if(res) return callback(null,"Accepted answer")
+            })
+        } catch (error) {
+            console.log(error)
+            callback({ errors: { name: { msg: "Failed to accept the answer, try again!" } } },null)
+        }
+
+    }
 }

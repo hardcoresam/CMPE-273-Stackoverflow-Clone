@@ -1,251 +1,326 @@
 const { User, Badge, Post, Bookmark } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
-const TagService = require('./TagService')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const actions = require('../../util/kafkaActions.json');
-const {cacheGet,cacheAdd} = require('./../config/RedisClient')
-
+const TagService = require("./TagService");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const actions = require("../../util/kafkaActions.json");
+const { cacheGet, cacheAdd } = require("./../config/RedisClient");
 
 exports.handle_request = (payload, callback) => {
-    const { action } = payload;
-    switch (action) {
-        case actions.REGISTER_USER:
-            createUser(payload, callback);
-            break;
-        case actions.LOGIN:
-            login(payload, callback);
-            break;
-        case actions.GET_USER_PROFILE:
-            getUserProfile(payload, callback);
-            break;
-        case actions.GET_USER_PROFILE_TOP_POSTS:
-            getUserProfileTopPosts(payload, callback);
-            break;
-        case actions.GET_USER_ANSWERS:
-            getUserAnswers(payload, callback);
-            break;
-        case actions.GET_USER_QUESTIONS:
-            getUserQuestions(payload, callback);
-            break;
-        case actions.GET_USER_BOOKMARKS:
-            getUserBookmarks(payload, callback);
-            break;
-        case actions.GET_USER_BADGES:
-            getUserBadges(payload, callback);
-            break;
-        case actions.GET_USER_TAGS:
-            getUserTags(payload, callback);
-            break;
-        case actions.GET_USER:
-            getUser(payload,callback)
-            break
-    }
+  const { action } = payload;
+  switch (action) {
+    case actions.REGISTER_USER:
+      createUser(payload, callback);
+      break;
+    case actions.LOGIN:
+      login(payload, callback);
+      break;
+    case actions.GET_USER_PROFILE:
+      getUserProfile(payload, callback);
+      break;
+    case actions.GET_USER_PROFILE_TOP_POSTS:
+      getUserProfileTopPosts(payload, callback);
+      break;
+    case actions.GET_USER_ANSWERS:
+      getUserAnswers(payload, callback);
+      break;
+    case actions.GET_USER_QUESTIONS:
+      getUserQuestions(payload, callback);
+      break;
+    case actions.GET_USER_BOOKMARKS:
+      getUserBookmarks(payload, callback);
+      break;
+    case actions.GET_USER_BADGES:
+      getUserBadges(payload, callback);
+      break;
+    case actions.GET_USER_TAGS:
+      getUserTags(payload, callback);
+      break;
+    case actions.GET_USER:
+      getUser(payload, callback);
+      break;
+    case actions.GET_PROFILE:
+      console.log("in switchhh");
+      getProfile(payload, callback);
+      break;
+    case actions.GET_ALL_USERS:
+      getAllUsers(payload, callback);
+      break;
+  }
 };
 
 const createUser = async (payload, callback) => {
-    const { displayName, email, password } = payload;
-    const previousMember = await User.findOne({ where : { email: email.toLowerCase() }});
-    if (previousMember !== null) {
-        return callback({ errors: { email: { msg: `Email ${email} is already registered. Please login or use a different email` } } }, null);
-    }
+  const { displayName, email, password } = payload;
+  const previousMember = await User.findOne({
+    where: { email: email.toLowerCase() },
+  });
+  if (previousMember !== null) {
+    return callback(
+      {
+        errors: {
+          email: {
+            msg: `Email ${email} is already registered. Please login or use a different email`,
+          },
+        },
+      },
+      null
+    );
+  }
 
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    const newMember = await new User({
-        email: email.toLowerCase(),
-        password: hashedPassword,
-        username: displayName
-    }).save();
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  const newMember = await new User({
+    email: email.toLowerCase(),
+    password: hashedPassword,
+    username: displayName,
+  }).save();
 
-    return callback(null, newMember);
-}
+  return callback(null, newMember);
+};
 
 //TODO - Sai Krishna - Update login time after each login
 const login = async (payload, callback) => {
-    const { email, password } = payload;
-    const member = await User.findOne({ where :{ email: email.toLowerCase() }});
-    if (member === null) {
-        return callback({ errors: { email: { msg: `Email ${email} is not registed with us` } } }, null);
-    }
-    if (!bcrypt.compareSync(password, member.password)) {
-        return callback({ errors: { password: { msg: 'Incorrect password. Please try again!' } } }, null);
-    }
+  const { email, password } = payload;
+  const member = await User.findOne({ where: { email: email.toLowerCase() } });
+  if (member === null) {
+    return callback(
+      { errors: { email: { msg: `Email ${email} is not registed with us` } } },
+      null
+    );
+  }
+  if (!bcrypt.compareSync(password, member.password)) {
+    return callback(
+      {
+        errors: { password: { msg: "Incorrect password. Please try again!" } },
+      },
+      null
+    );
+  }
 
-    const jwtPayload = { user: { id: member.id } };
-    jwt.sign(jwtPayload, process.env.JWT_SECRET_KEY, (err, token) => {
-        if (err) {
-            console.error(err);
-            return callback({ message: 'Server error' }, null);
-        }
-        return callback(null, { member: member, token: token });
-    });
-}
+  const jwtPayload = { user: { id: member.id } };
+  jwt.sign(jwtPayload, process.env.JWT_SECRET_KEY, (err, token) => {
+    if (err) {
+      console.error(err);
+      return callback({ message: "Server error" }, null);
+    }
+    return callback(null, { member: member, token: token });
+  });
+};
 
 const getUserProfile = async (payload, callback) => {
-    const userId = payload.params.userId;
-    const user = await User.findOne({
-        where: { id: userId }, include: {
-            model: Badge
-        }
-    });
-    if (user === null) {
-        return callback({ error: "Invalid user id specified" }, null);
+  const userId = payload.params.userId;
+  const user = await User.findOne({
+    where: { id: userId },
+    include: {
+      model: Badge,
+    },
+  });
+  if (user === null) {
+    return callback({ error: "Invalid user id specified" }, null);
+  }
+
+  let bronzeBadges = [];
+  let silverBadges = [];
+  let goldBadges = [];
+  for (const badge of user.Badges) {
+    if (badge.type === "BRONZE") {
+      bronzeBadges.push(badge);
+    } else if (badge.type === "SILVER") {
+      silverBadges.push(badge);
+    } else {
+      goldBadges.push(badge);
     }
-
-    let bronzeBadges = [];
-    let silverBadges = [];
-    let goldBadges = [];
-    for (const badge of user.Badges) {
-        if (badge.type === "BRONZE") {
-            bronzeBadges.push(badge);
-        } else if (badge.type === "SILVER") {
-            silverBadges.push(badge);
-        } else {
-            goldBadges.push(badge);
-        }
-        if (bronzeBadges.length >= 3 && silverBadges.length >= 3 && goldBadges.length >= 3) {
-            break;
-        }
+    if (
+      bronzeBadges.length >= 3 &&
+      silverBadges.length >= 3 &&
+      goldBadges.length >= 3
+    ) {
+      break;
     }
+  }
 
-    const answersCount = await Post.count({
-        where: {
-            type: "ANSWER",
-            owner_id: userId
-        }
-    });
-    const questionsCount = await Post.count({
-        where: {
-            type: "QUESTION",
-            owner_id: userId
-        }
-    });
-    const userReach = await Post.sum('views_count', {
-        where: {
-            type: "QUESTION",
-            owner_id: userId
-        }
-    });
+  const answersCount = await Post.count({
+    where: {
+      type: "ANSWER",
+      owner_id: userId,
+    },
+  });
+  const questionsCount = await Post.count({
+    where: {
+      type: "QUESTION",
+      owner_id: userId,
+    },
+  });
+  const userReach = await Post.sum("views_count", {
+    where: {
+      type: "QUESTION",
+      owner_id: userId,
+    },
+  });
 
-    let userTags = await TagService.getUserActivityTags(userId, true);
+  let userTags = await TagService.getUserActivityTags(userId, true);
 
-    user.setDataValue('topTags', userTags);
-    user.setDataValue('answersCount', answersCount);
-    user.setDataValue('questionsCount', questionsCount);
-    user.setDataValue('userReach', userReach);
-    user.setDataValue('bronzeBadges', bronzeBadges);
-    user.setDataValue('silverBadges', silverBadges);
-    user.setDataValue('goldBadges', goldBadges);
-    return callback(null, user);
-}
+  user.setDataValue("topTags", userTags);
+  user.setDataValue("answersCount", answersCount);
+  user.setDataValue("questionsCount", questionsCount);
+  user.setDataValue("userReach", userReach);
+  user.setDataValue("bronzeBadges", bronzeBadges);
+  user.setDataValue("silverBadges", silverBadges);
+  user.setDataValue("goldBadges", goldBadges);
+  return callback(null, user);
+};
 
 const getUserProfileTopPosts = async (payload, callback) => {
-    const userId = payload.params.userId;
-    const { postType, sortValue } = payload.query;
+  const userId = payload.params.userId;
+  const { postType, sortValue } = payload.query;
 
-    let whereStatement = {
-        owner_id: userId
-    };
-    if (postType !== "ALL") {
-        whereStatement['type'] = postType;
-    }
+  let whereStatement = {
+    owner_id: userId,
+  };
+  if (postType !== "ALL") {
+    whereStatement["type"] = postType;
+  }
 
-    let orderBy = [];
-    if (sortValue === "NEWEST") {
-        orderBy.push(['created_date', 'DESC']);
-    } else {
-        orderBy.push(['score', 'DESC']);
-    }
+  let orderBy = [];
+  if (sortValue === "NEWEST") {
+    orderBy.push(["created_date", "DESC"]);
+  } else {
+    orderBy.push(["score", "DESC"]);
+  }
 
-    const topPosts = await Post.findAll({
-        where: whereStatement,
-        include: {
-            model: Post,
-            attributes: ['id', 'tags', 'title', 'type', 'score', 'answers_count', 'accepted_answer_id', 'owner_id'],
-            as: 'question'
-        },
-        order: orderBy,
-        limit: 10
-    });
-    return callback(null, topPosts);
-}
+  const topPosts = await Post.findAll({
+    where: whereStatement,
+    include: {
+      model: Post,
+      attributes: [
+        "id",
+        "tags",
+        "title",
+        "type",
+        "score",
+        "answers_count",
+        "accepted_answer_id",
+        "owner_id",
+      ],
+      as: "question",
+    },
+    order: orderBy,
+    limit: 10,
+  });
+  return callback(null, topPosts);
+};
 
 const getUserAnswers = async (payload, callback) => {
-    const userId = payload.params.userId;
+  const userId = payload.params.userId;
 
-    const userAnswers = await Post.findAll({
-        where: {
-            owner_id: userId,
-            type: "ANSWER"
-        }, include: {
-            model: Post,
-            attributes: ['id', 'tags', 'title', 'type', 'score', 'answers_count', 'accepted_answer_id', 'owner_id'],
-            as: "question"
-        },
-        order: [['score', 'DESC']]
-    });
-    return callback(null, userAnswers);
-}
+  const userAnswers = await Post.findAll({
+    where: {
+      owner_id: userId,
+      type: "ANSWER",
+    },
+    include: {
+      model: Post,
+      attributes: [
+        "id",
+        "tags",
+        "title",
+        "type",
+        "score",
+        "answers_count",
+        "accepted_answer_id",
+        "owner_id",
+      ],
+      as: "question",
+    },
+    order: [["score", "DESC"]],
+  });
+  return callback(null, userAnswers);
+};
 
 const getUserQuestions = async (payload, callback) => {
-    const userId = payload.params.userId;
+  const userId = payload.params.userId;
 
-    const userQuestions = await Post.findAll({
-        where: {
-            owner_id: userId,
-            type: "QUESTION"
-        },
-        order: [['score', 'DESC']]
-    });
-    return callback(null, userQuestions);
-}
+  const userQuestions = await Post.findAll({
+    where: {
+      owner_id: userId,
+      type: "QUESTION",
+    },
+    order: [["score", "DESC"]],
+  });
+  return callback(null, userQuestions);
+};
 
 const getUserBookmarks = async (payload, callback) => {
-    const userId = payload.params.userId;
+  const userId = payload.params.userId;
 
-    const userBookmarks = await Bookmark.findAll({
-        where: {
-            user_id: userId
-        },
-        include: {
-            model: Post,
-            required: true
-        },
-        order: [['created_on', 'DESC']]
-    });
-    return callback(null, userBookmarks);
-}
+  const userBookmarks = await Bookmark.findAll({
+    where: {
+      user_id: userId,
+    },
+    include: {
+      model: Post,
+      required: true,
+    },
+    order: [["created_on", "DESC"]],
+  });
+  return callback(null, userBookmarks);
+};
 
 const getUserBadges = async (payload, callback) => {
-    const userId = payload.params.userId;
+  const userId = payload.params.userId;
 
-    const userBadges = await Badge.findAll({
-        where: {
-            user_id: userId
-        },
-        order: [['awarded_on', 'DESC']]
-    });
-    return callback(null, userBadges);
-}
+  const userBadges = await Badge.findAll({
+    where: {
+      user_id: userId,
+    },
+    order: [["awarded_on", "DESC"]],
+  });
+  return callback(null, userBadges);
+};
 
 const getUserTags = async (payload, callback) => {
-    const userId = payload.params.userId;
-    let userTags = await TagService.getUserActivityTags(userId, false);
-    return callback(null, userTags);
-}
+  const userId = payload.params.userId;
+  let userTags = await TagService.getUserActivityTags(userId, false);
+  return callback(null, userTags);
+};
 
-const getUser = async (payload,callback) => {
-    const userName = payload.params.username
-    cacheGet(userName, async (err,res)=>{
-        if(err){
-            const user = await User.findOne({where:{username:userName}})
-            if(user){
-                cacheAdd(userName,user.dataValues)
-                return callback(null,user.dataValues)
-            }
-            return callback(null,{})
-        }
-        console.log(res)
-        return callback(null,res)
-    })
-}
+const getUser = async (payload, callback) => {
+  const userName = payload.params.username;
+  cacheGet(userName, async (err, res) => {
+    if (err) {
+      const user = await User.findOne({ where: { username: userName } });
+      if (user) {
+        cacheAdd(userName, user.dataValues);
+        return callback(null, user.dataValues);
+      }
+      return callback(null, {});
+    }
+    console.log(res);
+    return callback(null, res);
+  });
+};
+
+const getProfile = async (payload, callback) => {
+  console.log(
+    "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"
+  );
+  const userId = 1;
+  const user = await User.findOne({
+    where: { id: userId },
+  });
+  console.log("User is ", user);
+  console.log(user);
+  data = {
+    photo: user.photo,
+    username: user.username,
+    location: user.location,
+    about: user.about,
+  };
+  return callback(null, data);
+};
+
+const getAllUsers = async (payload, callback) => {
+  const users = await User.findAll({
+    order: [["reputation", "DESC"]],
+  });
+  return callback(null, users);
+};
