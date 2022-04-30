@@ -40,11 +40,13 @@ exports.handle_request = (payload, callback) => {
       getUser(payload, callback);
       break;
     case actions.GET_PROFILE:
-      console.log("in switchhh");
       getProfile(payload, callback);
       break;
     case actions.GET_ALL_USERS:
       getAllUsers(payload, callback);
+      break;
+    case actions.EDIT_PROFILE:
+      editProfile(payload, callback);
       break;
   }
 };
@@ -107,6 +109,7 @@ const login = async (payload, callback) => {
 };
 
 const getUserProfile = async (payload, callback) => {
+  console.log(payload.params);
   const userId = payload.params.userId;
   const user = await User.findOne({
     where: { id: userId },
@@ -300,15 +303,10 @@ const getUser = async (payload, callback) => {
 };
 
 const getProfile = async (payload, callback) => {
-  console.log(
-    "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"
-  );
-  const userId = 1;
+  const userId = payload.USER_ID;
   const user = await User.findOne({
     where: { id: userId },
   });
-  console.log("User is ", user);
-  console.log(user);
   data = {
     photo: user.photo,
     username: user.username,
@@ -323,4 +321,26 @@ const getAllUsers = async (payload, callback) => {
     order: [["reputation", "DESC"]],
   });
   return callback(null, users);
+};
+
+const editProfile = async (payload, callback) => {
+  const photo = payload.photo;
+  const about = payload.about;
+  const location = payload.location;
+  const username = payload.username;
+  console.log("These are the params", payload.params);
+  let sqlQuery =
+    "update user set photo = :photo, about =:about, location =:location, username=:username where id = :user_id";
+  await sequelize.query(sqlQuery, {
+    replacements: {
+      photo: photo,
+      about: about,
+      location: location,
+      username: username,
+      user_id: payload.params.userId,
+    },
+    type: Sequelize.QueryTypes.UPDATE,
+  });
+
+  return callback(null, "User profile edited successfully");
 };
