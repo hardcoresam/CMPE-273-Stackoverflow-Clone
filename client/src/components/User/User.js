@@ -15,19 +15,60 @@ const User = () => {
   const dispatch = useDispatch();
   const { userid } = useParams();
   const [tabflag, settabflag] = useState(true)
-
+  const [userProfile, setUserProfile] = useState({
+    registered_on: "26/04/2022, 14:16:25",
+    last_login_time: "26/04/2022, 14:16:25",
+    id: 1,
+    email: "sai@gmail.com",
+    username: "saikrishna",
+    password: "password",
+    photo: null,
+    about: "If you want me to buy a coffe",
+    is_admin: false,
+    reputation: 3,
+    location: "hyderabad",
+    gold_badges_count: 0,
+    silver_badges_count: 1,
+    bronze_badges_count: 0,
+    Badges: [],
+    answersCount: 1,
+    questionsCount: 2,
+    userReach: 0,
+    bronzeBadges: [],
+    silverBadges: [],
+    goldBadges: []
+});
 
   useEffect(()=>{
-    // await Axios.get(`${Constants.uri}/api/users/prodile/${userid}`,{
+    // await Axios.get(`${Constants.uri}/api/users/profile/${userid}`,{
     //   withCredentials: true
     // }).then((r) => {
-    
+    //   const member = r.data;
+    //   setUserProfile(prevState => {
+    //     let userProfileForm = { ...prevState };
+    //     userProfileForm.photo = member.photo;
+    //     userProfileForm.username = member.username;
+    //     userProfileForm.about = member.about;
+    //     userProfileForm.is_admin = member.is_admin;
+    //     userProfileForm.reputation = member.reputation;
+    //     userProfileForm.location = member.location;
+    //     userProfileForm.gold_badges_count = member.gold_badges_count;
+    //     userProfileForm.silver_badges_count = member.silver_badges_count;
+    //     userProfileForm.email = member.email;
+    //     userProfileForm.bronze_badges_count = member.bronze_badges_count;
+    //     userProfileForm.Badges = member.Badges;
+    //     userProfileForm.answersCount = member.answersCount;
+    //     userProfileForm.questionsCount = member.questionsCount;
+    //     userProfileForm.userReach = member.userReach;
+    //     userProfileForm.bronzeBadges = member.bronzeBadges;
+    //     userProfileForm.silverBadges = member.silverBadges;
+    //     userProfileForm.goldBadges = member.goldBadges;
+
+    //     return userProfileForm;
+    // });
     // })
 
-    dispatch(userReducer({
-      email: "santhosh@gmail.com",
-      username: "lalitha",
-  }))
+    dispatch(userReducer(userProfile))
   })
 
 
@@ -50,10 +91,13 @@ const User = () => {
             <Col sm={2}><img style={{ height: "8rem", borderRadius: "8px" }} src={profpic}></img></Col>
             <Col style={{ marginTop: "2rem", marginLeft: "1rem" }}>
               <Row>
-                <text style={{ fontSize: "30px" }}>{username}</text>
+                <text style={{ fontSize: "30px" }}>{userProfile.username}</text>
               </Row>
               <Row>
-                <text>Member for 1 year</text>
+                <text><i class="fa-solid fa-cake-candles"></i>Member from {userProfile.registered_on} <i class="fa-solid fa-clock"></i> lastseen {userProfile.last_login_time}</text>
+              </Row>
+              <Row>
+              <text><i class="fa-solid fa-location-pin"></i>{userProfile.location}</text>
               </Row>
             </Col>
           </Row>

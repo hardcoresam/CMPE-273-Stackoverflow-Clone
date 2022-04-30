@@ -18,7 +18,7 @@ export const UserSlice = createSlice({
             location: null,
             gold_badges_count: 0,
             silver_badges_count: 0,
-            bronze_badges_count: 1,
+            bronze_badges_count: 0,
             Badges: [],
             answersCount: 1,
             questionsCount: 2,
@@ -32,7 +32,7 @@ export const UserSlice = createSlice({
         userReducer: (state, {payload}) => {
             // const { Title, questionCount } = action.payload;
             // const{username} = action.payload;
-            state.value.username = payload.username;
+            state.value = payload;
         },
 
     }

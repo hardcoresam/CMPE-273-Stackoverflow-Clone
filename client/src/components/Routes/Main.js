@@ -4,6 +4,7 @@ import AdminDashboard from '../Dashboard/Admin/AdminDashboard'
 import Home from '../Dashboard/Home/Home'
 import AskQuestion from '../Dashboard/Questions/AskQuestion'
 import QuestionOverview from '../Dashboard/Questions/QuestionOverview'
+import TagOverview from '../Dashboard/Tags/TagOverview'
 import Login from '../Login/Login'
 import NavBar from '../NavBar'
 import Register from '../Register/Register'
@@ -17,6 +18,7 @@ const Main = () => {
                 <Route path="/User/:userid" element= {<User />} />
                 <Route path = "/askQuestion" element = {<AskQuestion />} />
                 <Route path = "/questions/:qid" element ={<QuestionOverview />} />
+                <Route path = "/tags/:tid" element ={<TagOverview />} />
                 </Route>
                 <Route path="/AdminDashBoard" element= {<AdminDashboard />} />
             </Routes>

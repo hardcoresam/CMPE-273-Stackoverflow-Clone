@@ -5,6 +5,7 @@ import ItemList from './ItemList'
 import Cookies from 'js-cookie'
 import Constants from '../util/Constants.json'
 import TagList from './TagList'
+import BadgeList from './BadgeList'
 const ActivitySubTab = () => {
 
     const [status, setstatus] = useState("Answers")
@@ -59,19 +60,29 @@ const ActivitySubTab = () => {
             <Row style={{ marginTop: "1rem" }}>
                 <Col sm={3}>
                     <div style={{ display: "flex", flexDirection: "column", height: "12rem", justifyContent: "space-between", cursor: "pointer" }}>
-                        <text onClick={showAnswers}>Answers</text>
-                        <text onClick={showQuestions}>Questions</text>
-                        <text onClick={showTags}>Tags</text>
-                        <text onClick={showBadges}>Badges</text>
-                        <text onClick={showBookmarks}>Bookmarks</text>
-                        <text onClick={showReputation}>Reputation</text>
+                        <text style={status=="Answers" ? {borderRadius:"5px", backgroundColor :"green", width:"5rem", color:"white"} : {border: "0"}} onClick={showAnswers}>Answers</text>
+                        <text style={status=="Questions" ? {borderRadius:"5px", backgroundColor :"green", width:"5rem",color:"white"} : {border: "0"}} onClick={showQuestions}>Questions</text>
+                        <text style={status=="Tags" ? {borderRadius:"5px", backgroundColor :"green", width:"5rem",color:"white"} : {border: "0"}} onClick={showTags}>Tags</text>
+                        <text style={status=="Badges" ? {borderRadius:"5px", backgroundColor :"green", width:"5rem",color:"white"} : {border: "0"}} onClick={showBadges}>Badges</text>
+                        <text style={status=="Bookmarks" ? {borderRadius:"5px", backgroundColor :"green", width:"5rem",color:"white"} : {border: "0"}} onClick={showBookmarks}>Bookmarks</text>
+                        <text style={status=="Reputation" ? {borderRadius:"5px", backgroundColor :"green", width:"5rem",color:"white"} : {border: "0"}} onClick={showReputation}>Reputation</text>
                     </div>
                 </Col>
                 <Col>
-                    <ItemList text={status} state={state}/>
-                    
 
-                    <TagList text={status} state={state} />
+                    {
+                        (status === "Answers" || status === "Questions" || status === "Bookmarks") && <ItemList text={status} state={state} />
+                    }
+
+                    {
+                        status === "Tags" && <TagList text={status} state={state} />
+                    }
+
+                    {
+                        status === "Badges" && <BadgeList text={status} state={state} />
+                    }
+
+                    
                 </Col>
             </Row>
         </div>
