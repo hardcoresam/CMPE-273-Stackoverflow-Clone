@@ -5,7 +5,7 @@ const TagList = (props) => {
     const arr =[1]
     const navigate = useNavigate();
     const openTag = ()=>{
-        navigate(`/tags/${1}`);
+        navigate(`/tags/${"javascript"}/?show_user_posts=${true}&filterBy=${true}`);
     }
     return (
         <div>
