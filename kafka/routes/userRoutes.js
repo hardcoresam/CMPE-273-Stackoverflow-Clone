@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Validation = require("../validations/Validation");
 const UserController = require("../controllers/UserController");
+const checkAuth = passport.authenticate("jwt", { session: false });
 
 router.post(
   "/register",
@@ -9,6 +10,7 @@ router.post(
   UserController.createUser
 );
 router.post("/login", UserController.login);
+router.post("/:userId/editProfile", UserController.editProfile);
 router.get("/:userId/profile", UserController.getUserProfile);
 router.get("/:userId/profile/top_posts", UserController.getUserProfileTopPosts);
 router.get("/:userId/activity/answers", UserController.getUserAnswers);
@@ -17,7 +19,7 @@ router.get("/:userId/activity/bookmarks", UserController.getUserBookmarks);
 router.get("/:userId/activity/badges", UserController.getUserBadges);
 router.get("/:userId/activity/tags", UserController.getUserTags);
 router.get("/:username", UserController.getUser);
-router.get("/profile/getProfile", UserController.getProfile);
+router.get("/profile/getProfile", checkAuth, UserController.getProfile);
 router.get("/", UserController.getAllUsers);
 
 module.exports = router;
