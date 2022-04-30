@@ -21,7 +21,7 @@ router.get("/:userId/activity/bookmarks", UserController.getUserBookmarks);
 router.get("/:userId/activity/badges", UserController.getUserBadges);
 router.get("/:userId/activity/tags", UserController.getUserTags);
 router.get("/:username", UserController.getUser);
-router.get("/profile/getProfile", checkAuth, UserController.getProfile);
+router.get("/profile/getProfile", UserController.getProfile);
 router.get("/", UserController.getAllUsers);
 
 module.exports = router;
