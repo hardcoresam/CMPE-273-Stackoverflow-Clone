@@ -5,10 +5,13 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import Axios from 'axios'
 import Constants from '../util/Constants.json'
+import { useSelector, useDispatch } from 'react-redux';
+import {loginSuccess} from './../../features/login'
 const Login = (props) => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const dispatch = useDispatch();
 
     const signInUser = async () => {
         Axios.post(`${Constants.uri}/api/users/login`,{
@@ -19,7 +22,7 @@ const Login = (props) => {
             // validateStatus: status => status<500
           }).then((r)=>{
             if(r.status===200){
-            //   dispatch(loginSuccess())
+            dispatch(loginSuccess())
               props.setModalShow(false)
               if(r.data.is_admin)
               navigate('/AdminDashBoard')

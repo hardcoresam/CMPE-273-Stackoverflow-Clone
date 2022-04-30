@@ -16,7 +16,8 @@ app.use(cors({
 
 
 // use cookie parser to parse request headers
-app.use(cookieParser());
+app.use(cookieParser()); 
+
 let passport = require("passport");
 require("./Utils/passport")(passport);
 
