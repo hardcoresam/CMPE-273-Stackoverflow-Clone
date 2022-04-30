@@ -1,7 +1,32 @@
-import React from 'react'
+import axios from 'axios'
+import React, { useState } from 'react'
 import { Button, Card, Col, Row } from 'react-bootstrap'
 import questionlogo from '../../images/questionlogo1.PNG'
+import Constants from './../../util/Constants.json'
+
 const AskQuestion = () => {
+
+    const [questionForm,setQuestionFormData] = useState({
+        title:"",
+        body:"",
+        tags:"",
+        type:"QUESTION",
+        isImage:false
+    })
+
+    const {title,body,tags} = questionForm
+
+    const onChangeData = async (e) => {
+        e.preventDefault()
+        setQuestionFormData({...questionForm,[e.target.name]:e.target.value})
+    }
+
+    const askQuestion = async (e) => {
+        e.preventDefault()
+        const res = await axios.post(`${Constants.uri}/api/post/question`,questionForm,{withCredentials:true})
+        console.log(res)
+    }
+
     return (
         <div style={{ backgroundColor: "#f2f2f2", width: "auto", height: "60rem" }}>
             <Row>
@@ -22,19 +47,19 @@ const AskQuestion = () => {
                                 Title
                             </Card.Title>
                             <text>Be specific and imagine you’re asking a question to another person</text>
-                            <input style={{marginBottom :"20px"}}></input>
+                            <input style={{marginBottom :"20px"}} name="title" value={title} onChange={(e)=>onChangeData(e)}></input>
                             <Card.Title>Body</Card.Title>
                             <text>Include all the information someone would need to answer your question</text>
-                            <input style={{height:"10rem"}}></input>
+                            <input style={{height:"10rem"}} name="body" value={body} onChange={(e)=>onChangeData(e)}></input>
 
                             <Card.Title>
                                 Tags
                             </Card.Title>
                             <text>Add up to 5 tags to describe what your question is about</text>
-                            <input></input>
+                            <input name="tags" value={tags} onChange={(e)=>onChangeData(e)}></input>
                         </div>
                     </Card>
-                    <Button style={{marginTop :"20px"}}>Post your question</Button>
+                    <Button style={{marginTop :"20px"}} onClick={(e)=>askQuestion(e)}>Post your question</Button>
                 </Col>
             </Row>
         </div>

@@ -1,10 +1,26 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Row, Col, Card, Button } from 'react-bootstrap'
 import './styles.css'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import img1 from '../../images/santhoshProfPic.jpg'
+import axios from 'axios';
+import Constants from './../../util/Constants.json'
+import { useParams } from 'react-router';
+
 const QuestionOverview = () => {
-  const arr = [1, 2, 3, 4, 5]
+  
+  const params = useParams()
+
+  const arr = [1,2]
+  useEffect(()=>{
+    console.log('hitting')
+    async function getQuestion() {
+        const res = await axios.get(`${Constants.uri}/api/post/${params.questionId}`,{withCredentials:true}) 
+        console.log(res)
+    }
+
+    getQuestion()
+  },[])
   return (
     <div>
       <Row>
