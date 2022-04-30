@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "root",
-    "password": "root",
+    "username": "admin",
+    "password": "password",
     "database": "stackoverflow",
-    "host": "localhost",
+    "host": "stackoverflow.cjrtxvroomep.us-east-1.rds.amazonaws.com",
     "dialect": "mysql",
     "logging": false
   },
