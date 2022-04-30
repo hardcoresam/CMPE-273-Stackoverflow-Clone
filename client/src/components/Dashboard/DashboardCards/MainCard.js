@@ -11,6 +11,7 @@ const MainCard = () => {
     useEffect(() => {
         async function getQuests() {
             const res = await axios.get(`${Constants.uri}/api/post/dashboard`)
+            console.log(res)
             setQuestions(res.data)
         }
         getQuests()
