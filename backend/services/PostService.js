@@ -1,7 +1,8 @@
 const { Post, Bookmark, Comment, User, Tag, PostTag, Vote } = require("../models/mysql");
 const { sequelize, Sequelize } = require("../models/mysql/index");
 const PostHistory = require("../models/mongodb/PostHistory");
-const ReputationHistory = require('./../models/mongodb/ReputationHistory')
+const ReputationHistory = require('./../models/mongodb/ReputationHistory');
+const BadgeService = require('./BadgeService');
 const actions = require('../../util/kafkaActions.json');
 const elastClient = require('./../config/ElasticClient');
 
@@ -14,9 +15,8 @@ exports.handle_request = (payload, callback) => {
         case actions.WRITE_ANSWER:
             createAnswer(payload, callback);
             break;
-        case actions.GET_QUESTIONS:
-            getQuestions(payload, callback);
-            break;
+        case actions.GET_QUESTIONS_FOR_DASHBOARD:
+            getQuestionsForDashboard(payload, callback);
         case actions.GET_QUESTION:
             getQuestion(payload, callback);
             break;
@@ -95,17 +95,37 @@ const createAnswer = async (payload, callback) => {
         type: "ANSWER_POSTED"
     }).save();
 
+    BadgeService.pushIntoBadgeTopic({ action: "ANSWER_POSTED", answer: newAnswer });
     return callback(null, newAnswer);
 }
 
-const getQuestions = async (payload, callback) => {
-    const questions = await Post.findAll({
-        where: { type: "QUESTION" }, include: {
+const getQuestionsForDashboard = async (payload, callback) => {
+    const filterBy = payload.query.filterBy;
+    let whereStatement = {
+        type: "QUESTION"
+    };
+    if (filterBy === 'unanswered') {
+        whereStatement.answers_count = 0;
+    }
+    let orderBy;
+    if (filterBy === 'score' || filterBy === 'unanswered') {
+        orderBy = 'score';
+    } else if (filterBy === 'hot') {
+        orderBy = 'views_count';
+    } else if (filterBy === 'interesting') {
+        orderBy = 'modified_date';
+    }
+
+    const guestionsForDashboard = await Post.findAll({
+        where: whereStatement,
+        include: {
             model: User,
-            attributes: ['id', 'username', 'photo', 'reputation']
-        }
+            attributes: ['id', 'username', 'photo', 'reputation'],
+            required: true
+        },
+        order: [[orderBy, 'DESC']]
     });
-    return callback(null, questions);
+    return callback(null, guestionsForDashboard);
 }
 
 const getQuestion = async (payload, callback) => {
@@ -200,7 +220,7 @@ const addComment = async (payload, callback) => {
         type: "COMMENT_ADDED"
     }).save();
 
-    //TODO - Sai Krishna - Need to call badge calculation logic here
+    BadgeService.pushIntoBadgeTopic({ action: "COMMENT_ADDED", comment: newComment });
     return callback(null, newComment);
 }
 
@@ -274,7 +294,7 @@ const acceptAnswer = async (payload, callback) => {
         } catch (error) {
             return callback({ errors: { name: { msg: "Failed to accept the answer, try again!" } } }, null)
         }
-    }else{
+    } else {
         return callback({ errors: { name: { msg: "No such answer found, try again!" } } }, null)
     }
 }
