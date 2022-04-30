@@ -52,12 +52,12 @@ const Login = (props) => {
                 <Row style={{ margin: "1px" }}><input onChange={(e) => {
 
                     setEmail(e.target.value)
-                }} id="Email" autocomplete="off"></input></Row>
+                }} id="Email" ></input></Row>
 
                 <Row><label for="Password">Password</label></Row>
                 <Row style={{ margin: "1px" }}><input type="password" onChange={(e) => {
                     setPassword(e.target.value)
-                }} id="Second Name" autocomplete="off"></input></Row>
+                }} id="Second Name" ></input></Row>
 
                 <Row style={{ margin: "1px", marginTop:"7px" }}><Button onClick={signInUser} className="signinButton">Log in</Button></Row>
                 </div>

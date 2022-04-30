@@ -9,20 +9,25 @@ import Login from '../Login/Login'
 import NavBar from '../NavBar'
 import Register from '../Register/Register'
 import User from '../User/User'
+import VerifyAuth from '../util/VerifyAuth'
 const Main = () => {
     return (
         <div>
             <Routes>
                 <Route path="/" element={<NavBar />} >
-                <Route path="/Dashboard" element= {<Home />} />
-                <Route path="/User/:userid" element= {<User />} />
-                <Route path = "/askQuestion" element = {<AskQuestion />} />
-                <Route path = "/questions/:qid" element ={<QuestionOverview />} />
-                <Route path = "/tags/:tid" element ={<TagOverview />} />
+                    {// <Route element={<VerifyAuth />} >
+                    }
+                        <Route path="/Dashboard" element={<Home />} />
+                        <Route path="/User/:userid" element={<User />} />
+                        <Route path="/askQuestion" element={<AskQuestion />} />
+                        <Route path="/questions/:qid" element={<QuestionOverview />} />
+                        <Route path="/tags/:tid" element={<TagOverview />} />
+                    {// </Route>
+                    }
                 </Route>
-                <Route path="/AdminDashBoard" element= {<AdminDashboard />} />
+                <Route path="/AdminDashBoard" element={<AdminDashboard />} />
             </Routes>
-            
+
         </div>
     )
 }

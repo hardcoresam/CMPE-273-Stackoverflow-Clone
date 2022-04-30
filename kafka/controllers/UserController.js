@@ -13,6 +13,14 @@ exports.createUser = async (req, res) => {
     { ...req.body, action: actions.REGISTER_USER },
     (err, data) => {
       if (err) return res.status(400).json({ message: err });
+      res.cookie("access-token", data.token, {
+        maxAge: 9000000,
+        httpOnly: false,
+      });
+      res.cookie("ID", data.id, {
+        maxAge: 9000000,
+        httpOnly: false,
+      });
       return res.json(data);
     }
   );
@@ -25,6 +33,10 @@ exports.login = async (req, res) => {
     (err, data) => {
       if (err) return res.status(400).json({ message: err });
       res.cookie("access-token", data.token, {
+        maxAge: 9000000,
+        httpOnly: false,
+      });
+      res.cookie("ID", data.id, {
         maxAge: 9000000,
         httpOnly: false,
       });

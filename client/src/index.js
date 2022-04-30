@@ -8,6 +8,9 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import DashboardTop from './features/DashboardTopSlice';
 import DashboardSecondTop from './features/DashboardSecondTopSlice';
+import loginReducer from './features/login'
+import registerreducer from './features/register'
+import logoutReducer from './features/logout'
 import User from './features/UserSlice';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -15,6 +18,9 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 const store = configureStore({
   reducer: {
+    login: loginReducer,
+    register : registerreducer,
+    logout : logoutReducer,
     DashboardTopSlice: DashboardTop,
     DashboardSecondTopSlice : DashboardSecondTop,
     UserSlice : User

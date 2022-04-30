@@ -21,6 +21,7 @@ const Register = (props) => {
           }).then((r) => {
             if (r.status === 200) {
             //   dispatch(registerSuccess())
+            props.setregistermodal(false)
               navigate('/DashBoard')
             }
             else {
@@ -58,18 +59,18 @@ const Register = (props) => {
         <Row style={{ margin: "1px" }}><input onChange={(e) => {
 
             setDisplayName(e.target.value)
-        }} id="Email" autocomplete="off"></input></Row>
+        }} id="Email" ></input></Row>
 
         <Row style={{marginTop:"-5px"}}><label for="Email">Email</label></Row>
         <Row style={{ margin: "1px" }}><input onChange={(e) => {
 
             setEmail(e.target.value)
-        }} id="Email" autocomplete="off"></input></Row>
+        }} id="Email" ></input></Row>
 
         <Row><label for="Password">Password</label></Row>
         <Row style={{ margin: "1px" }}><input type="password" onChange={(e) => {
             setPassword(e.target.value)
-        }} id="Second Name" autocomplete="off"></input></Row>
+        }} id="Second Name" ></input></Row>
 
         <Row style={{ margin: "1px", marginTop:"7px" }}><Button onClick={registerUser} className="signinButton">Sign up</Button></Row>
         </div>
