@@ -115,7 +115,7 @@ const ActivitySubTab = () => {
                         (status === "Questions" || status === "Bookmarks") && <ItemList text={status} state={state} />
                     }
                     {
-                        // status === "Answers" && <AnswerList text={status} state={state} />
+                        //status === "Answers" && <AnswerList text={status} state={state} />
                     }
                     {
                         status === "Tags" && <TagList text={status} state={state} />
