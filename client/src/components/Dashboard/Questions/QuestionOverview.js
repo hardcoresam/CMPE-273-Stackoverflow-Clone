@@ -7,15 +7,49 @@ import axios from 'axios';
 import Constants from './../../util/Constants.json'
 import { useParams } from 'react-router';
 import moment from 'moment'
+import {toast} from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css';
+
+toast.configure()
 
 const QuestionOverview = () => {
 
   const params = useParams()
   const [question, setQuestion] = useState({})
   const [answers, setAnswers] = useState([])
+  const [answerForm, setAnswerForm] = useState({
+    title:"",
+    body:"",
+    type:"ANSWER",
+    tags:"",
+    question_id:"",
+    parent_id:"",
+    status:"ACTIVE",
+    answers_count:0
+  })
+
+  const {title,body} = answerForm
+
+  const onChangeAnswerBody = (e) => {
+    e.preventDefault()
+    setAnswerForm({...answerForm,[e.target.name]:e.target.value})
+  }
+
+  const postAnswer = async (e) => {
+    e.preventDefault()
+    answerForm.title = question.title
+    answerForm.question_id = answerForm.parent_id = question.id
+    answerForm.answers_count = question.answers_count
+    const res = await axios.post(`${Constants.uri}/api/post/answer`,answerForm,{withCredentials:true})
+    if(res.data){
+      toast.success("Posted your answer!")
+      window.location.reload()
+    }
+  }
 
 
   useEffect(() => {
+    console.log(params)
     async function getQuestion() {
       const res = await axios.get(`${Constants.uri}/api/post/${params.qid}`, { withCredentials: true })
       console.log(res.data)
@@ -25,12 +59,16 @@ const QuestionOverview = () => {
     getQuestion()
   }, [])
 
+  const bookMarkQuestion = async () => {
+    
+  }
+
   return (
     <div>
       <Row>
         <Col sm={2}></Col>
         <Col sm={9}>
-          {question && (
+          {question && question.User && (
             <>
               <Row><text style={{ fontSize: "2rem" }}>{question.title}</text></Row>
               <Row style={{ marginLeft: "1px" }}>Asked  {moment(question.created_date).fromNow()} &nbsp;
@@ -41,7 +79,7 @@ const QuestionOverview = () => {
                       <div className='uptriangle'></div>
                       <div>{question.score}</div>
                       <div className='downtriangle'></div>
-                      <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" style={{ color: "#c2d6d6" }}></i></div>
+                      <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" onClick={()=>bookMarkQuestion()} style={{ color: "#c2d6d6" }}></i></div>
                       <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" style={{ color: "#c2d6d6" }}></i></div>
                     </Col>
                     <Col>
@@ -57,7 +95,7 @@ const QuestionOverview = () => {
                         <Col></Col>
                         <Col sm={3}>
                           <Card style={{ backgroundColor: "#b3f0ff" }}>
-                            <Card.Title><span style={{fontSize:12}}>Asked on {question.created_date}</span></Card.Title>
+                            <Card.Title><span style={{fontSize:12}}>Asked on {question.created_date.split('T')[0]}</span></Card.Title>
                             <Row>
                               <Col sm={3}><img style={{ width: "2rem", height: "2rem" }} src={img1}></img></Col>
                               <Col>
@@ -79,9 +117,9 @@ const QuestionOverview = () => {
         </Col>
       </Row>
       <div style={{ marginTop: "5rem" }}>
-        <text style={{ marginLeft: "15rem" }}>4 answers</text>
+        <text style={{ marginLeft: "15rem" }}>{question.answers_count} answers</text>
         {
-          answers.map((i) => (
+          answers.map((answer) => (
             <Row >
               <Col sm={2}></Col>
               <Col sm={9}>
@@ -89,25 +127,16 @@ const QuestionOverview = () => {
                 <Row style={{ marginTop: "1rem" }}>
                   <Col sm={1}>
                     <div className='uptriangle'></div>
-                    <div>20</div>
+                    <div>{answer.score}</div>
                     <div className='downtriangle'></div>
                     <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" style={{ color: "#c2d6d6" }}></i></div>
                     <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" style={{ color: "#c2d6d6" }}></i></div>
                   </Col>
                   <Col>
-                    <text>So why don't you simply use a key-value literal?</text>
+                    <text>{answer.title}</text>
                     <Card style={{ width: "40rem", height: "auto", backgroundColor: " #e6e6e6" }}>
-                      <text> // the JSON data may store several data types, not just key value lists,
-                        // but, must be able to identify some data as a key value list
-
-                        // -- more "common" way to store a key value array
-
-                        [
-
-                        // another THOUSANDS KEY VALUE PAIRS
-                        // ...
-                        ],
-                        "otherdata" :
+                      <text> 
+                          {answer.body}
                       </text>
                     </Card>
                     <Row>
@@ -115,11 +144,11 @@ const QuestionOverview = () => {
                       <Col></Col>
                       <Col sm={3}>
                         <Card>
-                          <Card.Title>Asked on { }</Card.Title>
+                          <Card.Title><span style={{fontSize:12}}>Answered on {answer.modified_date.split(',')[0]}</span></Card.Title>
                           <Row>
                             <Col sm={3}><img style={{ width: "2rem", height: "2rem" }} src={img1}></img></Col>
                             <Col>
-                              <Row><text>santhosh bodla</text></Row>
+                              <Row>{answer.User && (<text>{answer.User.username}</text>)}</Row>
                               <Row>
                                 <Col sm={5}>4321</Col>
                                 <Col>g1 s3 b3</Col>
@@ -143,12 +172,12 @@ const QuestionOverview = () => {
         <Col>
           <Row>Your Answer</Row>
 
-          <textarea rows="6" cols="80">
+          <textarea rows="6" cols="80" name="body" value={body} onChange={(e)=> onChangeAnswerBody(e)}>
 
           </textarea>
 
           <Row>
-            <Col sm={3}><Button>Post Your Answer</Button></Col>
+            <Col sm={3}><Button onClick={(e)=>postAnswer(e)}>Post Your Answer</Button></Col>
 
           </Row>
 
