@@ -79,11 +79,12 @@ const getQuestionsForTag = async (payload, callback) => {
           model: User,
           where: whereCondition,
           attributes: ["id", "username", "photo", "reputation"],
-        },
+          required: true
+        }
       ],
-      required: true,
+      required: true
     },
-    order: [[Post, orderBy, "DESC"]],
+    order: [[Post, orderBy, "DESC"]]
   });
   return callback(null, tagQuestions);
 };
