@@ -225,13 +225,63 @@ const addComment = async (payload, callback) => {
     return callback(null, newComment);
 }
 
+//TODO - @Sai Krishna - Code to write to reputation history table is pending
 const votePost = async (payload, callback) => {
-    let sqlQuery = "update post set score = :score where id = :postId"
-    const data = await sequelize.query(sqlQuery, {
-        replacements: { score: payload.score, postId: payload.params.postId },
-        type: Sequelize.QueryTypes.UPDATE
+    const loggedInUserId = payload.USER_ID;
+    const postId = payload.params.postId;
+    const voteType = payload.type;
+    const post = await Post.findOne({ where: { id: postId } });
+    if (post.owner_id === loggedInUserId) {
+        return callback({ errors: { vote: { msg: 'You cannot vote on your own posts.' } } }, null);
+    }
+    const previousVote = await Vote.findOne({
+        where: {
+            post_id: postId,
+            user_id: loggedInUserId
+        }
     });
-    callback(null, data)
+
+    let repuationToModify;
+    let postScoreToModify;
+    if (previousVote !== null) {
+        //User already has a vote for this post. So, there can be 2 cases here.
+        //Case - 1 - User wanting to undo his previous vote.
+        //Case - 2 - User wanting to downvote when he already upvoted this post previously
+        if (previousVote.type === voteType) {
+            if (voteType === "UPVOTE") {
+                postScoreToModify = -1;
+                repuationToModify = post.type === "QUESTION" ? -10 : -5;
+            } else {
+                postScoreToModify = 1;
+                repuationToModify = post.type === "QUESTION" ? 10 : 5;
+            }
+        } else {
+            if (voteType === "UPVOTE") {
+                postScoreToModify = 2;
+                repuationToModify = post.type === "QUESTION" ? 20 : 10;
+            } else {
+                postScoreToModify = -2;
+                repuationToModify = post.type === "QUESTION" ? -20 : -10;
+            }
+            await new Vote({ type: voteType, post_id: postId, user_id: loggedInUserId }).save();
+        }
+        await Vote.destroy({ where: { id: previousVote.id } });
+    } else {
+        //User is voting for the first time for this post. So, create a record directly
+        if (voteType === "UPVOTE") {
+            postScoreToModify = 1;
+            repuationToModify = post.type === "QUESTION" ? 10 : 5;
+        } else {
+            postScoreToModify = -1;
+            repuationToModify = post.type === "QUESTION" ? -10 : -5;
+        }
+        await new Vote({ type: voteType, post_id: postId, user_id: loggedInUserId }).save();
+    }
+    await Post.increment({ score: postScoreToModify }, { where: { id: post.id } });
+    await User.increment({ reputation: repuationToModify }, { where: { id: post.owner_id } });
+
+    //TODO - @Sai Krishna - Need to add badge calculation service here
+    return callback(null, { message: "Voted successfully" });
 }
 
 const postActivity = async (payload, callback) => {

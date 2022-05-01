@@ -8,7 +8,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         name: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            unique: 'compositeIndex'
         },
         type: {
             type: DataTypes.ENUM("BRONZE", "SILVER", "GOLD"),
@@ -31,7 +32,8 @@ module.exports = (sequelize, DataTypes) => {
         Badge.belongsTo(models.User, {
             foreignKey: {
                 allowNull: false,
-                name: "user_id"
+                name: "user_id",
+                unique: 'compositeIndex'
             }
         });
     };
