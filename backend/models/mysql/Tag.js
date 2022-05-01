@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         name: {
             type: DataTypes.STRING,
             allowNull: false,
-            primaryKey:true
+            unique: true
         },
         description: {
             type: DataTypes.STRING
@@ -34,11 +34,11 @@ module.exports = (sequelize, DataTypes) => {
                 name: "admin_id"
             }
         }),
-        Tag.belongsToMany(models.Post, {
-            through: models.PostTag,
-            foreignKey: 'tag_id',
-            timestamps: false
-        });
+            Tag.belongsToMany(models.Post, {
+                through: models.PostTag,
+                foreignKey: 'tag_id',
+                timestamps: false
+            });
     };
 
     return Tag;
