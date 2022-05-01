@@ -9,10 +9,13 @@ const TagOverview = () => {
     const show_user_posts = searchParams.get('show_user_posts')
     const filterBy = searchParams.get('filterBy')
     var description = "swdasd"
+
+    
     useEffect(()=>{
         async function getQuestionforTags(){
         const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/?show_user_posts=${show_user_posts}&filterBy=${filterBy}`,{withCredentials:true}) 
-        console.log(res)   
+        const res1 = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?filterBy=interesting`)
+        console.log(res1)   
     }
     getQuestionforTags();
     },[])
@@ -26,7 +29,7 @@ const TagOverview = () => {
                 <Col sm={2}></Col>
                 <Col sm={7}>
                     <Row style={{ marginBottom: "3rem" }}><h1>Search Results</h1></Row>
-                    <Row><Col sm={3}><text>Results tagged with </text></Col><Col sm={2} style={{ marginLeft: "-17px" }}><h5>{tagname}</h5></Col></Row>
+                    <Row><Col sm={3}><text>Questions tagged with </text></Col><Col sm={2} style={{ marginLeft: "-17px" }}><h5>{tagname}</h5></Col></Row>
                     <Row><text>{description}</text></Row>
                     <hr style={{ marginTop: "1rem" }}></hr>
                     <Card>
