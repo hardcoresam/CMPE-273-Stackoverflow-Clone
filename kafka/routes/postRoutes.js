@@ -12,7 +12,7 @@ router.get('/:questionId', checkAuth, PostController.getQuestion)
 router.post('/bookmark/:questionId', checkAuth, PostController.bookmarkQuestion)
 router.post('/unbookmark/:questionId', checkAuth, PostController.unbookmarkQuestion)
 router.put('/vote/:postId', checkAuth, PostController.votePost)
-router.post('/acceptAnswer',checkAuth,PostController.acceptAnswer)
+router.post('/acceptAnswer', checkAuth, PostController.acceptAnswer)
 router.post('/activities/:postId', checkAuth, PostController.postActivity)
 router.post('/:postId/comment', checkAuth, PostController.addComment)
 

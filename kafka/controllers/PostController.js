@@ -11,7 +11,6 @@ exports.createQuestion = async (req, res) => {
 }
 
 exports.createAnswer = async (req, res) => {
-    console.log("in create answer")
     kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, action: actions.WRITE_ANSWER }, (err, data) => {
         if (err) return res.status(400).json({ message: err })
         return res.json(data)
@@ -71,7 +70,7 @@ exports.postActivity = async (req, res) => {
     })
 }
 
-exports.acceptAnswer = async (req,res) => {
+exports.acceptAnswer = async (req, res) => {
     kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, params: req.params, action: actions.ACCEPT_ANSWER }, (err, data) => {
         if (err) return res.status(400).json({ message: err })
         return res.json(data)
