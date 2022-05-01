@@ -17,6 +17,7 @@ exports.handle_request = (payload, callback) => {
             break;
         case actions.GET_QUESTIONS_FOR_DASHBOARD:
             getQuestionsForDashboard(payload, callback);
+            break;
         case actions.GET_QUESTION:
             getQuestion(payload, callback);
             break;
@@ -107,7 +108,7 @@ const getQuestionsForDashboard = async (payload, callback) => {
     if (filterBy === 'unanswered') {
         whereStatement.answers_count = 0;
     }
-    let orderBy;
+    let orderBy = 'modified_date';
     if (filterBy === 'score' || filterBy === 'unanswered') {
         orderBy = 'score';
     } else if (filterBy === 'hot') {

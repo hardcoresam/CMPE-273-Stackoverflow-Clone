@@ -1,7 +1,7 @@
 import React from 'react'
 import { Row, Col, Card, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router'
-const ItemList = (props) => {
+const AnswerList = (props) => {
     // const arr = [1, 2, 3, 4, 5, 6]
     const navigate = useNavigate();
     const openQuestion = () =>{
@@ -17,10 +17,10 @@ const ItemList = (props) => {
                     <Card>
                         <div style={{ margin: "1rem" }}>
                             <Row>
-                            <Col sm={2}><text>{i.score} votes</text></Col>
-                            {i.accepted_answer_id && <Col><Button style={{backgroundColor:"green", color:"white",marginTop:"-10px"}}>✔{props.text}</Button></Col>}
+                            <Col sm={2}><text>{i.question} votes</text></Col>
+                            {i.question.accepted_answer_id && <Col><Button style={{backgroundColor:"green", color:"white",marginTop:"-10px"}}>✔{props.text}</Button></Col>}
                             </Row>
-                            <Row><text onClick={openQuestion}>{i.body}</text></Row>
+                            <Row><text onClick={openQuestion}>{i.question.title}</text></Row>
                             <Row>
                             <Col sm={6}>
                             {
@@ -31,11 +31,10 @@ const ItemList = (props) => {
                                     </Card>
                                 ))}
                                 </Row>
-                                
                             }
                             </Col>
                             <Col sm={1}></Col>
-                            <Col>asked {i.created_date}</Col>
+                            <Col>answered {i.created_date}</Col>
                             </Row>
                         </div>
                     </Card>
@@ -46,4 +45,4 @@ const ItemList = (props) => {
     )
 }
 
-export default ItemList
+export default AnswerList

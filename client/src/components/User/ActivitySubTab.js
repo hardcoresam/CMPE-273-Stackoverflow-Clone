@@ -2,14 +2,55 @@ import Axios from 'axios'
 import React, { useState } from 'react'
 import { Row, Col, Card } from 'react-bootstrap'
 import ItemList from './ItemList'
+import AnswerList from './AnswerList'
 import Cookies from 'js-cookie'
 import Constants from '../util/Constants.json'
 import TagList from './TagList'
 import BadgeList from './BadgeList'
+import Reputation from './Reputation'
 const ActivitySubTab = () => {
 
     const [status, setstatus] = useState("Answers")
-    const [state, setstate] = useState([]);
+    const [state, setstate] = useState([
+        {
+            tags: [
+                "python",
+                " java"
+            ],
+            created_date: "26/04/2022, 14:16:25",
+            modified_date: "26/04/2022, 14:16:25",
+            id: 1,
+            type: "QUESTION",
+            status: "ACTIVE",
+            title: "Question 1",
+            body: "What is Python used for?",
+            score: 10,
+            views_count: 0,
+            parent_id: null,
+            answers_count: 1,
+            accepted_answer_id: null,
+            owner_id: 1
+        },
+        {
+            tags: [
+                "python",
+                " javascript"
+            ],
+            created_date: "26/04/2022, 15:16:25",
+            modified_date: "26/04/2022, 15:16:25",
+            id: 2,
+            type: "QUESTION",
+            status: "ACTIVE",
+            title: "Question 2",
+            body: "How does Python work?",
+            score: 1,
+            views_count: 0,
+            parent_id: null,
+            answers_count: 0,
+            accepted_answer_id: null,
+            owner_id: 1
+        }
+    ]);
     // const [tagstate,settagstate] = useState([]);
     const userid = Cookies
     const showAnswers = async () => {
@@ -60,20 +101,22 @@ const ActivitySubTab = () => {
             <Row style={{ marginTop: "1rem" }}>
                 <Col sm={3}>
                     <div style={{ display: "flex", flexDirection: "column", height: "12rem", justifyContent: "space-between", cursor: "pointer" }}>
-                        <text style={status=="Answers" ? {borderRadius:"5px", backgroundColor :"green", width:"5rem", color:"white"} : {border: "0"}} onClick={showAnswers}>Answers</text>
-                        <text style={status=="Questions" ? {borderRadius:"5px", backgroundColor :"green", width:"5rem",color:"white"} : {border: "0"}} onClick={showQuestions}>Questions</text>
-                        <text style={status=="Tags" ? {borderRadius:"5px", backgroundColor :"green", width:"5rem",color:"white"} : {border: "0"}} onClick={showTags}>Tags</text>
-                        <text style={status=="Badges" ? {borderRadius:"5px", backgroundColor :"green", width:"5rem",color:"white"} : {border: "0"}} onClick={showBadges}>Badges</text>
-                        <text style={status=="Bookmarks" ? {borderRadius:"5px", backgroundColor :"green", width:"5rem",color:"white"} : {border: "0"}} onClick={showBookmarks}>Bookmarks</text>
-                        <text style={status=="Reputation" ? {borderRadius:"5px", backgroundColor :"green", width:"5rem",color:"white"} : {border: "0"}} onClick={showReputation}>Reputation</text>
+                        <text style={status == "Answers" ? { borderRadius: "5px", backgroundColor: "green", width: "5rem", color: "white" } : { border: "0" }} onClick={showAnswers}>Answers</text>
+                        <text style={status == "Questions" ? { borderRadius: "5px", backgroundColor: "green", width: "5rem", color: "white" } : { border: "0" }} onClick={showQuestions}>Questions</text>
+                        <text style={status == "Tags" ? { borderRadius: "5px", backgroundColor: "green", width: "5rem", color: "white" } : { border: "0" }} onClick={showTags}>Tags</text>
+                        <text style={status == "Badges" ? { borderRadius: "5px", backgroundColor: "green", width: "5rem", color: "white" } : { border: "0" }} onClick={showBadges}>Badges</text>
+                        <text style={status == "Bookmarks" ? { borderRadius: "5px", backgroundColor: "green", width: "5rem", color: "white" } : { border: "0" }} onClick={showBookmarks}>Bookmarks</text>
+                        <text style={status == "Reputation" ? { borderRadius: "5px", backgroundColor: "green", width: "5rem", color: "white" } : { border: "0" }} onClick={showReputation}>Reputation</text>
                     </div>
                 </Col>
                 <Col>
 
                     {
-                        (status === "Answers" || status === "Questions" || status === "Bookmarks") && <ItemList text={status} state={state} />
+                        (status === "Questions" || status === "Bookmarks") && <ItemList text={status} state={state} />
                     }
-
+                    {
+                        // status === "Answers" && <AnswerList text={status} state={state} />
+                    }
                     {
                         status === "Tags" && <TagList text={status} state={state} />
                     }
@@ -81,8 +124,12 @@ const ActivitySubTab = () => {
                     {
                         status === "Badges" && <BadgeList text={status} state={state} />
                     }
+                    {
+                        status ==="Reputation" && <Reputation text={status} state={state}/>
+                    }
 
-                    
+
+
                 </Col>
             </Row>
         </div>
