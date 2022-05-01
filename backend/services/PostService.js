@@ -70,7 +70,7 @@ const createQuestion = async (payload, callback) => {
         type: "QUESTION_ASKED"
     }).save();
 
-
+    BadgeService.pushIntoBadgeTopic({ action: "QUESTION_POSTED", postedUserId: loggedInUser.id });
     return callback(null, newQuestion);
 }
 
@@ -96,7 +96,7 @@ const createAnswer = async (payload, callback) => {
         type: "ANSWER_POSTED"
     }).save();
 
-    BadgeService.pushIntoBadgeTopic({ action: "ANSWER_POSTED", answer: newAnswer });
+    BadgeService.pushIntoBadgeTopic({ action: "ANSWER_POSTED", answeredUserId: newAnswer.owner_id });
     return callback(null, newAnswer);
 }
 
@@ -221,7 +221,7 @@ const addComment = async (payload, callback) => {
         type: "COMMENT_ADDED"
     }).save();
 
-    BadgeService.pushIntoBadgeTopic({ action: "COMMENT_ADDED", comment: newComment });
+    BadgeService.pushIntoBadgeTopic({ action: "COMMENT_ADDED", commentedUserId: newComment.user_id });
     return callback(null, newComment);
 }
 
@@ -280,7 +280,11 @@ const votePost = async (payload, callback) => {
     await Post.increment({ score: postScoreToModify }, { where: { id: post.id } });
     await User.increment({ reputation: repuationToModify }, { where: { id: post.owner_id } });
 
-    //TODO - @Sai Krishna - Need to add badge calculation service here
+    if (voteType === "UPVOTE") {
+        BadgeService.pushIntoBadgeTopic({ action: "UPVOTE", postId: postId, upvotedUserId: loggedInUserId });
+    } else {
+        BadgeService.pushIntoBadgeTopic({ action: "DOWNVOTE", downvotedUserId: loggedInUserId });
+    }
     return callback(null, { message: "Voted successfully" });
 }
 

@@ -1,59 +1,78 @@
-const { User, Badge, Comment, Post } = require("../models/mysql");
+const { User, Badge, Comment, Post, Tag, Vote } = require("../models/mysql");
+const { sequelize, Sequelize } = require("../models/mysql/index");
 const kafkaConection = require('../kafka/KafkaConnect')
 const kafkaTopics = require('../../util/kafkaTopics.json')
 
+//TODO - Only tag based badges should be revoked if they are not eligible anymore but keep this for the end.
 exports.checkAndAwardBadges = async (payload) => {
     const { action } = payload;
+    var badgeType;
 
     if (action === "UPVOTE") {
+        const votedPost = await Post.findOne({
+            where: { id: payload.postId },
+            attributes: ["id", "type", "score", "owner_id"],
+            include: [
+                {
+                    model: Tag,
+                    attributes: ["id", "name"]
+                },
+                {
+                    model: User,
+                    attributes: ["id", "reputation"],
+                    required: true
+                }
+            ]
+        });
+        let tagIds = [];
+        for (const tag of votedPost.Tags) {
+            tagIds.push(tag.id);
+        }
 
+        //Need to check the tag score for all the tags present in the upvoted post and then award tag badges
+        if (tagIds.length > 0 && votedPost.type === "QUESTION") {
+            let sqlQuery = "select pt.tag_id, t.name, sum(p.score) as score from post p inner join post_tag pt " +
+                "on p.id = pt.post_id inner join tag t on pt.tag_id = t.id where p.owner_id = :owner_id " +
+                "and p.type = 'QUESTION' and pt.tag_id in (:tagIds) group by pt.tag_id";
+            const sqlResults = await sequelize.query(sqlQuery, {
+                replacements: { owner_id: votedPost.owner_id, tagIds: tagIds },
+                type: Sequelize.QueryTypes.SELECT
+            });
+
+            for (const result of sqlResults) {
+                var tagScore = result.score;
+                badgeType = tagScore <= 10 ? "BRONZE" : (tagScore <= 15 ? "SILVER" : "GOLD");
+                createBadgeIfNotPresent(result.name, badgeType, votedPost.owner_id);
+            }
+        }
+
+        //Need to check for "Popular" badge based on user's reputation
+        const userReputation = votedPost.User.reputation;
+        badgeType = userReputation <= 10 ? "BRONZE" : (userReputation < 15 ? "SILVER" : "GOLD");
+        createBadgeIfNotPresent("Popular", badgeType, votedPost.owner_id);
+
+        //Need to check for "Sportsmanship" badge based on no of upvotes
+        const noOfUpvotes = await Vote.count({ where: { type: "UPVOTE", user_id: payload.upvotedUserId } });
+        badgeType = noOfUpvotes <= 2 ? "BRONZE" : (noOfUpvotes < 5 ? "SILVER" : "GOLD");
+        createBadgeIfNotPresent("Sportsmanship", badgeType, payload.upvotedUserId);
     }
 
     if (action === "DOWNVOTE") {
-
+        const noOfDownvotes = await Vote.count({ where: { type: "DOWNVOTE", user_id: payload.downvotedUserId } });
+        badgeType = noOfDownvotes <= 2 ? "BRONZE" : (noOfDownvotes < 5 ? "SILVER" : "GOLD");
+        createBadgeIfNotPresent("Critic", badgeType, payload.downvotedUserId);
     }
 
-    if (action === "QUESTION_ADDED") {
-
+    if (action === "QUESTION_POSTED") {
+        const noOfQuestions = await Post.count({ where: { type: "QUESTION", owner_id: payload.postedUserId } });
+        badgeType = noOfQuestions <= 2 ? "BRONZE" : (noOfQuestions < 5 ? "SILVER" : "GOLD");
+        createBadgeIfNotPresent("Curious", badgeType, payload.postedUserId);
     }
 
     if (action === "ANSWER_POSTED") {
-        const answerAdded = payload.answer;
-        const badge = await Badge.findOne({
-            where: {
-                name: "Helpfulness",
-                user_id: answerAdded.owner_id
-            }
-        });
-        //Already received the highest badge. No need to check further
-        if (badge && badge.type === "GOLD") {
-            return;
-        }
-
-        const noOfAnswers = await Post.count({
-            where: {
-                type: "ANSWER",
-                owner_id: answerAdded.owner_id
-            }
-        });
-        let badgeType;
-        if (noOfAnswers <= 2) {
-            badgeType = "BRONZE";
-        } else if (noOfAnswers > 2 && noOfAnswers < 5) {
-            badgeType = "SILVER";
-        } else {
-            badgeType = "GOLD";
-        }
-
-        if (badge === null || badge.type !== badgeType) {
-            await new Badge({
-                name: "Helpfulness",
-                type: badgeType,
-                user_id: answerAdded.owner_id
-            }).save();
-            const badgeTypeCount = badgeType === "BRONZE" ? "bronze_badges_count" : (badgeType === "SILVER" ? "silver_badges_count" : "gold_badges_count");
-            await User.increment({ [badgeTypeCount]: 1 }, { where: { id: answerAdded.owner_id } });
-        }
+        const noOfAnswers = await Post.count({ where: { type: "ANSWER", owner_id: payload.answeredUserId } });
+        badgeType = noOfAnswers <= 2 ? "BRONZE" : (noOfAnswers < 5 ? "SILVER" : "GOLD");
+        createBadgeIfNotPresent("Helpfulness", badgeType, payload.answeredUserId);
     }
 
     if (action === "QUESTION_VIEWED") {
@@ -65,33 +84,25 @@ exports.checkAndAwardBadges = async (payload) => {
     }
 
     if (action === "COMMENT_ADDED") {
-        const commentAdded = payload.comment;
-        const badge = await Badge.findOne({
-            where: {
-                name: "Pundit",
-                user_id: commentAdded.user_id
-            }
-        });
-        if (badge === null) {
-            const noOfComments = await Comment.count({
-                where: {
-                    user_id: commentAdded.user_id
-                }
-            });
-            if (noOfComments >= 3) {
-                await new Badge({
-                    name: "Pundit",
-                    type: "SILVER",
-                    user_id: commentAdded.user_id
-                }).save();
-                await User.increment({ silver_badges_count: 1 }, { where: { id: commentAdded.user_id } });
-            }
+        const noOfComments = await Comment.count({ where: { user_id: payload.commentedUserId } });
+        if (noOfComments >= 3) {
+            createBadgeIfNotPresent("Pundit", "SILVER", payload.commentedUserId);
         }
     }
 
     //Not that important
     if (action === "QUESTION_EDITED") {
 
+    }
+}
+
+const createBadgeIfNotPresent = async (name, type, userId) => {
+    try {
+        await new Badge({ name: name, type: type, user_id: userId }).save();
+        let badgeTypeCount = type.toLowerCase() + "_badges_count";
+        await User.increment({ [badgeTypeCount]: 1 }, { where: { id: userId } });
+    } catch (error) {
+        console.log(`User already has ${name} badge in ${type} category. So, not awarding this badge`);
     }
 }
 
