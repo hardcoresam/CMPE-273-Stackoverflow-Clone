@@ -16,6 +16,10 @@ const MessageSchema = new mongoose.Schema({
     to:{
         type:String,
         required:true
+    },
+    timestamp:{
+        type:String,
+        required:true
     }
 }, {
     toJSON: { virtuals: true, getters: true },
