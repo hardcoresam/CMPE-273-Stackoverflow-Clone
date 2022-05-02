@@ -7,7 +7,7 @@ import axios from 'axios';
 import Constants from './../../util/Constants.json'
 import { useParams } from 'react-router';
 import moment from 'moment'
-import {toast} from 'react-toastify'
+import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 
 toast.configure()
@@ -17,22 +17,26 @@ const QuestionOverview = () => {
   const params = useParams()
   const [question, setQuestion] = useState({})
   const [answers, setAnswers] = useState([])
+  const [comments, setComments] = useState([])
   const [answerForm, setAnswerForm] = useState({
-    title:"",
-    body:"",
-    type:"ANSWER",
-    tags:"",
-    question_id:"",
-    parent_id:"",
-    status:"ACTIVE",
-    answers_count:0
+    title: "",
+    body: "",
+    type: "ANSWER",
+    tags: "",
+    question_id: "",
+    parent_id: "",
+    status: "ACTIVE",
+    answers_count: 0
   })
+  const [commentForm, setCommentForm] = useState()
+  const [isQuestionBookMarked, setIsQuestionBookMarked] = useState(false)
+  const [enableComment, setEnableComment] = useState(false)
 
-  const {title,body} = answerForm
+  const { title, body } = answerForm
 
   const onChangeAnswerBody = (e) => {
     e.preventDefault()
-    setAnswerForm({...answerForm,[e.target.name]:e.target.value})
+    setAnswerForm({ ...answerForm, [e.target.name]: e.target.value })
   }
 
   const postAnswer = async (e) => {
@@ -40,8 +44,8 @@ const QuestionOverview = () => {
     answerForm.title = question.title
     answerForm.question_id = answerForm.parent_id = question.id
     answerForm.answers_count = question.answers_count
-    const res = await axios.post(`${Constants.uri}/api/post/answer`,answerForm,{withCredentials:true})
-    if(res.data){
+    const res = await axios.post(`${Constants.uri}/api/post/answer`, answerForm, { withCredentials: true })
+    if (res.data) {
       toast.success("Posted your answer!")
       window.location.reload()
     }
@@ -49,18 +53,37 @@ const QuestionOverview = () => {
 
 
   useEffect(() => {
-    console.log(params)
     async function getQuestion() {
       const res = await axios.get(`${Constants.uri}/api/post/${params.qid}`, { withCredentials: true })
       console.log(res.data)
       setQuestion(res.data)
       setAnswers(res.data.answers)
+      setComments(res.data.Comments)
+      if (res.data.bookmarked) {
+        setIsQuestionBookMarked(true)
+      }
     }
     getQuestion()
   }, [])
 
   const bookMarkQuestion = async () => {
-    
+    if (!isQuestionBookMarked) {
+      const res = await axios.post(`${Constants.uri}/api/post/bookmark/${question.id}`, {}, { withCredentials: true })
+      if (res.data) {
+        toast.success('Quesition added to Bookmarks')
+      }
+    } else {
+      const res = await axios.post(`${Constants.uri}/api/post/unbookmark/${question.id}`, {}, { withCredentials: true })
+      if (res) {
+        toast.success("Question removed from Bookmarks")
+        isQuestionBookMarked(false)
+      }
+    }
+  }
+
+  const addComment = async () => {
+    const res = await axios.post(`${Constants.uri}/api/post/${question.id}/comment`, { content: commentForm }, { withCredentials: true })
+    window.location.reload()
   }
 
   return (
@@ -75,42 +98,65 @@ const QuestionOverview = () => {
                 Modified {moment(question.modified_date).fromNow()}</Row>
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
               <Row>
-                    <Col sm={1}>
-                      <div className='uptriangle'></div>
-                      <div>{question.score}</div>
-                      <div className='downtriangle'></div>
-                      <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" onClick={()=>bookMarkQuestion()} style={{ color: "#c2d6d6" }}></i></div>
-                      <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" style={{ color: "#c2d6d6" }}></i></div>
+                <Col sm={1}>
+                  <div className='uptriangle'></div>
+                  <div>{question.score}</div>
+                  <div className='downtriangle'></div>
+                  <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" onClick={() => bookMarkQuestion()} style={{ color: isQuestionBookMarked ? "#fce303" : "#c2d6d6" }}></i></div>
+                  <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" style={{ color: "#c2d6d6" }}></i></div>
+                </Col>
+                <Col>
+                  <Card style={{ width: "40rem", height: "auto", backgroundColor: "#e7f4f4" }}>
+                    <text>
+                      {question.body}
+                    </text>
+                  </Card>
+                  <Row>
+                    <Col sm={3}>
+                      {question.tags}
                     </Col>
-                    <Col>
-                      <Card style={{ width: "40rem", height: "auto", backgroundColor: "#e7f4f4" }}>
-                        <text> 
-                            {question.body}
-                        </text>
-                      </Card>
-                      <Row>
-                        <Col sm={3}>
-                          {question.tags}
-                        </Col>
-                        <Col></Col>
-                        <Col sm={3}>
-                          <Card style={{ backgroundColor: "#b3f0ff" }}>
-                            <Card.Title><span style={{fontSize:12}}>Asked on {question.created_date.split('T')[0]}</span></Card.Title>
+                    <Col></Col>
+                    <Col sm={3}>
+                      <Card style={{ backgroundColor: "#b3f0ff" }}>
+                        <Card.Title><span style={{ fontSize: 12 }}>Asked on {question.created_date.split('T')[0]}</span></Card.Title>
+                        <Row>
+                          <Col sm={3}><img style={{ width: "2rem", height: "2rem" }} src={img1}></img></Col>
+                          <Col>
+                            <Row><text>{question.User.username}</text></Row>
                             <Row>
-                              <Col sm={3}><img style={{ width: "2rem", height: "2rem" }} src={img1}></img></Col>
-                              <Col>
-                                <Row><text>{question.User.username}</text></Row>
-                                <Row>
-                                  <Col sm={5}>4321</Col>
-                                  <Col>g1 s3 b3</Col>
-                                </Row>
-                              </Col>
+                              <Col sm={5}>4321</Col>
+                              <Col>g1 s3 b3</Col>
                             </Row>
+                          </Col>
+                        </Row>
 
-                          </Card>
-                        </Col>
-                      </Row>
+                      </Card>
                     </Col>
+                  </Row>
+                </Col>
+              </Row>
+              <Row>
+                <Col sm={1}></Col>
+                <Col>
+                  <Row>
+                    {comments && comments.length > 0 && comments.map(comment => (
+                      <>
+                        {/* <span className='text-muted' style={{ fontSize: 12 }}>{comment}</span>
+                        <hr /> */}
+                      </>
+                    ))}
+                  </Row>
+                  <Row>
+                    <span className='text-muted' style={{ fontSize: 12, cursor: 'pointer' }} onClick={() => setEnableComment(true)}>Add a comment</span>
+                    {enableComment && (
+                      <>
+                        <span><textarea name="comment" value={commentForm} onChange={(e) => setCommentForm(e.target.value)} /></span>
+                        <span><Button className='btn btn-secondary' onClick={() => addComment()} style={{ padding: 0 }}>Post</Button></span>
+                      </>
+
+                    )}
+                  </Row>
+                </Col>
               </Row>
             </>
           )}
@@ -129,14 +175,12 @@ const QuestionOverview = () => {
                     <div className='uptriangle'></div>
                     <div>{answer.score}</div>
                     <div className='downtriangle'></div>
-                    <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" style={{ color: "#c2d6d6" }}></i></div>
-                    <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" style={{ color: "#c2d6d6" }}></i></div>
                   </Col>
                   <Col>
                     <text>{answer.title}</text>
                     <Card style={{ width: "40rem", height: "auto", backgroundColor: " #e6e6e6" }}>
-                      <text> 
-                          {answer.body}
+                      <text>
+                        {answer.body}
                       </text>
                     </Card>
                     <Row>
@@ -144,7 +188,7 @@ const QuestionOverview = () => {
                       <Col></Col>
                       <Col sm={3}>
                         <Card>
-                          <Card.Title><span style={{fontSize:12}}>Answered on {answer.modified_date.split(',')[0]}</span></Card.Title>
+                          <Card.Title><span style={{ fontSize: 12 }}>Answered on {answer.modified_date.split(',')[0]}</span></Card.Title>
                           <Row>
                             <Col sm={3}><img style={{ width: "2rem", height: "2rem" }} src={img1}></img></Col>
                             <Col>
@@ -172,12 +216,12 @@ const QuestionOverview = () => {
         <Col>
           <Row>Your Answer</Row>
 
-          <textarea rows="6" cols="80" name="body" value={body} onChange={(e)=> onChangeAnswerBody(e)}>
+          <textarea rows="6" cols="80" name="body" value={body} onChange={(e) => onChangeAnswerBody(e)}>
 
           </textarea>
 
           <Row>
-            <Col sm={3}><Button onClick={(e)=>postAnswer(e)}>Post Your Answer</Button></Col>
+            <Col sm={3}><Button onClick={(e) => postAnswer(e)}>Post Your Answer</Button></Col>
 
           </Row>
 
