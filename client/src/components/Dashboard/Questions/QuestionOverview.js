@@ -9,6 +9,7 @@ import { useParams } from 'react-router';
 import moment from 'moment'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
+import { Link } from 'react-router-dom'
 
 toast.configure()
 
@@ -71,12 +72,14 @@ const QuestionOverview = () => {
       const res = await axios.post(`${Constants.uri}/api/post/bookmark/${question.id}`, {}, { withCredentials: true })
       if (res.data) {
         toast.success('Quesition added to Bookmarks')
+        window.location.reload()
       }
     } else {
       const res = await axios.post(`${Constants.uri}/api/post/unbookmark/${question.id}`, {}, { withCredentials: true })
       if (res) {
         toast.success("Question removed from Bookmarks")
         isQuestionBookMarked(false)
+        window.location.reload()
       }
     }
   }
@@ -84,6 +87,17 @@ const QuestionOverview = () => {
   const addComment = async () => {
     const res = await axios.post(`${Constants.uri}/api/post/${question.id}/comment`, { content: commentForm }, { withCredentials: true })
     window.location.reload()
+  }
+
+  const voteQuestion = async (voteType) => {
+    const res = await axios.post(`${Constants.uri}/api/post/${question.id}/vote`,{type:voteType},{withCredentials:true})
+    console.log(res.data)
+    if(res.data){
+      if(voteType == "UPVOTE")
+        toast.success("Up voted the question")
+      else
+      toast.success("Down voted the question")
+    }
   }
 
   return (
@@ -99,13 +113,13 @@ const QuestionOverview = () => {
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
               <Row>
                 <Col sm={1}>
-                  <div className='uptriangle'></div>
-                  <div>{question.score}</div>
-                  <div className='downtriangle'></div>
+                  <div className='uptriangle' onClick={()=>voteQuestion("UPVOTE")}></div>
+                  <div>&nbsp;&nbsp;{question.score}</div>
+                  <div className='downtriangle' onClick={()=>voteQuestion("DOWNVOTE")}></div>
                   <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" onClick={() => bookMarkQuestion()} style={{ color: isQuestionBookMarked ? "#fce303" : "#c2d6d6" }}></i></div>
                   <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" style={{ color: "#c2d6d6" }}></i></div>
                 </Col>
-                <Col>
+                <Col sm={7}>
                   <Card style={{ width: "40rem", height: "auto", backgroundColor: "#e7f4f4" }}>
                     <text>
                       {question.body}
@@ -117,32 +131,43 @@ const QuestionOverview = () => {
                     </Col>
                     <Col></Col>
                     <Col sm={3}>
-                      <Card style={{ backgroundColor: "#b3f0ff" }}>
-                        <Card.Title><span style={{ fontSize: 12 }}>Asked on {question.created_date.split('T')[0]}</span></Card.Title>
-                        <Row>
-                          <Col sm={3}><img style={{ width: "2rem", height: "2rem" }} src={img1}></img></Col>
-                          <Col>
-                            <Row><text>{question.User.username}</text></Row>
-                            <Row>
-                              <Col sm={5}>4321</Col>
-                              <Col>g1 s3 b3</Col>
-                            </Row>
-                          </Col>
-                        </Row>
 
-                      </Card>
                     </Col>
                   </Row>
+                </Col>
+                <Col sm={1}></Col>
+                <Col>
+                  <Card style={{ backgroundColor: "#b3f0ff" }}>
+                    <Card.Title><span style={{ fontSize: 12, padding:10 }} className='text-muted'>asked on {question.created_date.split('T')[0]}</span></Card.Title>
+                    <Row>
+                      <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding:3 }} src={img1}></img></Col>
+                      <Col>
+                        <Row><Link to={`/User/${question.User.id}`} style={{ textDecoration:'none', fontSize:13 }}>{question.User.username}</Link></Row>
+                        <Row>
+                          <Col sm={4}>4321</Col>
+                          <Col><span><i class="fa fa-circle" style={{ color:'gold',fontSize:10}} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                          <span><i class="fa fa-circle" style={{ color:'#C0C0C0',fontSize:10}} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                          <span><i class="fa fa-circle" style={{ color:'#CD7F32',fontSize:10}} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                          </Col>
+                        </Row>
+                      </Col>
+                    </Row>
+
+                  </Card>
                 </Col>
               </Row>
               <Row>
                 <Col sm={1}></Col>
-                <Col>
+                <Col sm={8}>
                   <Row>
                     {comments && comments.length > 0 && comments.map(comment => (
                       <>
-                        {/* <span className='text-muted' style={{ fontSize: 12 }}>{comment}</span>
-                        <hr /> */}
+                        <Col sm={8}>
+                          <span className='text-muted' style={{ fontSize: 13 }}>{comment.content}</span>
+                        </Col>
+                        <Col sm={1}><Link to={`/User/${comment.user_id}`} style={{ textDecoration: "none", fontSize: 11 }}>{comment.user_display_name}</Link></Col>
+                        <Col><span style={{ textDecoration: "none", fontSize: 11 }}>{comment.posted_on}</span></Col>
+                        <hr />
                       </>
                     ))}
                   </Row>
@@ -153,7 +178,6 @@ const QuestionOverview = () => {
                         <span><textarea name="comment" value={commentForm} onChange={(e) => setCommentForm(e.target.value)} /></span>
                         <span><Button className='btn btn-secondary' onClick={() => addComment()} style={{ padding: 0 }}>Post</Button></span>
                       </>
-
                     )}
                   </Row>
                 </Col>
@@ -194,7 +218,7 @@ const QuestionOverview = () => {
                             <Col>
                               <Row>{answer.User && (<text>{answer.User.username}</text>)}</Row>
                               <Row>
-                                <Col sm={5}>4321</Col>
+                                <Col sm={5}>432</Col>
                                 <Col>g1 s3 b3</Col>
                               </Row>
                             </Col>
