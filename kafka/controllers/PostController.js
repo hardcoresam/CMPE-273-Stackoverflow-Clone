@@ -72,3 +72,10 @@ exports.acceptAnswer = async (req, res) => {
         return res.json(data)
     })
 }
+
+exports.updateQuestion = async (req, res) => {
+    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, params: req.params, action: actions.UPDATE_QUESTION }, (err, data) => {
+        if (err) return res.status(400).json({ message: err })
+        return res.json(data)
+    })
+}

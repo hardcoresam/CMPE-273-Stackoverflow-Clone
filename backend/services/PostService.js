@@ -34,11 +34,14 @@ exports.handle_request = (payload, callback) => {
             addComment(payload, callback);
             break;
         case actions.POST_ACTIVITY:
-            postActivity(payload, callback)
-            break
+            postActivity(payload, callback);
+            break;
         case actions.ACCEPT_ANSWER:
-            acceptAnswer(payload, callback)
-            break
+            acceptAnswer(payload, callback);
+            break;
+        case actions.UPDATE_QUESTION:
+            updateQuestion(payload, callback);
+            break;            
     }
 };
 
@@ -365,4 +368,18 @@ const acceptAnswer = async (payload, callback) => {
     } else {
         return callback({ errors: { name: { msg: "No such answer found, try again!" } } }, null)
     }
+}
+
+const updateQuestion = async (payload, callback) => {
+    const {title, body} = payload
+      let data = await Post.findOne({where: {id: payload.params.questionId}})
+      data = data.dataValues
+      if(data.owner_id == payload.USER_ID) {
+        let updateddata = await Post.update(
+            { title: title, body: body },
+            { where: { id: data.id } }
+          )
+          return callback(null, updateddata);
+      }
+      else return callback({errors: { name: { msg: "Error in updating the question" } } }, null)
 }
