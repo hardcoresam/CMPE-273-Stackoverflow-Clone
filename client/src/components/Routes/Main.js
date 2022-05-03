@@ -9,6 +9,8 @@ import Login from '../Login/Login'
 import NavBar from '../NavBar'
 import Register from '../Register/Register'
 import User from '../User/User'
+import TagsHome from '../Dashboard/Home/TagsHome'
+import UsersHome from '../Dashboard/Home/UsersHome'
 import VerifyAuth from '../util/VerifyAuth'
 const Main = () => {
     return (
@@ -18,6 +20,8 @@ const Main = () => {
                     {// <Route element={<VerifyAuth />} >
                     }
                         <Route path="/Dashboard" element={<Home />} />
+                        <Route path="/Dashboard/Tags" element={<TagsHome />} />
+                        <Route path="/Dashboard/Users" element={<UsersHome />} />
                         <Route path="/User/:userid" element={<User />} />
                         <Route path="/askQuestion" element={<AskQuestion />} />
                         <Route path="/questions/:qid" element={<QuestionOverview />} />

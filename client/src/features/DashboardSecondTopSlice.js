@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export const DashboardSecondTopSlice = createSlice({
     name : "DashboardSecondTop",
-    initialState : {value : { Title : "Top Questions",Description:"", flag : true,tagflag : true}},
+    initialState : {value : { Title : "",Description:"", flag : true,tagflag : true}},
     reducers: {
         onclickReducer: (state,action)=>{
             const {Title,Description} = action.payload;

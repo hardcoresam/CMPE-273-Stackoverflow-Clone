@@ -3,9 +3,10 @@ import { Button, Col, Row } from 'react-bootstrap'
 import axios from 'axios'
 import Constants from './../../util/Constants.json'
 import { Link } from 'react-router-dom'
-
+import { useDispatch } from "react-redux";
+import { clickReducer } from '../../../features/DashboardTopSlice';
 const MainCard = () => {
-
+    const dispatch = useDispatch();
     const [questions, setQuestions] = useState([])
 
     useEffect(() => {
@@ -13,6 +14,10 @@ const MainCard = () => {
             const res = await axios.get(`${Constants.uri}/api/post/dashboard`)
             console.log(res)
             setQuestions(res.data)
+            dispatch(clickReducer({
+                Title:"All Questions",
+                questionCount : res.data.length
+            }))
         }
         getQuests()
     }, [])

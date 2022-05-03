@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export const DashboardTopSlice = createSlice({
     name : "DashboardTop",
-    initialState : {value : { Title : "Top Questions",questionCount:""}},
+    initialState : {value : { Title : "",questionCount:""}},
     reducers: {
         clickReducer: (state,action)=>{
             const {Title,questionCount} = action.payload;
