@@ -173,6 +173,13 @@ const getQuestion = async (payload, callback) => {
         type: Sequelize.QueryTypes.UPDATE
     });
 
+    if (count > 15 || count > 5) {
+        BadgeService.pushIntoBadgeTopic({
+            action: "QUESTION_VIEWED", viewCount: count,
+            ownerId: data.owner_id
+        });
+    }
+
     callback(null, { ...data, bookmarked: isBookmark, isUpVote: isUpVote, isDownVote: isDownVote });
 }
 
@@ -344,7 +351,13 @@ const acceptAnswer = async (payload, callback) => {
             })
             await reputationdata.save((err, res) => {
                 if (err) throw err
-                if (res) return callback(null, "Accepted answer")
+                if (res) {
+                    BadgeService.pushIntoBadgeTopic({
+                        action: "ACCEPTED_ANSWER",
+                        userId: user.id, newReputation: user.reputation + 15
+                    });
+                    return callback(null, "Accepted answer")
+                }
             })
         } catch (error) {
             return callback({ errors: { name: { msg: "Failed to accept the answer, try again!" } } }, null)
