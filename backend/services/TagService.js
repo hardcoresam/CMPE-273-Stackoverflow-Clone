@@ -69,7 +69,7 @@ const getQuestionsForTag = async (payload, callback) => {
     orderBy = "modified_date";
   }
 
-  const tagQuestions = await Tag.findOne({
+  const tagQuestions = await Tag.findAll({
     where: { name: tagName },
     include: {
       model: Post,
@@ -92,14 +92,21 @@ const getQuestionsForTag = async (payload, callback) => {
 const createNewTag = async (payload, callback) => {
   const { name, description, admin_id } = payload;
   const existingtag = await Tag.findOne({ where: { name } });
-  if (existingtag) {
-    return callback(
-      { errors: { name: { msg: `Tag ${name} already exists` } } },
-      null
-    );
+  const adminUser = await User.findOne({where:{id:admin_id}})
+  if(adminUser && adminUser.is_admin == 1){
+    if (existingtag) {
+      return callback(
+        { errors: { name: { msg: `Tag ${name} already exists` } } },
+        null
+      );
+    }
+    const newtag = await new Tag({ name:name.toLowerCase(), description, admin_id }).save();
+    return callback(null, newtag);
   }
-  const newtag = await new Tag({ name, description, admin_id }).save();
-  return callback(null, newtag);
+  return callback(
+    { errors: { name: { msg: "You are not authorized to create new tag" } } },
+    null
+  );
 };
 
 const filterByTagName = async (payload, callback) => {
