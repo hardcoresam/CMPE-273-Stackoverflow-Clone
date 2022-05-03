@@ -10,6 +10,7 @@ import moment from 'moment'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom'
+import parse from 'html-react-parser'
 
 toast.configure()
 
@@ -100,6 +101,8 @@ const QuestionOverview = () => {
     }
   }
 
+
+
   return (
     <div>
       <Row>
@@ -122,7 +125,7 @@ const QuestionOverview = () => {
                 <Col sm={7}>
                   <Card style={{ width: "40rem", height: "auto", backgroundColor: "#e7f4f4" }}>
                     <text>
-                      {question.body}
+                      {parse(question.body)}
                     </text>
                   </Card>
                   <Row>
