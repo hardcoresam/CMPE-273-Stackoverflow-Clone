@@ -38,7 +38,8 @@ const MainCard = () => {
                                     <text>{question.body}</text>
                                 </Row>
                                 <Row>
-                                    <Col sm={6}>Tags: {question.tags.map(tag => (<Button className='btn-secondary' style={{padding:0,fontSize:12}}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
+                                    {//<Col sm={6}>Tags: {question.tags.map(tag => (<Button className='btn-secondary' style={{padding:0,fontSize:12}}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
+                                }
                                 </Row>
                                 <Row>
                                 <span className='text-muted' style={{fontSize:13,textAlign:'right'}}>{question.User.username} asked,  {question.created_date}</span>

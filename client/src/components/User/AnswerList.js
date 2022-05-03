@@ -17,7 +17,7 @@ const AnswerList = (props) => {
                     <Card>
                         <div style={{ margin: "1rem" }}>
                             <Row>
-                            <Col sm={2}><text>{i.question} votes</text></Col>
+                            <Col sm={2}><text>{i.score} votes</text></Col>
                             {i.question.accepted_answer_id && <Col><Button style={{backgroundColor:"green", color:"white",marginTop:"-10px"}}>✔{props.text}</Button></Col>}
                             </Row>
                             <Row><text onClick={openQuestion}>{i.question.title}</text></Row>
@@ -25,11 +25,12 @@ const AnswerList = (props) => {
                             <Col sm={6}>
                             {
                                 <Row>
-                                {i.tags.map((obj) => (
-                                    <Card style={{ width: "auto" }}>
-                                    <text style={{fontSize:"13px"}}>{obj}</text>
-                                    </Card>
-                                ))}
+                                 {//i.tags.map((obj) => (
+                                //     <Card style={{ width: "auto" }}>
+                                //     <text style={{fontSize:"13px"}}>{obj}</text>
+                                //     </Card>
+                                // ))
+                            }
                                 </Row>
                             }
                             </Col>

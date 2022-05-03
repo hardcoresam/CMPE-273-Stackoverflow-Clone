@@ -25,11 +25,12 @@ const ItemList = (props) => {
                             <Col sm={6}>
                             {
                                 <Row>
-                                {i.tags.map((obj) => (
-                                    <Card style={{ width: "auto" }}>
-                                    <text style={{fontSize:"13px"}}>{obj}</text>
-                                    </Card>
-                                ))}
+                                {//i.tags.map((obj) => (
+                                //     <Card style={{ width: "auto" }}>
+                                //     <text style={{fontSize:"13px"}}>{obj}</text>
+                                //     </Card>
+                                // ))
+                            }
                                 </Row>
                                 
                             }

@@ -6,13 +6,11 @@ import axios from 'axios'
 import Constants from '../../util/Constants.json'
 const UserCard = () => {
     const navigate = useNavigate();
-    const testuser = 12345;
+    // const testuser = 12345;
     const [users, setUsers] = useState([])
     useEffect(() => {
         async function getTags() {
             const res = await axios.get(`${Constants.uri}/api/users`)
-            console.log("///////")
-            console.log(res)
             setUserGrid(res.data)
         }
         getTags()
@@ -40,15 +38,14 @@ const UserCard = () => {
         console.log(tagsGrid)
         setUsers(tagsGrid)
       }
-    const openuserProfile = () => {
-        navigate(`/User/${testuser}`)
+    const openuserProfile = (i) => {
+        navigate(`/User/${i.id}`)
     }
 
     const onChangeUserInput = async (e) => {
         e.preventDefault()
         const res = await axios.get(`${Constants.uri}/api/users/${e.target.value}`)
         const filteredtags = res.data
-        console.log(filteredtags.length)
         if (filteredtags.length > 0) {
           console.log("here--")
           setUserGrid(filteredtags)
@@ -69,7 +66,7 @@ const UserCard = () => {
                             <Row>
                                 <Col style={{ marginRight: "10px" }} sm={3}><img src={i.photo} style={{ width: "50px", height: "50px", borderRadius: "5px" }}></img></Col>
                                 <Col style={{ marginTop: "-10px" }}>
-                                    <Row><text onClick={openuserProfile} style={{ cursor: "pointer", marginLeft: "-9px" }}>{i.username}</text></Row>
+                                    <Row><text onClick={(e)=>openuserProfile(i)} style={{ cursor: "pointer", marginLeft: "-9px" }}>{i.username}</text></Row>
                                     <Row style={{ marginTop: "-5px" }}>{i.location}</Row>
                                     <Row style={{ marginTop: "-5px" }}>{i.reputation}</Row>
                                 </Col>
