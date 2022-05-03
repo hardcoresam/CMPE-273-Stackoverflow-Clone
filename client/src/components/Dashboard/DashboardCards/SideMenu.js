@@ -55,12 +55,15 @@ const SideMenu = () => {
     return (
         <div>
             <div style={divStyle}>
-                <h6 style={{cursor : "pointer"}} onClick={homeAction}>Home</h6>
-                <h6>Public</h6>
-                <h6 style={{cursor : "pointer"}} onClick={questionAction}>Questions</h6>
-                <h6 style={{cursor : "pointer"}} onClick={tagAction}>Tags</h6>
-                <h6 style={{cursor : "pointer"}} onClick = {userAction}>Users</h6>
-                <h6 style={{cursor : "pointer"}} onClick={gotouser}>User Profile</h6>
+
+                {
+                // <h6 style={{cursor : "pointer"}} onClick={homeAction}>Home</h6>
+                // <h6>Public</h6>
+                }
+                <h6 style={{cursor : "pointer", marginLeft:"1rem", color:"gray"}} onClick={questionAction}>Home</h6>
+                <h6 style={{cursor : "pointer", marginLeft:"1rem", color:"gray"}} onClick={tagAction}>Tags</h6>
+                <h6 style={{cursor : "pointer", marginLeft:"1rem", color:"gray"}} onClick = {userAction}>Users</h6>
+                <h6 style={{cursor : "pointer", marginLeft:"1rem", color:"gray"}} onClick={gotouser}>User Profile</h6>
             </div>
         </div>
     )
