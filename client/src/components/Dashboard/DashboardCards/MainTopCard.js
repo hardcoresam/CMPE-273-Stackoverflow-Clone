@@ -23,7 +23,7 @@ const MainTopCard = () => {
         </Row>
         <Row style={{ marginTop: "2rem" }}>
           <Col sm={6}>
-            <text>{questionCount}</text>
+            <text>{questionCount} Questions</text>
           </Col>
           <Col sm={3}></Col>
           <Col sm={3}>

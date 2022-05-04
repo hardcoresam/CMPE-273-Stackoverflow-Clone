@@ -3,9 +3,10 @@ import { Button, Col, Row } from 'react-bootstrap'
 import axios from 'axios'
 import Constants from './../../util/Constants.json'
 import { Link } from 'react-router-dom'
-
+import { useDispatch } from "react-redux";
+import { clickReducer } from '../../../features/DashboardTopSlice';
 const MainCard = () => {
-
+    const dispatch = useDispatch();
     const [questions, setQuestions] = useState([])
 
     useEffect(() => {
@@ -13,6 +14,10 @@ const MainCard = () => {
             const res = await axios.get(`${Constants.uri}/api/post/dashboard`)
             console.log(res)
             setQuestions(res.data)
+            dispatch(clickReducer({
+                Title:"All Questions",
+                questionCount : res.data.length
+            }))
         }
         getQuests()
     }, [])
@@ -38,7 +43,8 @@ const MainCard = () => {
                                     <text>{question.body}</text>
                                 </Row>
                                 <Row>
-                                    <Col sm={6}>Tags: {question.tags.map(tag => (<Button className='btn-secondary' style={{padding:0,fontSize:12}}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
+                                    {//<Col sm={6}>Tags: {question.tags.map(tag => (<Button className='btn-secondary' style={{padding:0,fontSize:12}}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
+                                }
                                 </Row>
                                 <Row>
                                 <span className='text-muted' style={{fontSize:13,textAlign:'right'}}>{question.User.username} asked,  {question.created_date}</span>

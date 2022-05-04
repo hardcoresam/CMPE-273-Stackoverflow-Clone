@@ -76,11 +76,13 @@ exports.checkAndAwardBadges = async (payload) => {
     }
 
     if (action === "QUESTION_VIEWED") {
-
+        createBadgeIfNotPresent(payload.viewCount > 15 ? "Famous Question" :
+            "Notable Question", "GOLD", payload.ownerId);
     }
 
     if (action === "ACCEPTED_ANSWER") {
-
+        badgeType = payload.newReputation <= 10 ? "BRONZE" : (payload.newReputation < 15 ? "SILVER" : "GOLD");
+        createBadgeIfNotPresent("Popular", badgeType, payload.userId);
     }
 
     if (action === "COMMENT_ADDED") {
@@ -92,7 +94,6 @@ exports.checkAndAwardBadges = async (payload) => {
 
     //Not that important
     if (action === "QUESTION_EDITED") {
-
     }
 }
 

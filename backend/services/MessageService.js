@@ -31,4 +31,3 @@ const createChatRoom = async (payload, callback) => {
     })
   
 }
-

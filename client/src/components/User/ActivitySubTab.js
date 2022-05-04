@@ -1,5 +1,5 @@
 import Axios from 'axios'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Row, Col, Card } from 'react-bootstrap'
 import ItemList from './ItemList'
 import AnswerList from './AnswerList'
@@ -8,58 +8,36 @@ import Constants from '../util/Constants.json'
 import TagList from './TagList'
 import BadgeList from './BadgeList'
 import Reputation from './Reputation'
+import { useParams } from 'react-router-dom'
+import BookmarkList from './BookmarkList'
 const ActivitySubTab = () => {
 
     const [status, setstatus] = useState("Answers")
-    const [state, setstate] = useState([
-        {
-            tags: [
-                "python",
-                " java"
-            ],
-            created_date: "26/04/2022, 14:16:25",
-            modified_date: "26/04/2022, 14:16:25",
-            id: 1,
-            type: "QUESTION",
-            status: "ACTIVE",
-            title: "Question 1",
-            body: "What is Python used for?",
-            score: 10,
-            views_count: 0,
-            parent_id: null,
-            answers_count: 1,
-            accepted_answer_id: null,
-            owner_id: 1
-        },
-        {
-            tags: [
-                "python",
-                " javascript"
-            ],
-            created_date: "26/04/2022, 15:16:25",
-            modified_date: "26/04/2022, 15:16:25",
-            id: 2,
-            type: "QUESTION",
-            status: "ACTIVE",
-            title: "Question 2",
-            body: "How does Python work?",
-            score: 1,
-            views_count: 0,
-            parent_id: null,
-            answers_count: 0,
-            accepted_answer_id: null,
-            owner_id: 1
-        }
-    ]);
+    const [state, setstate] = useState([]); //storing questions state
+    const [state2, setstate2] = useState([]); // storing answers state 
+    const [state3, setstate3] = useState([]); // storing badges state
+    const [state4, setstate4] = useState([]); // storing bookmarks state
     // const [tagstate,settagstate] = useState([]);
-    const userid = Cookies
+    const { userid } = useParams();
+    useEffect(() => {
+        async function getAnswers() {
+            setstatus("Answers")
+
+            await Axios.get(`${Constants.uri}/api/users/${userid}/activity/answers`, {
+                withCredentials: true
+            }).then((r) => {
+                setstate2(r.data)
+            })
+        }
+        getAnswers();
+    }, [userid])
     const showAnswers = async () => {
         setstatus("Answers")
 
         await Axios.get(`${Constants.uri}/api/users/${userid}/activity/answers`, {
             withCredentials: true
         }).then((r) => {
-            setstate(r.data)
+            setstate2(r.data)
         })
     }
     const showQuestions = async () => {
@@ -85,14 +63,24 @@ const ActivitySubTab = () => {
     }
     const showBadges = async () => {
         setstatus("Badges")
+
+        await Axios.get(`${Constants.uri}/api/users/${userid}/activity/badges`, {
+            withCredentials: true
+        }).then((r) => {
+            let gridProducts = [];
+            for (let i = 0; i < r.data.length; i = i + 4) {
+                gridProducts.push(r.data.slice(i, i + 4));
+            }
+            setstate3(gridProducts)
+        })
     }
     const showBookmarks = async () => {
         setstatus("Bookmarks")
 
-        await Axios.get(`${Constants.uri}/api/users/${userid}/activity/bookmakrs`, {
+        await Axios.get(`${Constants.uri}/api/users/${userid}/activity/bookmarks`, {
             withCredentials: true
         }).then((r) => {
-            setstate(r.data)
+            setstate4(r.data)
         })
     }
 
@@ -112,20 +100,24 @@ const ActivitySubTab = () => {
                 <Col>
 
                     {
-                        (status === "Questions" || status === "Bookmarks") && <ItemList text={status} state={state} />
+                        status === "Questions"  && <ItemList text={status} state={state} />
                     }
                     {
-                        //status === "Answers" && <AnswerList text={status} state={state} />
+                        status === "Bookmarks" && <BookmarkList text={status} state={state4}/>
+                    }
+                    
+                    {
+                        status === "Answers" && <AnswerList text={status} state={state2} />
                     }
                     {
                         status === "Tags" && <TagList text={status} state={state} />
                     }
 
                     {
-                        status === "Badges" && <BadgeList text={status} state={state} />
+                        status === "Badges" && <BadgeList text={status} state={state3} />
                     }
                     {
-                        status ==="Reputation" && <Reputation text={status} state={state}/>
+                        status === "Reputation" && <Reputation text={status} state={state} />
                     }
 
 

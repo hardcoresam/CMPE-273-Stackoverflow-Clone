@@ -5,9 +5,10 @@ import MainCard from '../DashboardCards/MainCard';
 import MainTopCard from '../DashboardCards/MainTopCard';
 import MainTopSecondCard from '../DashboardCards/MainTopSecondCard';
 import SideMenu from '../DashboardCards/SideMenu';
+import TagTopCard from '../DashboardCards/TagTopCard';
 import TagMainCard from '../Tags/TagMainCard';
 import UserMainCard from '../Users/UserMainCard';
-const Dashboard = () => {
+const TagsHome = () => {
     const obj = useSelector(state => state.DashboardSecondTopSlice)
     const {flag,tagflag} = obj.value
     const divStyle = {
@@ -24,17 +25,11 @@ const Dashboard = () => {
                 <Col sm={2}>
                     
                 </Col>
-                <Col sm={7}>
-                  <MainTopCard />
-                  <MainCard />                   
+                <Col sm={10}>
+                  <TagTopCard />
+                  <TagMainCard />                   
                 </Col>
-                {
-                    flag && <Col sm={3}>
-                    <Card style={{width:"17rem",height:"17rem", backgroundColor:"#ffdd99"}}>
-                        
-                    </Card>
-                    </Col>
-                }
+                
                 
             </Row>
 
@@ -44,4 +39,4 @@ const Dashboard = () => {
     )
 }
 
-export default Dashboard
+export default TagsHome

@@ -7,6 +7,7 @@ import ActivitySubTab from './ActivitySubTab'
 import Axios from 'axios'
 import Constants from '../util/Constants.json'
 import './styles.css'
+import save from '../util/Util.js'
 // import Constants from "../util/Constants.json"
 import { useParams } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux';
@@ -14,68 +15,31 @@ import { userReducer } from '../../features/UserSlice';
 import emptyuserimage from '../images/emptyimage.png'
 const User = () => {
   const obj = useSelector(state => state.UserSlice)
-  const { username } = obj.value
   const dispatch = useDispatch();
   const { userid } = useParams();
   const [tabflag, settabflag] = useState(true)
   const [modal, setmodal] = useState(false);
   const [profilepicture, setprofilepicture] = useState("")
   const [image, setImage] = useState({ preview: "", raw: "" })
-  const [userProfile, setUserProfile] = useState({
-    registered_on: "26/04/2022, 14:16:25",
-    last_login_time: "26/04/2022, 14:16:25",
-    id: 1,
-    email: "sai@gmail.com",
-    username: "saikrishna",
-    password: "password",
-    photo: null,
-    about: "If you want me to buy a coffe",
-    is_admin: false,
-    reputation: 3,
-    location: "hyderabad",
-    gold_badges_count: 0,
-    silver_badges_count: 1,
-    bronze_badges_count: 0,
-    Badges: [],
-    answersCount: 1,
-    questionsCount: 2,
-    userReach: 0,
-    bronzeBadges: [],
-    silverBadges: [],
-    goldBadges: []
-  });
+  const [uname,setuname] = useState("")
+  const [loc,setloc] = useState("")
+  const [about,setabout] = useState("")
 
+
+
+  const [userProfile, setUserProfile] = useState({});
+  var imguser;
   useEffect(() => {
-    // await Axios.get(`${Constants.uri}/api/users/profile/${userid}`,{
-    //   withCredentials: true
-    // }).then((r) => {
-    //   const member = r.data;
-    //   setUserProfile(prevState => {
-    //     let userProfileForm = { ...prevState };
-    //     userProfileForm.photo = member.photo;
-    //     userProfileForm.username = member.username;
-    //     userProfileForm.about = member.about;
-    //     userProfileForm.is_admin = member.is_admin;
-    //     userProfileForm.reputation = member.reputation;
-    //     userProfileForm.location = member.location;
-    //     userProfileForm.gold_badges_count = member.gold_badges_count;
-    //     userProfileForm.silver_badges_count = member.silver_badges_count;
-    //     userProfileForm.email = member.email;
-    //     userProfileForm.bronze_badges_count = member.bronze_badges_count;
-    //     userProfileForm.Badges = member.Badges;
-    //     userProfileForm.answersCount = member.answersCount;
-    //     userProfileForm.questionsCount = member.questionsCount;
-    //     userProfileForm.userReach = member.userReach;
-    //     userProfileForm.bronzeBadges = member.bronzeBadges;
-    //     userProfileForm.silverBadges = member.silverBadges;
-    //     userProfileForm.goldBadges = member.goldBadges;
+    async function getUserInfo(){
+      await Axios.get(`${Constants.uri}/api/users/${userid}/profile`,{
+        withCredentials: true
+      }).then((r) => {
+        dispatch(userReducer(r.data))
+      })
+    }
+    getUserInfo();
 
-    //     return userProfileForm;
-    // });
-    // })
-
-    dispatch(userReducer(userProfile))
-  })
+  },[modal])
 
   const handleChange = (e) => {
     console.log(URL.createObjectURL(e.target.files[0]))
@@ -99,15 +63,24 @@ const User = () => {
 
   const openeditProfile = () => {
     setmodal(true)
+
   }
 
   const editDetails = async () => {
-    const result = await Axios.post(`${Constants.uri}/api/users/profile/${userid}/editProfile`, { withCredentials: true });
+    if(image.preview){
+      imguser = await save(image.preview ,image.raw)
+      setprofilepicture(imguser)
+    }
+  //  console.log("user "+ imguser)
+    const result = await Axios.post(`${Constants.uri}/api/users/${userid}/editProfile`,{
+      about : about ? about : obj.value.about,
+      photo :  imguser ? imguser : obj.value.photo,
+      location  : loc ? loc : obj.value.location,
+      username : uname ? uname : obj.value.username
+    },
+    { withCredentials: true });
     if (result.status === 200) {
       setmodal(false)
-    }
-    else {
-
     }
   }
   return (
@@ -118,16 +91,16 @@ const User = () => {
         </Col>
         <Col sm={8}>
           <Row style={{ marginTop: "28px", marginLeft: "-30px" }}>
-            <Col sm={2}><img style={{ height: "8rem", borderRadius: "8px" }} src={profpic}></img></Col>
+            <Col sm={2}><img style={{ height: "8rem",width:"9rem", borderRadius: "8px" }} src={obj.value.photo}></img></Col>
             <Col style={{ marginTop: "2rem", marginLeft: "1rem" }}>
               <Row>
-                <text style={{ fontSize: "30px" }}>{userProfile.username}</text>
+                <text style={{ fontSize: "30px" }}>{obj.value.username}</text>
               </Row>
               <Row>
-                <text><i class="fa-solid fa-cake-candles"></i>Member from {userProfile.registered_on} <i class="fa-solid fa-clock"></i> lastseen {userProfile.last_login_time}</text>
+                <text><i class="fa-solid fa-cake-candles"></i>Member from {obj.value.registered_on} <i class="fa-solid fa-clock"></i> lastseen {obj.value.last_login_time}</text>
               </Row>
               <Row>
-                <text><i class="fa-solid fa-location-pin"></i>{userProfile.location}</text>
+                <text><i class="fa-solid fa-location-pin"></i>{obj.value.location}</text>
               </Row>
             </Col>
           </Row>
@@ -173,9 +146,8 @@ const User = () => {
               <Col>
                 <label htmlFor="upload-button">
 
-                  {profilepicture ? (
-                    image.preview ? <img className='circleemptyimage' src={image.preview}  alt="dummy" /> :
-                      <img className='circleemptyimage' src={profilepicture} alt="dummy" />
+                  {obj.value.photo ? (
+                      <img className='circleemptyimage' src={obj.value.photo} alt="dummy" />
                   ) : (
                     image.preview ? <img className='circleemptyimage' src={image.preview}  alt="dummy" /> :
                       <div>
@@ -189,15 +161,15 @@ const User = () => {
 
           <Row style={{ margin: 20 }}>
             <Col sm={4}>Username</Col>
-            <Col sm={6}><input onChange={(e) => setUserProfile.username(e.target.value)} value={userProfile.username} style={{ width: "12rem" }}></input></Col>
+            <Col sm={6}><input onChange={(e) => setuname(e.target.value)} defaultValue={obj.value.username} style={{ width: "12rem" }}></input></Col>
           </Row>
           <Row style={{ margin: 20 }}>
             <Col sm={4}>Location</Col>
-            <Col sm={6}><input onChange={(e) => setUserProfile.location(e.target.value)} value={userProfile.location} style={{ width: "12rem" }}></input></Col>
+            <Col sm={6}><input onChange={(e) => setloc(e.target.value)} defaultValue={obj.value.location} style={{ width: "12rem" }}></input></Col>
           </Row>
           <Row style={{ margin: 20 }}>
             <Col sm={4}>About</Col>
-            <Col sm={6}><input onChange={(e) => setUserProfile.about(e.target.value)} value={userProfile.about} style={{ width: "12rem" }}></input></Col>
+            <Col sm={6}><textarea onChange={(e) => setabout(e.target.value)} defaultValue={obj.value.about} style={{ width: "12rem" }}></textarea></Col>
           </Row>
           <Row>
             <Col sm={8}></Col>

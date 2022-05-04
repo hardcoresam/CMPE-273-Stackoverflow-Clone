@@ -9,7 +9,6 @@ module.exports = (sequelize, DataTypes) => {
         name: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true
         },
         description: {
             type: DataTypes.STRING
@@ -25,7 +24,16 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: "tag",
         timestamps: false
-    });
+    },
+    {
+        indexes: [
+            {
+                unique: true,
+                fields: ['name']
+            }
+        ]
+    }
+    );
 
     Tag.associate = models => {
         Tag.belongsTo(models.User, {

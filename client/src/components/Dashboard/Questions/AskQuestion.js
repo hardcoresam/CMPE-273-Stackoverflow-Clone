@@ -3,7 +3,8 @@ import React, { useState } from 'react'
 import { Button, Card, Col, Row } from 'react-bootstrap'
 import questionlogo from '../../images/questionlogo1.PNG'
 import Constants from './../../util/Constants.json'
-
+import RichTextEditor,{ stateToHTML } from 'react-rte'
+import AskQ from './AskQ.js'
 const AskQuestion = () => {
 
     const [questionForm,setQuestionFormData] = useState({
@@ -14,17 +15,27 @@ const AskQuestion = () => {
         isImage:false
     })
 
+    const [state,setState] =useState(RichTextEditor.createEmptyValue());
     const {title,body,tags} = questionForm
 
     const onChangeData = async (e) => {
         e.preventDefault()
         setQuestionFormData({...questionForm,[e.target.name]:e.target.value})
+        console.log(e)
     }
 
     const askQuestion = async (e) => {
         e.preventDefault()
+        console.log("posting quesrion")
         const res = await axios.post(`${Constants.uri}/api/post/question`,questionForm,{withCredentials:true})
         console.log(res)
+        console.log(res)
+    }
+
+    const onChange = (value)=>{
+        // setState({value})
+        console.log(state)
+        // setState(e.value)
     }
 
     return (
@@ -50,8 +61,9 @@ const AskQuestion = () => {
                             <input style={{marginBottom :"20px"}} name="title" value={title} onChange={(e)=>onChangeData(e)}></input>
                             <Card.Title>Body</Card.Title>
                             <text>Include all the information someone would need to answer your question</text>
-                            <input style={{height:"10rem"}} name="body" value={body} onChange={(e)=>onChangeData(e)}></input>
-
+                            {//<RichTextEditor value={state} onChange={onChange} />
+                            }
+                            <AskQ onChangeData={onChangeData}/>
                             <Card.Title>
                                 Tags
                             </Card.Title>

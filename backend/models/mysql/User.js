@@ -9,7 +9,6 @@ module.exports = (sequelize, DataTypes) => {
         email: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true
         },
         username: {
             type: DataTypes.STRING,
@@ -71,7 +70,16 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: "user",
         timestamps: false
-    });
+    }, 
+    {
+        indexes: [
+            {
+                unique: true,
+                fields: ['email']
+            }
+        ]
+    }
+    );
 
     User.associate = models => {
         User.hasMany(models.Badge, {

@@ -1,9 +1,9 @@
-.tagButton{
-        color: rgb(7, 65, 60); /* Text color */
-        
-        background-color: rgb(208, 226, 232);
-        border-radius: 0;       
-        border: 0ch;  
+.tagButton {
+    color: rgb(7, 65, 60);
+    background-color: rgb(208, 226, 232);
+    border-radius: 5px;
+    border: 0ch;
+    width: auto;
 }
 
 .tagButton:hover {
@@ -11,4 +11,13 @@
     color: black;
     transition: 0.7s;
 }
+
 /* style={{width:"9rem", color:"DodgerBlue", backgroundColor:"LightBlue"}} */
+
+.textLimit {
+    overflow: hidden;
+   text-overflow: ellipsis;
+   display: -webkit-box;
+   -webkit-line-clamp: 4; /* number of lines to show */
+   -webkit-box-orient: vertical;
+}

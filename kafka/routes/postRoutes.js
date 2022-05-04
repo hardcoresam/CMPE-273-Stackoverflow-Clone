@@ -15,5 +15,7 @@ router.post('/:postId/vote', checkAuth, PostController.votePost)
 router.post('/acceptAnswer', checkAuth, PostController.acceptAnswer)
 router.post('/activities/:postId', checkAuth, PostController.postActivity)
 router.post('/:postId/comment', checkAuth, PostController.addComment)
+router.put('/question/:questionId', checkAuth, PostController.updateQuestion)
+router.post('/search', PostController.search)
 
 module.exports = router
