@@ -57,16 +57,7 @@ const createUser = async (payload, callback) => {
     where: { email: email.toLowerCase() },
   });
   if (previousMember !== null) {
-    return callback(
-      {
-        errors: {
-          email: {
-            msg: `Email ${email} is already registered. Please login or use a different email`,
-          },
-        },
-      },
-      null
-    );
+    return callback({ errors: { email: { msg: `Email ${email} is already registered. Please login or use a different email` } } }, null);
   }
 
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -76,26 +67,24 @@ const createUser = async (payload, callback) => {
     username: displayName,
   }).save();
 
-  return callback(null, newMember);
+  const jwtPayload = { user: { id: newMember.id } };
+  jwt.sign(jwtPayload, process.env.JWT_SECRET_KEY, (err, token) => {
+    if (err) {
+      console.error(err);
+      return callback({ message: "Server error" }, null);
+    }
+    return callback(null, { newMember: newMember, token: token });
+  });
 };
 
-//TODO - Sai Krishna - Update login time after each login
 const login = async (payload, callback) => {
   const { email, password } = payload;
   const member = await User.findOne({ where: { email: email.toLowerCase() } });
   if (member === null) {
-    return callback(
-      { errors: { email: { msg: `Email ${email} is not registed with us` } } },
-      null
-    );
+    return callback({ errors: { email: { msg: `Email ${email} is not registed with us` } } }, null);
   }
   if (!bcrypt.compareSync(password, member.password)) {
-    return callback(
-      {
-        errors: { password: { msg: "Incorrect password. Please try again!" } },
-      },
-      null
-    );
+    return callback({ errors: { password: { msg: "Incorrect password. Please try again!" } } }, null);
   }
 
   const jwtPayload = { user: { id: member.id } };
@@ -104,6 +93,8 @@ const login = async (payload, callback) => {
       console.error(err);
       return callback({ message: "Server error" }, null);
     }
+    member.set({ last_login_time: sequelize.fn('NOW') });
+    await member.save();
     return callback(null, { member: member, token: token });
   });
 };
