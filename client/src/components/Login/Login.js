@@ -24,7 +24,7 @@ const Login = (props) => {
             if(r.status===200){
             dispatch(loginSuccess())
               props.setModalShow(false)
-              if(r.data.is_admin)
+              if(r.data.member.is_admin)
               navigate('/AdminDashBoard')
               else
               navigate('/DashBoard')
