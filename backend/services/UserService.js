@@ -88,7 +88,7 @@ const login = async (payload, callback) => {
   }
 
   const jwtPayload = { user: { id: member.id } };
-  jwt.sign(jwtPayload, process.env.JWT_SECRET_KEY, (err, token) => {
+  jwt.sign(jwtPayload, process.env.JWT_SECRET_KEY, async (err, token) => {
     if (err) {
       console.error(err);
       return callback({ message: "Server error" }, null);
