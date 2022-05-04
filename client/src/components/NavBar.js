@@ -63,7 +63,7 @@ const NavBar = () => {
                                     placeholder="Search"
                                     className="me-1"
                                     aria-label="Search"
-
+                                    
                                 />
                             </Form>
                         </Col>
