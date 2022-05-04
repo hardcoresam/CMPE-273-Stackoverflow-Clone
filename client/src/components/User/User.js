@@ -39,7 +39,7 @@ const User = () => {
     }
     getUserInfo();
 
-  },[userid])
+  },[userid,modal])
 
   const handleChange = (e) => {
     console.log(URL.createObjectURL(e.target.files[0]))
