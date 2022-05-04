@@ -13,14 +13,14 @@ const TagList = (props) => {
                 <h5>{props.state.length} {props.text}</h5>
             </Row>
             {
-                arr.map((i)=>(
+                props.state.map((i)=>(
                     <Card>
                 <div style={{ margin: "1rem" }}>
                     <Row>
-                        <Col sm={2}><text style={{cursor:"pointer"}} onClick={openTag}>{i.name}hkjh</text></Col>
+                        <Col sm={2}><text style={{cursor:"pointer"}} onClick={openTag}>{i.name}</text></Col>
                         <Col></Col>
-                        <Col sm={1}>{i.score}</Col>
-                        <Col sm={1}>{i.totalPosts}</Col>
+                        <Col sm={2}>{i.score} Score</Col>
+                        <Col sm={2}>{i.totalPosts} Posts</Col>
                     </Row>
                 </div>
             </Card>

@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router'
 const AnswerList = (props) => {
     // const arr = [1, 2, 3, 4, 5, 6]
     const navigate = useNavigate();
-    const openQuestion = () =>{
-        navigate(`/questions/${1}`);
+    const openQuestion = (id) =>{
+        navigate(`/questions/${id}`);
+        // console.log(id)
     }
     return (
         <div>
@@ -20,7 +21,7 @@ const AnswerList = (props) => {
                             <Col sm={2}><text>{i.score} votes</text></Col>
                             {i.question.accepted_answer_id && <Col><Button style={{backgroundColor:"green", color:"white",marginTop:"-10px"}}>✔{props.text}</Button></Col>}
                             </Row>
-                            <Row><text onClick={openQuestion}>{i.question.title}</text></Row>
+                            <Row><text onClick={()=>openQuestion(i.question.id)}>{i.question.title}</text></Row>
                             <Row>
                             <Col sm={6}>
                             {

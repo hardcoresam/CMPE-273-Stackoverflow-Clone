@@ -82,11 +82,11 @@ const ProfileSubTab = (props) => {
     }
 
     const viewAllBadges = () => {
-
+        props.settabflag(false)
     }
 
     const viewAllTags = () => {
-
+        props.settabflag(false)
     }
     return (
         <div>

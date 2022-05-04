@@ -5,8 +5,11 @@ import questionlogo from '../../images/questionlogo1.PNG'
 import Constants from './../../util/Constants.json'
 import RichTextEditor,{ stateToHTML } from 'react-rte'
 import AskQ from './AskQ.js'
+import { useSelector } from 'react-redux'
+import Questionbody from './Questionbody'
+// import { updatingbody } from '../../../features/QuestionBodySlice'
 const AskQuestion = () => {
-
+    const obj = useSelector(state => state.QuestionBodySlice);
     const [questionForm,setQuestionFormData] = useState({
         title:"",
         body:"",
@@ -15,7 +18,6 @@ const AskQuestion = () => {
         isImage:false
     })
 
-    const [state,setState] =useState(RichTextEditor.createEmptyValue());
     const {title,body,tags} = questionForm
 
     const onChangeData = async (e) => {
@@ -29,13 +31,15 @@ const AskQuestion = () => {
         console.log("posting quesrion")
         const res = await axios.post(`${Constants.uri}/api/post/question`,questionForm,{withCredentials:true})
         console.log(res)
-        console.log(res)
     }
 
     const onChange = (value)=>{
-        // setState({value})
-        console.log(state)
-        // setState(e.value)
+        setQuestionFormData({
+            ...questionForm,
+            body : value
+        })
+       console.log(value)
+       console.log(questionForm)
     }
 
     return (
@@ -63,7 +67,7 @@ const AskQuestion = () => {
                             <text>Include all the information someone would need to answer your question</text>
                             {//<RichTextEditor value={state} onChange={onChange} />
                             }
-                            <AskQ onChangeData={onChangeData}/>
+                            <AskQ onChangeData={onChangeData} onChange={onChange}/>
                             <Card.Title>
                                 Tags
                             </Card.Title>

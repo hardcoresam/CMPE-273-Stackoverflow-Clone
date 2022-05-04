@@ -110,7 +110,7 @@ const User = () => {
             <Col sm={1} style={{ marginLeft: "-2rem" }}><Button variant={!tabflag ? "warning" : "light"} className='rounded-pill' onClick={activitySubTab}>Activity</Button></Col>
           </Row>
           <Row>
-            {tabflag ? <ProfileSubTab userid={userid}/> : <ActivitySubTab />}
+            {tabflag ? <ProfileSubTab userid={userid} settabflag ={settabflag}/> : <ActivitySubTab />}
           </Row>
         </Col>
         <Col sm={2}>
