@@ -41,7 +41,10 @@ exports.handle_request = (payload, callback) => {
             break;
         case actions.UPDATE_QUESTION:
             updateQuestion(payload, callback);
-            break;            
+            break;
+        case actions.SEARCH:
+            search(payload, callback);
+            break;
     }
 };
 
@@ -371,15 +374,103 @@ const acceptAnswer = async (payload, callback) => {
 }
 
 const updateQuestion = async (payload, callback) => {
-    const {title, body} = payload
-      let data = await Post.findOne({where: {id: payload.params.questionId}})
-      data = data.dataValues
-      if(data.owner_id == payload.USER_ID) {
+    const { title, body } = payload
+    let data = await Post.findOne({ where: { id: payload.params.questionId } })
+    data = data.dataValues
+    if (data.owner_id == payload.USER_ID) {
         let updateddata = await Post.update(
             { title: title, body: body },
             { where: { id: data.id } }
-          )
-          return callback(null, updateddata);
-      }
-      else return callback({errors: { name: { msg: "Error in updating the question" } } }, null)
+        )
+        return callback(null, updateddata);
+    }
+    else return callback({ errors: { name: { msg: "Error in updating the question" } } }, null)
+}
+
+//TODO - Exception handling for bad user input
+const search = async (payload, callback) => {
+    let orderBy = 'score';
+    if (payload.query.orderBy && payload.query.orderBy === 'newest') {
+        orderBy = 'created_date';
+    }
+    const fullSearchString = payload.searchString;
+    const searchType = fullSearchString.substring(0, fullSearchString.indexOf(' '));
+    const searchString = fullSearchString.substring(fullSearchString.indexOf(' ') + 1);
+    let exactSearchString = '%' + searchString + '%';
+    let resultString;
+    let searchOptionsString;
+    let tagDescription;
+    let whereStatement = {};
+    let includeStatement = [{
+        model: Post,
+        as: "question",
+    }, {
+        model: User,
+        attributes: ['id', 'username', 'photo', 'reputation'],
+        required: true
+    }];
+
+    if (searchType.startsWith('[')) {
+        let tagName = searchType.slice(1, -1);
+        const tag = await Tag.findOne({ where: { name: tagName } });
+        if (tag === null) {
+            return callback({ error: `Invalid tag name ${tagName} specified while searching` }, null);
+        }
+        resultString = "Results for " + searchString + " tagged with " + tagName;
+        searchOptionsString = "Search options not deleted";
+        tagDescription = tag.description;
+        includeStatement.push({
+            model: Tag,
+            where: {
+                id: tag.id
+            },
+            required: true
+        });
+    } else if (searchType.startsWith('is:')) {
+        let postType = searchType.slice(3);
+        resultString = "Results for " + searchString;
+        searchOptionsString = "Search options " + postType + "s" + " only not deleted";
+        if (!(postType === "question" || postType === "answer")) {
+            return callback({ error: `Invalid posttype ${postType} specified while searching` }, null);
+        }
+        whereStatement.type = postType.toUpperCase();
+    } else if (searchType.startsWith('user:')) {
+        let userId = searchType.slice(5);
+        resultString = "Results for " + searchString;
+        searchOptionsString = "Search options not deleted user " + userId;
+        const user = await User.findOne({ where: { id: userId } });
+        if (user === null) {
+            return callback({ error: `Invalid userId ${userId} specified while searching` }, null);
+        }
+        whereStatement.owner_id = userId;
+    } else if (searchType.startsWith('isaccepted:')) {
+        let str = searchType.slice(11);
+        if (!(str === "yes" || str === "no")) {
+            return callback({ error: `Invalid parameter ${str} specified while searching` }, null);
+        }
+        let searchWithAcceptedPosts = str === "yes" ? true : false;
+        //TODO - @Sai Krishna - This is pending. Need to complete
+
+
+    } else {
+        resultString = "Results for " + fullSearchString;
+        searchOptionsString = "Search options not deleted";
+        if (fullSearchString.startsWith('"')) {
+            exactSearchString = '%' + fullSearchString.slice(1, -1) + '%';
+        } else {
+            exactSearchString = '%' + fullSearchString + '%';
+        }
+    }
+
+    whereStatement[Sequelize.Op.or] = [
+        { title: { [Sequelize.Op.like]: exactSearchString } },
+        { body: { [Sequelize.Op.like]: exactSearchString } }
+    ];
+    const posts = await Post.findAll({
+        where: whereStatement,
+        include: includeStatement,
+        order: [[orderBy, "DESC"]]
+    });
+
+    return callback(null, { posts, resultString, searchOptionsString, tagDescription });
 }

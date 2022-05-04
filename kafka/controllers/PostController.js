@@ -79,3 +79,10 @@ exports.updateQuestion = async (req, res) => {
         return res.json(data)
     })
 }
+
+exports.search = async (req, res) => {
+    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, query: req.query, action: actions.SEARCH }, (err, data) => {
+        if (err) return res.status(400).json({ message: err })
+        return res.json(data)
+    })
+}
