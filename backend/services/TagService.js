@@ -90,9 +90,9 @@ const getQuestionsForTag = async (payload, callback) => {
 };
 
 const createNewTag = async (payload, callback) => {
-  const { name, description, admin_id } = payload;
+  const { name, description } = payload;
   const existingtag = await Tag.findOne({ where: { name } });
-  const adminUser = await User.findOne({where:{id:admin_id}})
+  const adminUser = await User.findOne({where:{id:payload.USER_ID}})
   if(adminUser && adminUser.is_admin == 1){
     if (existingtag) {
       return callback(
@@ -100,7 +100,7 @@ const createNewTag = async (payload, callback) => {
         null
       );
     }
-    const newtag = await new Tag({ name:name.toLowerCase(), description, admin_id }).save();
+    const newtag = await new Tag({ name:name.toLowerCase(), description, admin_id: payload.USER_ID }).save();
     return callback(null, newtag);
   }
   return callback(
