@@ -5,7 +5,7 @@
     "database": "stackoverflow",
     "host": "stackoverflow.cjrtxvroomep.us-east-1.rds.amazonaws.com",
     "dialect": "mysql",
-    "logging": false
+    "logging": true
   },
   "test": {
     "username": "root", 

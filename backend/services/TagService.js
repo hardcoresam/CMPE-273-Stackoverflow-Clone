@@ -69,7 +69,7 @@ const getQuestionsForTag = async (payload, callback) => {
     orderBy = "modified_date";
   }
 
-  const tagQuestions = await Tag.findAll({
+  const tagQuestions = await Tag.findOne({
     where: { name: tagName },
     include: {
       model: Post,

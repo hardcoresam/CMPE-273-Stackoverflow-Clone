@@ -83,8 +83,6 @@ handleTopicRequest(kafkaTopics.TAGS_TOPIC, TagService);
 
 BadgeService.startBadgeConsumer();
 
-sequelize.sync({ alter: true }).then((req) => {
-    app.listen(PORT, (req, res) => {
-        console.log("Server running on port - ", PORT);
-    });
-})
+app.listen(PORT, (req, res) => {
+    console.log("Server running on port - ", PORT);
+});

@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         email: {
             type: DataTypes.STRING,
             allowNull: false,
+            unique: true
         },
         username: {
             type: DataTypes.STRING,
@@ -39,18 +40,12 @@ module.exports = (sequelize, DataTypes) => {
         registered_on: {
             type: DataTypes.DATE,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
-            get() {
-                return this.getDataValue('registered_on').toLocaleString('en-GB', { timeZone: 'UTC' });
-            }
+            defaultValue: DataTypes.NOW
         },
         last_login_time: {
             type: DataTypes.DATE,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
-            get() {
-                return this.getDataValue('last_login_time').toLocaleString('en-GB', { timeZone: 'UTC' });
-            }
+            defaultValue: DataTypes.NOW
         },
         gold_badges_count: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -70,17 +65,8 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: "user",
         timestamps: false
-    }, 
-    {
-        indexes: [
-            {
-                unique: true,
-                fields: ['email']
-            }
-        ]
-    }
-    );
-
+    });
+    
     User.associate = models => {
         User.hasMany(models.Badge, {
             foreignKey: {

@@ -24,12 +24,9 @@ module.exports = (sequelize, DataTypes) => {
         },
         tags: {
             type: DataTypes.STRING,
-            // get() {
-            //     return this.getDataValue('tags').split(',')
-            // }
-            // set(val) {
-            //     this.setDataValue('tags', val.join(','));
-            // },
+            get() {
+                return this.getDataValue('tags').split(',')
+            }
         },
         score: {
             type: DataTypes.INTEGER,
@@ -55,18 +52,12 @@ module.exports = (sequelize, DataTypes) => {
         created_date: {
             type: DataTypes.DATE,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
-            get() {
-                return this.getDataValue('created_date').toLocaleString('en-GB', { timeZone: 'UTC' });
-            }
+            defaultValue: DataTypes.NOW
         },
         modified_date: {
             type: DataTypes.DATE,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
-            get() {
-                return this.getDataValue('modified_date').toLocaleString('en-GB', { timeZone: 'UTC' });
-            }
+            defaultValue: DataTypes.NOW
         }
     }, {
         tableName: "post",

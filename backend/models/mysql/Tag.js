@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
         name: {
             type: DataTypes.STRING,
             allowNull: false,
+            unique: true
         },
         description: {
             type: DataTypes.STRING
@@ -16,24 +17,12 @@ module.exports = (sequelize, DataTypes) => {
         created_date: {
             type: DataTypes.DATE,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
-            get() {
-                return this.getDataValue('created_date').toLocaleString('en-GB', { timeZone: 'UTC' });
-            }
+            defaultValue: DataTypes.NOW
         }
     }, {
         tableName: "tag",
         timestamps: false
-    },
-    {
-        indexes: [
-            {
-                unique: true,
-                fields: ['name']
-            }
-        ]
-    }
-    );
+    });
 
     Tag.associate = models => {
         Tag.belongsTo(models.User, {

@@ -13,10 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         created_on: {
             type: DataTypes.DATE,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
-            get() {
-                return this.getDataValue('created_on').toLocaleString('en-GB', { timeZone: 'UTC' });
-            }
+            defaultValue: DataTypes.NOW
         }
     }, {
         tableName: "vote",

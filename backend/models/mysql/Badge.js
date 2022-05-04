@@ -18,10 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         awarded_on: {
             type: DataTypes.DATE,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
-            get() {
-                return this.getDataValue('awarded_on').toLocaleString('en-GB', { timeZone: 'UTC' });
-            }
+            defaultValue: DataTypes.NOW
         }
     }, {
         tableName: "badge",

@@ -17,10 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         posted_on: {
             type: DataTypes.DATE,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
-            get() {
-                return this.getDataValue('posted_on').toLocaleString('en-GB', { timeZone: 'UTC' });
-            }
+            defaultValue: DataTypes.NOW
         }
     }, {
         tableName: "comment",
