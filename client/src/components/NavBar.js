@@ -13,14 +13,14 @@ import Login from './Login/Login'
 import Register from './Register/Register'
 import { logoutPending, logoutSuccess } from '../features/logout';
 const NavBar = () => {
-
+    const userid =  Cookies.get("ID");
     const dispatch = useDispatch();
+    var navigate = useNavigate();
 
     const obj = useSelector(state => state.login)
 
     const location = useLocation()
     const [Flag, setFlag] = useState(false);
-    const navigate = useNavigate();
     const [modalShow, setModalShow] = useState(false);
     const [registermodal, setregistermodal] = useState(false);
     const [authflag, setauthflag] = useState(false)
@@ -46,6 +46,9 @@ const NavBar = () => {
         Cookies.remove('ID')
         navigate("/Dashboard")
     }
+    const gotouser = () =>{
+        navigate(`/User/${userid}`)
+    }
     return (
         <div>
             <Navbar collapseOnSelect expand="lg" bg="light" variant="light" sticky="top">
@@ -70,7 +73,7 @@ const NavBar = () => {
                                 <Button variant="outline-primary" onClick={register}>Sign up</Button>
                             </Col> :
                                 <Col sm={3} style={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
-                                    <i class="fa-solid fa-user" style={{ fontSize: "30px", cursor: "pointer" }}></i>
+                                    <i class="fa-solid fa-user" style={{ fontSize: "30px", cursor: "pointer" }} onClick={gotouser}></i>
                                     <i class="fa-solid fa-message" style={{ fontSize: "30px", cursor: "pointer" }}></i>
                                     <i onClick={logout} class="fa-solid fa-right-from-bracket" style={{ fontSize: "30px", cursor: "pointer" }}></i>
                                 </Col>

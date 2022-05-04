@@ -39,7 +39,7 @@ const User = () => {
     }
     getUserInfo();
 
-  },[modal])
+  },[userid])
 
   const handleChange = (e) => {
     console.log(URL.createObjectURL(e.target.files[0]))
@@ -110,7 +110,7 @@ const User = () => {
             <Col sm={1} style={{ marginLeft: "-2rem" }}><Button variant={!tabflag ? "warning" : "light"} className='rounded-pill' onClick={activitySubTab}>Activity</Button></Col>
           </Row>
           <Row>
-            {tabflag ? <ProfileSubTab /> : <ActivitySubTab />}
+            {tabflag ? <ProfileSubTab userid={userid}/> : <ActivitySubTab />}
           </Row>
         </Col>
         <Col sm={2}>

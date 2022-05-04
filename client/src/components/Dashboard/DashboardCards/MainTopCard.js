@@ -1,14 +1,28 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, Row, Col, Dropdown } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 const MainTopCard = () => {
   const obj = useSelector(state => state.DashboardTopSlice)
   const { Title, questionCount } = obj.value
-
+  const [title, settitle] = useState("")
   var navigate = useNavigate();
   const askquestion = () => {
     navigate('/askQuestion')
+  }
+  const openInteresting = ()=>{
+     settitle("Interesting")
+  }
+  const openHot = ()=>{
+    settitle("Hot")    
+  }
+  const openScore = ()=>{
+    settitle("Score")
+   
+  }
+  const openUnanswered = ()=>{
+    settitle("Unanswered")
+ 
   }
   return (
     <div>
@@ -22,26 +36,17 @@ const MainTopCard = () => {
           </Col>
         </Row>
         <Row style={{ marginTop: "2rem" }}>
-          <Col sm={6}>
+          <Col sm={3}>
             <text>{questionCount} Questions</text>
           </Col>
-          <Col sm={3}></Col>
-          <Col sm={3}>
-          <Dropdown>
-            <Dropdown.Toggle variant="primary" id="dropdown-basic">
-              <i class="fa-solid fa-filter"></i>
-              Filter
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu>
-              <Dropdown.Item href="#/action-1">Interesting</Dropdown.Item>
-              <Dropdown.Item href="#/action-2">Hot</Dropdown.Item>
-              <Dropdown.Item href="#/action-3">Score</Dropdown.Item>
-              <Dropdown.Item href="#/action-4">Unanswered</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+          <Col style={{marginRight:"48px"}} sm={3}></Col>
+          <Col sm={6} style={{ marginLeft: "-3rem", marginTop: "7px" }}>
+            <button style={title == "Interesting" ? { backgroundColor: "#D0D0D0" } : { backgroundColor:"white" }} onClick={openInteresting}>Interesting</button>
+            <button style={title == "Hot" ? { backgroundColor: "#D0D0D0" } : { backgroundColor:"white" }} onClick={openHot}>Hot</button>
+            <button style={title == "Score" ? { backgroundColor: "#D0D0D0" } : { backgroundColor:"white" }} onClick={openScore}>Score</button>
+            <button style={title == "Unanswered" ? { marginRight: "1rem", backgroundColor: "#D0D0D0" } : { backgroundColor:"white"}} onClick={openUnanswered}>Unanswered</button>
           </Col>
-          
+
           <Col>
           </Col>
         </Row>

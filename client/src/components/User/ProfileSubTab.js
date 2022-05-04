@@ -1,67 +1,91 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Row, Col, Card, Button } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 import goldbadge from '../images/goldbadge.PNG'
 import silverbadge from '../images/silverbadge.PNG'
 import bronzebadge from '../images/bronzebadge.PNG'
 import Axios from 'axios'
+import { useParams } from 'react-router'
 import Constants from '../util/Constants.json'
-const ProfileSubTab = () => {
+const ProfileSubTab = (props) => {
     const obj = useSelector(state => state.UserSlice)
-    const { gold_badges_count,about, silver_badges_count,bronzeBadges,silverBadges,goldBadges, bronze_badges_count,reputation,userReach ,answersCount,questionsCount} = obj.value
+    const { gold_badges_count, about, silver_badges_count, bronzeBadges, silverBadges, goldBadges, bronze_badges_count, reputation, userReach, answersCount, questionsCount } = obj.value
     const arr = [1, 2, 3];
     const [title, settitle] = useState("posts")
-    const [newtitle,setnewtitle] = useState("")
+    const [newtitle, setnewtitle] = useState("")
     const [topposts, settopposts] = useState([]);
+    const [toptags, settoptags] = useState([]);
+    const { userid } = useParams();
+
+    useEffect(() => {
+        async function testFunc() {
+            const tagresult = await Axios.get(`${Constants.uri}/api/users/${userid}/activity/tags`, {
+                withCredentials: true
+            });
+            console.log(tagresult)
+            settoptags(tagresult.data)
+
+            const result = await Axios.get(`${Constants.uri}/api/users/${userid}/profile/top_posts?postType=ALL&sortValue=SCORE`, {
+                withCredentials: true
+            });
+            settopposts(result.data);
+            console.log(result)
+        }
+        testFunc()
+
+
+
+    }, [props.userid])
+
 
     const allAction = async () => {
         settitle("posts")
         setnewtitle("")
-        const result = await Axios.get(`${Constants.uri}/api/users/profile/top_posts?postType=ALL&sortValue=SCORE`,{
-              withCredentials: true
-            });
+        const result = await Axios.get(`${Constants.uri}/api/users/${userid}/profile/top_posts?postType=ALL&sortValue=SCORE`, {
+            withCredentials: true
+        });
         settopposts(result.data);
     }
     const questionsAction = async () => {
         settitle("Questions")
         setnewtitle("")
-        const result = await Axios.get(`${Constants.uri}/api/users/profile/top_posts?postType=QUESTION&sortValue=SCORE`,{
+        const result = await Axios.get(`${Constants.uri}/api/users/${userid}/profile/top_posts?postType=QUESTION&sortValue=SCORE`, {
             withCredentials: true
-          });
-      settopposts(result.data);
+        });
+        settopposts(result.data);
     }
     const answersAction = async () => {
         settitle("Answers")
         setnewtitle("")
-        const result = await Axios.get(`${Constants.uri}/api/users/profile/top_posts?postType=ANSWER&sortValue=SCORE`,{
+        const result = await Axios.get(`${Constants.uri}/api/users/${userid}/profile/top_posts?postType=ANSWER&sortValue=SCORE`, {
             withCredentials: true
-          });
-      settopposts(result.data);
+        });
+        settopposts(result.data);
     }
     const scoreAction = async () => {
-        setnewtitle( "Top")
-        var tit = title == "posts" ? "ALL" : title=="Answers" ? "ANSWER" : "QUESTION"
-        
-        const result = await Axios.get(`${Constants.uri}/api/users/profile/top_posts?postType=${tit}&sortValue=SCORE`,{
+        setnewtitle("Top")
+        var tit = title == "posts" ? "ALL" : title == "Answers" ? "ANSWER" : "QUESTION"
+
+        const result = await Axios.get(`${Constants.uri}/api/users/${userid}/profile/top_posts?postType=${tit}&sortValue=SCORE`, {
             withCredentials: true
-          });
-      settopposts(result.data);
+        });
+        settopposts(result.data);
     }
     const newestAction = async () => {
-        setnewtitle( "Newest")
-        var tit = title == "posts" ? "ALL" : title=="Answers" ? "ANSWER" : "QUESTION"
-        const result = await Axios.get(`${Constants.uri}/api/users/profile/top_posts?postType=${tit}&sortValue=NEWEST`,{
+        setnewtitle("Newest")
+        var tit = title == "posts" ? "ALL" : title == "Answers" ? "ANSWER" : "QUESTION"
+        const result = await Axios.get(`${Constants.uri}/api/users/${userid}/profile/top_posts?postType=${tit}&sortValue=NEWEST`, {
             withCredentials: true
-          });
+        });
         settopposts(result.data);
-        
-    }
-
-    const viewAllBadges =()=>{
 
     }
 
-    const viewAllTags =()=>{
+    const viewAllBadges = () => {
+
+    }
+
+    const viewAllTags = () => {
 
     }
     return (
@@ -99,95 +123,93 @@ const ProfileSubTab = () => {
                     <h3>About</h3>
                     <Card style={{ width: "47rem", height: "7rem", backgroundColor: "MintCream" }}>
                         <Card.Body>
-                        {
-                            !about ? <Row>
-                            <text>Your about me section is currently blank. Would you like to add one? Edit profile</text>
-                        </Row>:
-                        <Row>
-                                <text>{about}</text>
-                            </Row>
-                        }
-                            
+                            {
+                                !about ? <Row>
+                                    <text>Your about me section is currently blank. Would you like to add one? Edit profile</text>
+                                </Row> :
+                                    <Row>
+                                        <text>{about}</text>
+                                    </Row>
+                            }
+
                         </Card.Body>
                     </Card>
                 </Col>
             </Row>
             <Row style={{ marginTop: "1rem" }}>
                 <Col sm={3}>
-                   
+
                 </Col>
                 <Col sm={2}></Col>
                 <Col sm={7} style={{ marginLeft: "-5rem" }}>
-                    <Row><Col sm={3}><h3>Badges</h3></Col><Col  style={{marginTop:"6px", cursor:"pointer"}}><text onClick={viewAllBadges}>view all badges</text></Col> </Row>
+                    <Row><Col sm={3}><h3>Badges</h3></Col><Col style={{ marginTop: "6px", cursor: "pointer" }}><text onClick={viewAllBadges}>view all badges</text></Col> </Row>
                     {
                         gold_badges_count > 0 || silver_badges_count > 0 || bronze_badges_count > 0 ?
-                        <div>
-                        
-                            <Card style={{ width: "47rem", height: "7rem", backgroundColor: "white", border: "0" }}>
-                                <Row>
-                                    <Col><Card>
-                                        <Row>
-                                            <Col sm={6}><img style={{ width: "5rem", height: "5rem" }} src={goldbadge}></img></Col>
+                            <div>
 
-                                            <Col>
-                                                <Row><text>{gold_badges_count}</text></Row>
-                                                <Row><text>gold badges</text></Row>
-                                            </Col>
+                                <Card style={{ width: "48rem", height: "13rem", backgroundColor: "white", border: "0", }}>
+                                    <Row>
+                                        <Col><Card style={{ height: "11rem", overflow: "hidden" }}>
+                                            <Row>
+                                                <Col sm={6}><img style={{ width: "5rem", height: "5rem" }} src={goldbadge}></img></Col>
 
-                                        </Row>
-                                        {
-                                            goldBadges.map((i) => (
-                                                <Row>
-                                                    <Col>{i.name}</Col>
-                                                    <Col></Col>
-                                                    <Col>{i.awarded_on}</Col>
-                                                </Row>
-                                            ))
-                                        }
-                                    </Card></Col>
-                                    <Col><Card>
-                                        <Row>
-                                            <Col><img style={{ width: "5rem", height: "5rem" }} src={silverbadge}></img></Col>
+                                                <Col>
+                                                    <Row><text>{gold_badges_count}</text></Row>
+                                                    <Row><text>gold badges</text></Row>
+                                                </Col>
 
-                                            <Col>
-                                                <Row><text>{silver_badges_count}</text></Row>
-                                                <Row><text>silver badges</text></Row>
-                                            </Col>
+                                            </Row>
+                                            {
+                                                goldBadges.map((i) => (
+                                                    <Row>
+                                                        <Col sm={7} style={{ fontSize: "14px" }}><text style={{ color: "gold" }}><i class="fa-solid fa-circle" style={{ fontSize: "10px" }}></i></text>{i.name}</Col>
 
-                                        </Row>
-                                        {
-                                            silverBadges.map((i) => (
-                                                <Row>
-                                                    <Col>{i.name}</Col>
-                                                    <Col></Col>
-                                                    <Col>{i.awarded_on}</Col>
-                                                </Row>
-                                            ))
-                                        }
-                                    </Card></Col>
-                                    <Col><Card>
-                                        <Row>
-                                            <Col sm={5}><img style={{ width: "5rem", height: "5rem" }} src={bronzebadge}></img></Col>
+                                                        <Col style={{ fontSize: "10px" }}>{i.awarded_on}</Col>
+                                                    </Row>
+                                                ))
+                                            }
+                                        </Card></Col>
+                                        <Col><Card tyle={{ height: "10rem", overflow: "hidden" }}>
+                                            <Row>
+                                                <Col><img style={{ width: "5rem", height: "5rem" }} src={silverbadge}></img></Col>
 
-                                            <Col>
-                                                <Row><text>{bronze_badges_count}</text></Row>
-                                                <Row><text>bronze badges</text></Row>
-                                            </Col>
+                                                <Col>
+                                                    <Row><text>{silver_badges_count}</text></Row>
+                                                    <Row><text>silver badges</text></Row>
+                                                </Col>
 
-                                        </Row>
-                                        {
-                                            bronzeBadges.map((i) => (
-                                                <Row>
-                                                    <Col>{i.name}</Col>
-                                                    <Col></Col>
-                                                    <Col>{i.awarded_on}</Col>
-                                                </Row>
-                                            ))
-                                        }
-                                    </Card></Col>
+                                            </Row>
+                                            {
+                                                silverBadges.map((i) => (
+                                                    <Row>
+                                                        <Col sm={7} style={{ fontSize: "14px" }}><text style={{ color: "silver" }}><i class="fa-solid fa-circle" style={{ fontSize: "10px" }}></i></text>{i.name}</Col>
+                                                        <Col style={{ fontSize: "10px" }}>{i.awarded_on}</Col>
+                                                    </Row>
+                                                ))
+                                            }
+                                        </Card></Col>
+                                        <Col><Card tyle={{ height: "10rem", overflow: "hidden" }}>
+                                            <Row>
+                                                <Col sm={5}><img style={{ width: "5rem", height: "5rem" }} src={bronzebadge}></img></Col>
 
-                                </Row>
-                            </Card>
+                                                <Col>
+                                                    <Row><text>{bronze_badges_count}</text></Row>
+                                                    <Row><text>bronze badges</text></Row>
+                                                </Col>
+
+                                            </Row>
+                                            {
+                                                bronzeBadges.map((i) => (
+                                                    <Row>
+                                                        <Col sm={7} style={{ fontSize: "14px" }}><text style={{ color: "bronze" }}><i class="fa-solid fa-circle" style={{ fontSize: "10px" }}></i></text>{i.name}</Col>
+                                                        <Col style={{ fontSize: "10px" }}>{i.awarded_on}</Col>
+                                                    </Row>
+                                                ))
+                                            }
+                                        </Card></Col>
+
+                                    </Row>
+                                </Card>
                             </div>
                             :
                             <Card style={{ width: "47rem", height: "7rem", backgroundColor: "MintCream" }}>
@@ -201,22 +223,24 @@ const ProfileSubTab = () => {
 
                 </Col>
             </Row>
-            <Row style={{ marginTop: "1rem" }}>
+            {
+                toptags.length>0 && 
+                <Row style={{ marginTop: "1rem" }}>
                 <Col sm={3}>
 
                 </Col>
                 <Col sm={2}></Col>
                 <Col sm={7} style={{ marginLeft: "-5rem", marginTop: "3rem" }}>
-                <Row><Col sm={3}><h3>Tags</h3></Col><Col  style={{marginTop:"6px", cursor:"pointer"}}><text onClick={viewAllTags}>view all Tags</text></Col> </Row>
+                    <Row><Col sm={3}><h3>Tags</h3></Col><Col style={{ marginTop: "6px", cursor: "pointer" }}><text onClick={viewAllTags}>view all Tags</text></Col> </Row>
 
                     {
-                        arr.map((i) => (
+                        toptags.map((i) => (
                             <Card style={{ width: "47rem", height: "3rem" }}>
                                 <Card.Body>
                                     <Row>
-                                        <Col>python</Col>
+                                        <Col>{i.name}</Col>
                                         <Col sm={2}></Col>
-                                        <Col>2,848 score 2,012 posts 84 posts %</Col>
+                                        <Col>{i.score} score {i.totalPosts} posts 84 posts %</Col>
                                     </Row>
                                 </Card.Body>
                             </Card>
@@ -225,38 +249,47 @@ const ProfileSubTab = () => {
 
                 </Col>
             </Row>
-            <Row style={{ marginTop: "0rem" }}>
+            }
+            {
+                topposts.length>0 &&
+                <Row style={{ marginTop: "0rem" }}>
                 <Col sm={3}>
 
                 </Col>
                 <Col sm={2}></Col>
                 <Col sm={7} style={{ marginLeft: "-5rem", marginTop: "3rem" }}>
                     <Row style={{ width: "47rem" }}>
-                        <Col sm={5}><h3>{newtitle} {newtitle.length!=0 ?<text></text> : <text>Top</text>}  {title}</h3></Col>
+                        <Col sm={5}><h3>{newtitle} {newtitle.length != 0 ? <text></text> : <text>Top</text>}  {title}</h3></Col>
                         <Col sm={7} style={{ marginLeft: "-3rem", marginTop: "7px" }}>
-                            <button style={title=="posts" ? { border: "0" ,backgroundColor :"green"} : {border: "0"}} onClick={allAction}>All</button>
-                            <button style={title=="Questions" ? { border: "0" ,backgroundColor :"green"} : {border: "0"}} onClick={questionsAction}>Questions</button>
-                            <button style={title=="Answers" ? { border: "0" ,marginRight: "1rem",backgroundColor :"green"} : {border: "0",marginRight: "1rem"}} onClick={answersAction}>Answers</button>
-                            <button style={!newtitle.includes("Newest") ? { border: "0" ,backgroundColor :"green"} : {border: "0"}} onClick={scoreAction}>Score</button>
-                            <button style={newtitle.includes("Newest") ? { border: "0" ,backgroundColor :"green"} : {border: "0"}} onClick={newestAction}>Newest</button>
+                            <button style={title == "posts" ? { border: "0", backgroundColor: "green" } : { border: "0" }} onClick={allAction}>All</button>
+                            <button style={title == "Questions" ? { border: "0", backgroundColor: "green" } : { border: "0" }} onClick={questionsAction}>Questions</button>
+                            <button style={title == "Answers" ? { border: "0", marginRight: "1rem", backgroundColor: "green" } : { border: "0", marginRight: "1rem" }} onClick={answersAction}>Answers</button>
+                            <button style={!newtitle.includes("Newest") ? { border: "0", backgroundColor: "green" } : { border: "0" }} onClick={scoreAction}>Score</button>
+                            <button style={newtitle.includes("Newest") ? { border: "0", backgroundColor: "green" } : { border: "0" }} onClick={newestAction}>Newest</button>
 
                         </Col>
 
                     </Row>
 
                     {
-                        arr.map((i) => (
+                        topposts.map((i) => (
                             <Card style={{ width: "47rem", height: "auto" }}>
                                 <Card.Body>
                                     <Row>
                                         <Col sm={2}>
-                                        <Row>
-                                        <Col sm={3}><i class="fa-brands fa-adn" style={{color:"green"}}></i></Col>
-                                        <Col sm={6}><Button variant='success'>243</Button></Col>
-                                        </Row>
+                                            <Row>
+                                            {
+                                                i.type==="QUESTION" ? ( i.accepted_answer_id===null ? <Col sm={3}><i class="fa fa-question-circle" aria-hidden="true"></i></Col> :<Col sm={3}><i class="fa fa-question-circle" aria-hidden="true" style={{color:"green"}}></i></Col>) :
+                                                (i.accepted_answer_id===null ? <Col sm={3}><i class="fa-brands fa-adn"></i></Col> : <Col sm={3}><i class="fa-brands fa-adn" style={{color:"green"}}></i></Col>)
+                                            }
+                                            {
+                                                i.accepted_answer_id===null ?<Col sm={6}><Button style={{backgroundColor:"white", color:"black", borderColor:"black"}}>{i.score}</Button></Col>:<Col sm={6}><Button variant='success'>{i.score}</Button></Col>
+                                            }
+                                                
+                                            </Row>
                                         </Col>
-                                        <Col sm={7}>How to interpret dplyr message `summarise()` regrouping output by 'x' (override with `.groups` argument)?</Col>
-                                        <Col>Aug 18, 2015</Col>
+                                        <Col sm={7}>{i.title}</Col>
+                                        <Col>{i.modified_date}</Col>
                                     </Row>
                                 </Card.Body>
                             </Card>
@@ -265,6 +298,8 @@ const ProfileSubTab = () => {
 
                 </Col>
             </Row>
+            }
+            
         </div>
     )
 }
