@@ -156,7 +156,7 @@ const getUserProfile = async (payload, callback) => {
   user.setDataValue("topTags", userTags);
   user.setDataValue("answersCount", answersCount);
   user.setDataValue("questionsCount", questionsCount);
-  user.setDataValue("userReach", userReach);
+  user.setDataValue("userReach", userReach === null ? 0 : userReach);
   user.setDataValue("bronzeBadges", bronzeBadges);
   user.setDataValue("silverBadges", silverBadges);
   user.setDataValue("goldBadges", goldBadges);
