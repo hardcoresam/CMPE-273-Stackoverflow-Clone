@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const { sequelize } = require("./models/mysql/index");
+const { sequelize, Sequelize } = require("./models/mysql/index");
 const dotenv = require('dotenv')
 
 dotenv.config();
@@ -82,6 +82,34 @@ handleTopicRequest(kafkaTopics.MESSAGES_TOPIC, MessageService);
 handleTopicRequest(kafkaTopics.TAGS_TOPIC, TagService);
 
 BadgeService.startBadgeConsumer();
+
+const mysql = require('mysql');
+const { Post } = require("./models/mysql");
+
+//This is the base api - B
+app.get('/getAllQuestionsForTesting-B', async (req, res) => {
+    const db = mysql.createConnection({
+        host: "localhost",
+        user: "root",
+        password: "password",
+        database: "stackoverflow",
+        port: '3306'
+    });
+
+    db.query("select * from post", (err, result) => {
+        if (err) {
+            console.log("Error while calling test api");
+        }
+        return res.status(200).json(result);
+    })
+});
+
+//This is the base + DB connection pooling api - B + D
+app.get('/getAllQuestionsForTesting-BD', async (req, res) => {
+    const questions = await Post.findAll();
+    return res.status(200).json(questions);
+});
+
 
 app.listen(PORT, (req, res) => {
     console.log("Server running on port - ", PORT);

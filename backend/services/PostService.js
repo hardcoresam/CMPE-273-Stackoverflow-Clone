@@ -107,6 +107,13 @@ const createAnswer = async (payload, callback) => {
 }
 
 const getQuestionsForDashboard = async (payload, callback) => {
+
+    if (payload.query.testing) {
+        console.log("Inside testing if");
+        const questions = await Post.findAll();
+        return callback(null, questions);
+    }
+
     const filterBy = payload.query.filterBy;
     let whereStatement = {
         type: "QUESTION"
