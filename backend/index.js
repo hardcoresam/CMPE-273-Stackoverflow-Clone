@@ -89,8 +89,8 @@ const { Post } = require("./models/mysql");
 //This is the base api - B
 app.get('/getAllQuestionsForTesting-B', async (req, res) => {
     const db = mysql.createConnection({
-        host: "localhost",
-        user: "root",
+        host: "stackoverflow.cjrtxvroomep.us-east-1.rds.amazonaws.com",
+        user: "admin",
         password: "password",
         database: "stackoverflow",
         port: '3306'
@@ -98,10 +98,14 @@ app.get('/getAllQuestionsForTesting-B', async (req, res) => {
 
     db.query("select * from post", (err, result) => {
         if (err) {
+            console.log(err);
             console.log("Error while calling test api");
         }
+        console.log(result.length);
+        console.log("Successsss");
+        db.end();
         return res.status(200).json(result);
-    })
+    });
 });
 
 //This is the base + DB connection pooling api - B + D
