@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         type: {
             type: DataTypes.ENUM("BRONZE", "SILVER", "GOLD"),
-            allowNull: false
+            allowNull: false,
+            unique: 'compositeIndex'
         },
         awarded_on: {
             type: DataTypes.DATE,

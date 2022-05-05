@@ -45,6 +45,9 @@ exports.handle_request = (payload, callback) => {
         case actions.SEARCH:
             search(payload, callback);
             break;
+        case actions.ADMIN_STATS:
+            getAdminStats(payload, callback);
+            break;
     }
 };
 
@@ -474,4 +477,50 @@ const search = async (payload, callback) => {
     });
 
     return callback(null, { posts, resultString, searchOptionsString, tagDescription });
+}
+
+const getAdminStats = async (payload, callback) => {
+    //The number of questions posted per day
+    const noOfQuestionsPerDaySql = "select DATE(created_date) as post_created_date, count(*) as posts_count " +
+        "from post p group by post_created_date order by post_created_date desc limit 10";
+    const noOfQuestionsPerDaySqlResults = await sequelize.query(noOfQuestionsPerDaySql, {
+        type: Sequelize.QueryTypes.SELECT
+    });
+
+    //Top 10 most viewed questions
+    const topTenViewedQuestions = await Post.findAll({
+        where: { type: "QUESTION" },
+        order: [['views_count', 'DESC']],
+        limit: 10
+    });
+
+    //Top 10 most used tags
+    const topTenTagsSql = "select pt.tag_id, t.name, count(p.id) as no_of_questions from post p inner join " +
+        "post_tag pt on p.id = pt.post_id inner join tag t on t.id = pt.tag_id where p.type = 'QUESTION' " +
+        "group by pt.tag_id order by no_of_questions desc";
+    const topTenTagsSqlResults = await sequelize.query(topTenTagsSql, {
+        type: Sequelize.QueryTypes.SELECT
+    });
+
+    //Top 10 users with highest reputation
+    const topTenUsers = await User.findAll({
+        where: { is_admin: false },
+        order: [['reputation', 'DESC']],
+        limit: 10
+    });
+
+    //Top 10 users with lowest reputation
+    const leastTenUsers = await User.findAll({
+        where: { is_admin: false },
+        order: [['reputation', 'ASC']],
+        limit: 10
+    });
+
+    return callback(null, {
+        noOfQuestionsPerDay: noOfQuestionsPerDaySqlResults,
+        topTenViewedQuestions,
+        topTenTags: topTenTagsSqlResults,
+        topTenUsers,
+        leastTenUsers
+    });
 }
