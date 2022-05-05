@@ -79,12 +79,12 @@ const getQuestionsForTag = async (payload, callback) => {
           model: User,
           where: whereCondition,
           attributes: ["id", "username", "photo", "reputation"],
-          required: true
-        }
+          required: true,
+        },
       ],
-      required: true
+      required: true,
     },
-    order: [[Post, orderBy, "DESC"]]
+    order: [[Post, orderBy, "DESC"]],
   });
   return callback(null, tagQuestions);
 };
@@ -92,15 +92,19 @@ const getQuestionsForTag = async (payload, callback) => {
 const createNewTag = async (payload, callback) => {
   const { name, description } = payload;
   const existingtag = await Tag.findOne({ where: { name } });
-  const adminUser = await User.findOne({where:{id:payload.USER_ID}})
-  if(adminUser && adminUser.is_admin == 1){
+  const adminUser = await User.findOne({ where: { id: payload.USER_ID } });
+  if (adminUser && adminUser.is_admin == 1) {
     if (existingtag) {
       return callback(
         { errors: { name: { msg: `Tag ${name} already exists` } } },
         null
       );
     }
-    const newtag = await new Tag({ name:name.toLowerCase(), description, admin_id: payload.USER_ID }).save();
+    const newtag = await new Tag({
+      name: name.toLowerCase(),
+      description,
+      admin_id: payload.USER_ID,
+    }).save();
     return callback(null, newtag);
   }
   return callback(
@@ -151,6 +155,19 @@ const getAllTags = async (payload, callback) => {
         total_questions_asked_today = total_questions_asked_today + 1;
       }
     }
+
+    let total_questions_asked_last_week = 0;
+    for (let row of topicQuestions) {
+      const myArray1 = created_date.split("T");
+      let only_date_got = myArray1[0];
+      console.log("only date", only_date_got);
+      var today = new Date();
+      console.log(today);
+      todays_date = JSON.stringify(today);
+      const myArray2 = todays_date.split("T");
+      var only_todays_date = myArray2[0];
+    }
+
     data.push({
       name: tag.dataValues.name,
       description: tag.dataValues.description,
