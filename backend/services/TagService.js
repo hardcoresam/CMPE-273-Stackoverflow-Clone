@@ -124,57 +124,19 @@ const filterByTagName = async (payload, callback) => {
 };
 
 const getAllTags = async (payload, callback) => {
-  const tags = await Tag.findAll();
-  const data = [];
-  for (let tag of tags) {
-    console.log("tag is", tag.dataValues);
+  const allTagsSql = "select pt.tag_id, t.name, t.description, count(p.id) as no_of_questions, " +
+    "sum(case when date(p.created_date) = :todayDate then 1 else 0 end) as no_of_questions_asked_today, " +
+    "sum(case when date(p.created_date) >= :thisWeekDate then 1 else 0 end) as no_of_questions_asked_this_week " +
+    "from post p inner join post_tag pt on p.id = pt.post_id inner join tag t on t.id = pt.tag_id " +
+    "where p.type = 'QUESTION' group by pt.tag_id order by no_of_questions desc";
+  const today = new Date();
+  const lastWeekDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+  const todayDate = today.toISOString().slice(0, 10);
+  const thisWeekDate = lastWeekDate.toISOString().slice(0, 10);
+  const allTags = await sequelize.query(allTagsSql, {
+    replacements: { todayDate: todayDate, thisWeekDate: thisWeekDate },
+    type: Sequelize.QueryTypes.SELECT
+  });
 
-    const topicQuestions = await PostTag.findAll({
-      where: { tag_id: tag.dataValues.id },
-    });
-    let totalQuestionsOnThisTopic = topicQuestions.length;
-    console.log("length is ", totalQuestionsOnThisTopic);
-
-    let total_questions_asked_today = 0;
-    for (let row of topicQuestions) {
-      created_date = JSON.stringify(row.dataValues.created_date);
-      console.log("Date got fron db", typeof row.dataValues.created_date);
-      const myArray1 = created_date.split("T");
-      let only_date_got = myArray1[0];
-      console.log("only date", only_date_got);
-      var today = new Date();
-      console.log(today);
-      todays_date = JSON.stringify(today);
-      const myArray2 = todays_date.split("T");
-
-      var only_todays_date = myArray2[0];
-      console.log("Todays Date", only_todays_date);
-      var result = only_todays_date.localeCompare(only_date_got);
-      console.log("Result", result);
-      if (result === 0) {
-        total_questions_asked_today = total_questions_asked_today + 1;
-      }
-    }
-
-    let total_questions_asked_last_week = 0;
-    for (let row of topicQuestions) {
-      const myArray1 = created_date.split("T");
-      let only_date_got = myArray1[0];
-      console.log("only date", only_date_got);
-      var today = new Date();
-      console.log(today);
-      todays_date = JSON.stringify(today);
-      const myArray2 = todays_date.split("T");
-      var only_todays_date = myArray2[0];
-    }
-
-    data.push({
-      name: tag.dataValues.name,
-      description: tag.dataValues.description,
-      total_questions_asked: totalQuestionsOnThisTopic,
-      total_questions_asked_today: total_questions_asked_today,
-    });
-  }
-
-  return callback(null, data);
+  return callback(null, allTags);
 };
