@@ -1,6 +1,7 @@
 import React from 'react'
 import { Row, Col, Card, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router'
+import moment from 'moment'
 const ItemList = (props) => {
     // const arr = [1, 2, 3, 4, 5, 6]
     const navigate = useNavigate();
@@ -26,18 +27,18 @@ const ItemList = (props) => {
                             <Col sm={6}>
                             {
                                 <Row>
-                                {//i.tags.map((obj) => (
-                                //     <Card style={{ width: "auto" }}>
-                                //     <text style={{fontSize:"13px"}}>{obj}</text>
-                                //     </Card>
-                                // ))
+                                {i.tags.map((obj) => (
+                                    <Card style={{ width: "auto" }}>
+                                    <text style={{fontSize:"13px"}}>{obj}</text>
+                                    </Card>
+                                ))
                             }
                                 </Row>
                                 
                             }
                             </Col>
                             <Col sm={1}></Col>
-                            <Col>asked {i.created_date}</Col>
+                            <Col>asked {moment(i.created_date).fromNow()}</Col>
                             </Row>
                         </div>
                     </Card>

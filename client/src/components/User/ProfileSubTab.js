@@ -6,6 +6,7 @@ import silverbadge from '../images/silverbadge.PNG'
 import bronzebadge from '../images/bronzebadge.PNG'
 import Axios from 'axios'
 import { useParams } from 'react-router'
+import moment from 'moment'
 import Constants from '../util/Constants.json'
 const ProfileSubTab = (props) => {
     const obj = useSelector(state => state.UserSlice)
@@ -149,7 +150,7 @@ const ProfileSubTab = (props) => {
 
                                 <Card style={{ width: "48rem", height: "13rem", backgroundColor: "white", border: "0", }}>
                                     <Row>
-                                        <Col><Card style={{ height: "11rem", overflow: "hidden" }}>
+                                        <Col><Card style={{ minHeight: "11rem", overflow: "hidden" }}>
                                             <Row>
                                                 <Col sm={6}><img style={{ width: "5rem", height: "5rem" }} src={goldbadge}></img></Col>
 
@@ -164,12 +165,12 @@ const ProfileSubTab = (props) => {
                                                     <Row>
                                                         <Col sm={7} style={{ fontSize: "14px" }}><text style={{ color: "gold" }}><i class="fa-solid fa-circle" style={{ fontSize: "10px" }}></i></text>{i.name}</Col>
 
-                                                        <Col style={{ fontSize: "10px" }}>{i.awarded_on}</Col>
+                                                        <Col style={{ fontSize: "10px" }}>{moment(i.awarded_on).fromNow()}</Col>
                                                     </Row>
                                                 ))
                                             }
                                         </Card></Col>
-                                        <Col><Card tyle={{ height: "10rem", overflow: "hidden" }}>
+                                        <Col><Card style={{ minHeight: "11rem", overflow: "hidden" }}>
                                             <Row>
                                                 <Col><img style={{ width: "5rem", height: "5rem" }} src={silverbadge}></img></Col>
 
@@ -183,12 +184,12 @@ const ProfileSubTab = (props) => {
                                                 silverBadges.map((i) => (
                                                     <Row>
                                                         <Col sm={7} style={{ fontSize: "14px" }}><text style={{ color: "silver" }}><i class="fa-solid fa-circle" style={{ fontSize: "10px" }}></i></text>{i.name}</Col>
-                                                        <Col style={{ fontSize: "10px" }}>{i.awarded_on}</Col>
+                                                        <Col style={{ fontSize: "10px" }}>{moment(i.awarded_on).fromNow()}</Col>
                                                     </Row>
                                                 ))
                                             }
                                         </Card></Col>
-                                        <Col><Card tyle={{ height: "10rem", overflow: "hidden" }}>
+                                        <Col><Card style={{ minHeight: "11rem", overflow: "hidden" }}>
                                             <Row>
                                                 <Col sm={5}><img style={{ width: "5rem", height: "5rem" }} src={bronzebadge}></img></Col>
 
@@ -202,7 +203,7 @@ const ProfileSubTab = (props) => {
                                                 bronzeBadges.map((i) => (
                                                     <Row>
                                                         <Col sm={7} style={{ fontSize: "14px" }}><text style={{ color: "bronze" }}><i class="fa-solid fa-circle" style={{ fontSize: "10px" }}></i></text>{i.name}</Col>
-                                                        <Col style={{ fontSize: "10px" }}>{i.awarded_on}</Col>
+                                                        <Col style={{ fontSize: "10px" }}>{moment(i.awarded_on).format("MMM Do YY")}</Col>
                                                     </Row>
                                                 ))
                                             }

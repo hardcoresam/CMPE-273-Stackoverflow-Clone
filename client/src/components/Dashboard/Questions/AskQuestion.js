@@ -28,6 +28,7 @@ const AskQuestion = () => {
 
     const askQuestion = async (e) => {
         e.preventDefault()
+        // console.log(questionForm)
         console.log("posting quesrion")
         const res = await axios.post(`${Constants.uri}/api/post/question`,questionForm,{withCredentials:true})
         console.log(res)

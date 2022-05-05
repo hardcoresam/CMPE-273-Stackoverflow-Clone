@@ -140,7 +140,8 @@ const getQuestionsForDashboard = async (payload, callback) => {
             attributes: ['id', 'username', 'photo', 'reputation'],
             required: true
         },
-        order: [[orderBy, 'DESC']]
+        order: [[orderBy, 'DESC']],
+        limit: 10
     });
     return callback(null, guestionsForDashboard);
 }
