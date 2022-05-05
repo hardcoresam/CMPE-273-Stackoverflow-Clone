@@ -13,6 +13,7 @@ import { useParams } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux';
 import { userReducer } from '../../features/UserSlice';
 import emptyuserimage from '../images/emptyimage.png'
+import Cookies from 'js-cookie';
 const User = () => {
   const obj = useSelector(state => state.UserSlice)
   const dispatch = useDispatch();
@@ -115,7 +116,10 @@ const User = () => {
           </Row>
         </Col>
         <Col sm={2}>
-          <Button onClick={openeditProfile} style={{ marginTop: "28px", color: "Black", borderColor: "black" }} variant='outline-light'>Edit Profile</Button>
+        {
+          Cookies.get("ID")===userid && <Button onClick={openeditProfile} style={{ marginTop: "28px", color: "Black", borderColor: "black" }} variant='outline-light'>Edit Profile</Button>
+        
+        }
         </Col>
       </Row>
       <Modal show={modal} size="md"

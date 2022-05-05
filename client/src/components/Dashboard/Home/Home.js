@@ -30,7 +30,7 @@ const Dashboard = () => {
                 </Col>
                 {
                     flag && <Col sm={3}>
-                    <Card style={{width:"17rem",height:"17rem", backgroundColor:"#ffdd99"}}>
+                    <Card style={{width:"17rem",height:"17rem", backgroundColor:"hsl(47deg 65% 84%)"}}>
                         
                     </Card>
                     </Col>

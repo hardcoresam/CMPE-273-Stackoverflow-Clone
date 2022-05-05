@@ -17,6 +17,7 @@ const ActivitySubTab = () => {
     const [state2, setstate2] = useState([]); // storing answers state 
     const [state3, setstate3] = useState([]); // storing badges state
     const [state4, setstate4] = useState([]); // storing bookmarks state
+    const [state5, setstate5] = useState([]); // storing tags state
     // const [tagstate,settagstate] = useState([]);
     const { userid } = useParams();
     useEffect(() => {
@@ -55,7 +56,7 @@ const ActivitySubTab = () => {
         await Axios.get(`${Constants.uri}/api/users/${userid}/activity/tags`, {
             withCredentials: true
         }).then((r) => {
-            setstate(r.data)
+            setstate5(r.data)
         })
     }
     const showReputation = async () => {
@@ -110,7 +111,7 @@ const ActivitySubTab = () => {
                         status === "Answers" && <AnswerList text={status} state={state2} />
                     }
                     {
-                        status === "Tags" && <TagList text={status} state={state} />
+                        status === "Tags" && <TagList text={status} state={state5} />
                     }
 
                     {

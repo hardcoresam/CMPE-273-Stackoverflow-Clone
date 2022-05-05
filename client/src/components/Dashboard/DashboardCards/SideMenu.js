@@ -42,13 +42,13 @@ const SideMenu = () => {
                 // <h6>Public</h6>
                 }
                 {
-                    sidetitle === "Home" ? <h6 style={{cursor : "pointer",padding:"2px", marginLeft:"1rem", color:"white",marginTop:"1rem", backgroundColor:"#ff9900", width:"3rem", borderRadius:"6px"}} onClick={questionAction}>Home</h6> : <h6 style={{cursor : "pointer",padding:"2px", marginLeft:"1rem",color:"gray",marginTop:"1rem",  width:"3rem", borderRadius:"6px"}} onClick={questionAction}>Home</h6>
+                    sidetitle === "Home" ? <h6 style={{cursor : "pointer",paddingLeft:"1rem",padding:"2px",width:"10rem",  color:"black",fontWeight:"bold",marginTop:"1rem", backgroundColor:"hsl(210deg 8% 95%)",  borderRadius:"6px"}} onClick={questionAction}>Home</h6> : <h6 style={{cursor : "pointer",paddingLeft:"1rem",padding:"2px",color:"#525960",marginTop:"1rem",  width:"3rem", borderRadius:"6px"}} onClick={questionAction}>Home</h6>
                 }
                 {
-                    sidetitle === "Tags" ? <h6 style={{cursor : "pointer", padding:"2px", marginLeft:"2rem", color:"white",marginTop:"1rem", backgroundColor:"#ff9900", width:"45px", borderRadius:"6px"}} onClick={tagAction}>Tags</h6> : <h6 style={{cursor : "pointer", padding:"2px", marginLeft:"2rem", color:"gray",marginTop:"1rem", width:"45px", borderRadius:"6px"}} onClick={tagAction}>Tags</h6>
+                    sidetitle === "Tags" ? <h6 style={{cursor : "pointer", padding:"2px",  color:"black",fontWeight:"bold",marginTop:"1rem",paddingLeft:"2rem", backgroundColor:"hsl(210deg 8% 95%)", width:"10rem", borderRadius:"6px"}} onClick={tagAction}>Tags</h6> : <h6 style={{cursor : "pointer", padding:"2px",  color:"#525960",marginTop:"1rem",paddingLeft:"2rem", width:"45px", borderRadius:"6px"}} onClick={tagAction}>Tags</h6>
                 }
                 {
-                    sidetitle === "Users" ? <h6 style={{cursor : "pointer", padding:"2px", marginLeft:"2rem", color:"white",marginTop:"1rem", backgroundColor:"#ff9900", width:"3rem", borderRadius:"6px"}} onClick = {userAction}>Users</h6> : <h6 style={{cursor : "pointer", padding:"2px", marginLeft:"2rem", color:"gray",marginTop:"1rem", width:"3rem", borderRadius:"6px"}} onClick = {userAction}>Users</h6>
+                    sidetitle === "Users" ? <h6 style={{cursor : "pointer", padding:"2px",  color:"black",fontWeight:"bold",marginTop:"1rem",paddingLeft:"2rem", backgroundColor:"hsl(210deg 8% 95%)", width:"10rem", borderRadius:"6px"}} onClick = {userAction}>Users</h6> : <h6 style={{cursor : "pointer", padding:"2px",  color:"#525960",marginTop:"1rem",paddingLeft:"2rem", width:"3rem", borderRadius:"6px"}} onClick = {userAction}>Users</h6>
                 }
                 
                 </div>

@@ -12,6 +12,7 @@ import User from '../User/User'
 import TagsHome from '../Dashboard/Home/TagsHome'
 import UsersHome from '../Dashboard/Home/UsersHome'
 import VerifyAuth from '../util/VerifyAuth'
+import Search from '../Dashboard/Search/Search'
 const Main = () => {
     return (
         <div>
@@ -21,6 +22,7 @@ const Main = () => {
                     }
                         <Route path="/Dashboard" element={<Home />} />
                         <Route path="/Dashboard/Tags" element={<TagsHome />} />
+                        <Route path="/Dashboard/Search" element={<Search />} />
                         <Route path="/Dashboard/Users" element={<UsersHome />} />
                         <Route path="/User/:userid" element={<User />} />
                         <Route path="/askQuestion" element={<AskQuestion />} />

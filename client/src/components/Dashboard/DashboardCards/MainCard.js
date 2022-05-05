@@ -5,6 +5,8 @@ import Constants from './../../util/Constants.json'
 import { Link } from 'react-router-dom'
 import { useDispatch } from "react-redux";
 import moment from 'moment'
+import './styles.css'
+import parse from 'html-react-parser'
 import { clickReducer } from '../../../features/DashboardTopSlice';
 const MainCard = () => {
     const dispatch = useDispatch();
@@ -16,8 +18,8 @@ const MainCard = () => {
             console.log(res)
             setQuestions(res.data)
             dispatch(clickReducer({
-                Title:"All Questions",
-                questionCount : res.data.length
+                Title: "All Questions",
+                questionCount: res.data.length
             }))
         }
         getQuests()
@@ -26,32 +28,38 @@ const MainCard = () => {
     return (
         <div>
 
-            <div style={{ marginTop: "1rem", marginLeft: "45px" }}>
+            <div style={{ marginTop: "1rem", marginLeft: "45px", overflow: "hidden" }}>
                 {questions && questions.map(question => (
                     <>
                         <Row>
                             <Col sm={2} style={{ marginRight: "-3rem" }}>
-                                <Row>{question.score} votes</Row>
-                                <Row><Button className='btn-success ' style={{ paddingLeft: "1px", paddingRight: "1px", paddingTop: 0, paddingBottom: 0 }} >{question.answers_count} answers</Button></Row>
-                                <Row><span className="text-warning">{question.views_count} views</span></Row>
+                                <Row style={{ marginLeft: "50px" }}>{question.score} votes</Row>
+                                <Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>
+                                <Row><span style={{ marginLeft: "50px", color: "hsl(27,90%,55%)" }}>{question.views_count} views</span></Row>
                             </Col>
                             <Col sm={1}></Col>
                             <Col>
                                 <Row>
-                                    <Link to={`/questions/${question.id}`} style={{textDecoration:"none",fontSize:20}}>{question.title}</Link>
+                                    <Col>
+                                    <Link to={`/questions/${question.id}`} style={{ textDecoration: "none", fontSize: 20, color: "hsl(206deg 100% 40%)", fontSize: "17px" }}>{question.title}</Link>
+                                    </Col>
+                                </Row>
+                                <Row className='textLimit'>
+                                    <text  style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
                                 </Row>
                                 <Row>
-                                    <text>{question.body}</text>
+                                    <Col sm={6}>{question.tags.map(tag => (<Button style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
+
                                 </Row>
                                 <Row>
-                                    <Col sm={6}>Tags: {question.tags.map(tag => (<Button className='btn-secondary' style={{padding:0,fontSize:12}}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
-                                
+                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
                                 </Row>
                                 <Row>
-                                <span className='text-muted' style={{fontSize:13,textAlign:'right'}}><Link to={`/User/${question.User.id}`}>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
+                                    <Col><hr style={{ marginTop: "1rem", marginLeft: "-218px" }}></hr></Col>
+
                                 </Row>
                             </Col>
-                            
+
                         </Row>
                         {/* <Row>
                             <Col sm={2} style={{ marginRight: "-2rem", marginLeft: "-1rem" }}>

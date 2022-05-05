@@ -32,19 +32,19 @@ const MainTopCard = () => {
             <text style={{ fontSize: "1.9rem", PaddingBottom: "1rem" }}>{Title}</text>
           </Col>
           <Col>
-            <Button onClick={askquestion}>Ask Question</Button>
+            <Button style={{backgroundColor:"hsl(206deg 100% 52%)"}} onClick={askquestion}>Ask Question</Button>
           </Col>
         </Row>
         <Row style={{ marginTop: "2rem" }}>
           <Col sm={3}>
             <text>{questionCount} Questions</text>
           </Col>
-          <Col style={{marginRight:"48px"}} sm={3}></Col>
-          <Col sm={6} style={{ marginLeft: "-3rem", marginTop: "7px" }}>
-            <button style={title == "Interesting" ? { backgroundColor: "#D0D0D0" } : { backgroundColor:"white" }} onClick={openInteresting}>Interesting</button>
-            <button style={title == "Hot" ? { backgroundColor: "#D0D0D0" } : { backgroundColor:"white" }} onClick={openHot}>Hot</button>
-            <button style={title == "Score" ? { backgroundColor: "#D0D0D0" } : { backgroundColor:"white" }} onClick={openScore}>Score</button>
-            <button style={title == "Unanswered" ? { marginRight: "1rem", backgroundColor: "#D0D0D0" } : { backgroundColor:"white"}} onClick={openUnanswered}>Unanswered</button>
+          <Col style={{marginRight:"48px"}} sm={2}></Col>
+          <Col sm={7} style={{ marginLeft: "-3rem", marginTop: "7px" }}>
+            <button style={title == "Interesting" ? { backgroundColor: "#D0D0D0", marginRight:"1px", borderWidth:"1px" } : { backgroundColor:"white",marginRight:"1px", color:"hsl(210deg 8% 45%)", borderWidth:"1px"  }} onClick={openInteresting}>Interesting</button>
+            <button style={title == "Hot" ? { backgroundColor: "#D0D0D0",marginRight:"1px" , borderWidth:"1px" } : { backgroundColor:"white",color:"hsl(210deg 8% 45%)",marginRight:"1px", borderWidth:"1px"  }} onClick={openHot}>Hot</button>
+            <button style={title == "Score" ? { backgroundColor: "#D0D0D0",marginRight:"1px" , borderWidth:"1px" } : { backgroundColor:"white",color:"hsl(210deg 8% 45%)",marginRight:"1px", borderWidth:"1px"  }} onClick={openScore}>Score</button>
+            <button style={title == "Unanswered" ? { marginRight: "1rem", backgroundColor: "#D0D0D0",marginRight:"1px", borderWidth:"1px"  } : { backgroundColor:"white",color:"hsl(210deg 8% 45%)",marginRight:"1px", borderWidth:"1px" }} onClick={openUnanswered}>Unanswered</button>
           </Col>
 
           <Col>

@@ -239,6 +239,7 @@ const getUserQuestions = async (payload, callback) => {
       type: "QUESTION",
     },
     order: [["score", "DESC"]],
+    limit:10
   });
   return callback(null, userQuestions);
 };

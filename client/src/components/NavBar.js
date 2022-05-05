@@ -24,7 +24,7 @@ const NavBar = () => {
     const [modalShow, setModalShow] = useState(false);
     const [registermodal, setregistermodal] = useState(false);
     const [authflag, setauthflag] = useState(false)
-
+    const [searchString, setsearchString] = useState("");
     useEffect(() => {
         if (Cookies.get("access-token")) {
             setauthflag(true)
@@ -49,6 +49,15 @@ const NavBar = () => {
     const gotouser = () =>{
         navigate(`/User/${userid}`)
     }
+    const handleKeyDown = (event) =>{
+        if(event.key === 'Enter'){
+            navigate(`/Dashboard/search?searchString=${searchString}`);
+        }
+    }
+
+    const handleChange = (value) =>{
+        setsearchString(value)
+    }
     return (
         <div>
             <Navbar collapseOnSelect expand="lg" bg="light" variant="light" sticky="top">
@@ -63,7 +72,8 @@ const NavBar = () => {
                                     placeholder="Search"
                                     className="me-1"
                                     aria-label="Search"
-                                    
+                                    onKeyDown={handleKeyDown}
+                                    onChange={(e) =>handleChange(e.target.value)}
                                 />
                             </Form>
                         </Col>
