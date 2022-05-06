@@ -109,41 +109,85 @@ const createAnswer = async (payload, callback) => {
     return callback(null, newAnswer);
 }
 
+//const mysql = require('mysql');
+
+// const db = mysql.createConnection({
+//     host: "stackoverflow.cjrtxvroomep.us-east-1.rds.amazonaws.com",
+//     user: "admin",
+//     password: "password",
+//     database: "stackoverflow",
+//     port: '3306'
+// });
+
+var db = require('../config/db');
+
 const getQuestionsForDashboard = async (payload, callback) => {
 
-    if (payload.query.testing) {
-        console.log("Inside testing if");
-        const questions = await Post.findAll();
-        return callback(null, questions);
-    }
-
-    const filterBy = payload.query.filterBy;
-    let whereStatement = {
-        type: "QUESTION"
-    };
-    if (filterBy === 'unanswered') {
-        whereStatement.answers_count = 0;
-    }
-    let orderBy = 'modified_date';
-    if (filterBy === 'score' || filterBy === 'unanswered') {
-        orderBy = 'score';
-    } else if (filterBy === 'hot') {
-        orderBy = 'views_count';
-    } else if (filterBy === 'interesting') {
-        orderBy = 'modified_date';
-    }
-
-    const guestionsForDashboard = await Post.findAll({
-        where: whereStatement,
-        include: {
-            model: User,
-            attributes: ['id', 'username', 'photo', 'reputation'],
-            required: true
-        },
-        order: [[orderBy, 'DESC']],
-        limit: 10
+    db.query("SELECT `id`, `type`, `status`, `title`, `tags`, `score`, `views_count`, `parent_id`, `answers_count`, `accepted_answer_id`, `created_date`, `modified_date`, `owner_id` FROM `post` AS `Post`", (err, result) => {
+        if (err) {
+            console.log(err);
+            console.log("Error while calling test api");
+        }
+        console.log(result.length);
+        //console.log("Successsss");
+        //db.end();
+        return callback(null, result);
     });
-    return callback(null, guestionsForDashboard);
+
+    // const questions = await Post.findAll({
+    //     attrbutes: { exclude: ['body'] }
+    // });
+    // return callback(null, questions);
+
+//   "pool": {
+//     "max": 50,
+//     "min": 0,
+//     "acquire": 60000,
+//     "idle": 50000
+//   }
+
+    // if (payload.query.testing) {
+    //     console.log("Inside testing loop");
+    //     // const user = await User.findOne({
+    //     //     where: {
+    //     //         id: 10
+    //     //     }
+    //     // });
+    //     // console.log(user);
+    //     const questions = await Post.findAll({
+    //         attrbutes: ['id', 'title', 'owner_id', 'score']
+    //     });
+    //     //return callback(null, user);
+    //     return callback(null, questions);
+    // }
+
+    // const filterBy = payload.query.filterBy;
+    // let whereStatement = {
+    //     type: "QUESTION"
+    // };
+    // if (filterBy === 'unanswered') {
+    //     whereStatement.answers_count = 0;
+    // }
+    // let orderBy = 'modified_date';
+    // if (filterBy === 'score' || filterBy === 'unanswered') {
+    //     orderBy = 'score';
+    // } else if (filterBy === 'hot') {
+    //     orderBy = 'views_count';
+    // } else if (filterBy === 'interesting') {
+    //     orderBy = 'modified_date';
+    // }
+
+    // const guestionsForDashboard = await Post.findAll({
+    //     where: whereStatement,
+    //     include: {
+    //         model: User,
+    //         attributes: ['id', 'username', 'photo', 'reputation'],
+    //         required: true
+    //     },
+    //     order: [[orderBy, 'DESC']],
+    //     limit: 10
+    // });
+    // return callback(null, guestionsForDashboard);
 }
 
 const getQuestion = async (payload, callback) => {

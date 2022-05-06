@@ -42,7 +42,7 @@ function handleTopicRequest(topic_name, serviceObject) {
         consumer.on('message', function (message) {
             var data = JSON.parse(message.value)
             const { payload, correlationId } = data
-            console.log("1. Consumed Data at backend...")
+            //console.log("1. Consumed Data at backend...")
 
             serviceObject.handle_request(payload, (err, res) => {
                 let payload = {
@@ -69,7 +69,7 @@ function handleTopicRequest(topic_name, serviceObject) {
                 ];
                 producer.send(payloadForProducer, (err, data) => {
                     if (err) throw err
-                    console.log("2. Sent Acknowledgement ...\n", data)
+                    //console.log("2. Sent Acknowledgement ...\n", data)
                 })
             })
         })
@@ -83,34 +83,39 @@ handleTopicRequest(kafkaTopics.TAGS_TOPIC, TagService);
 
 BadgeService.startBadgeConsumer();
 
-const mysql = require('mysql');
+//const mysql = require('mysql');
 const { Post } = require("./models/mysql");
 
-//This is the base api - B
-app.get('/getAllQuestionsForTesting-B', async (req, res) => {
-    const db = mysql.createConnection({
-        host: "stackoverflow.cjrtxvroomep.us-east-1.rds.amazonaws.com",
-        user: "admin",
-        password: "password",
-        database: "stackoverflow",
-        port: '3306'
-    });
+var db = require('./config/db');
 
-    db.query("select * from post", (err, result) => {
+// const db = mysql.createConnection({
+//     host: "stackoverflow.cjrtxvroomep.us-east-1.rds.amazonaws.com",
+//     user: "admin",
+//     password: "password",
+//     database: "stackoverflow",
+//     port: '3306'
+// });
+
+//This is the base api - B
+app.get('/api/getAllQuestionsForTesting-B', async (req, res) => {
+
+    db.query("SELECT `id`, `type`, `status`, `title`, `tags`, `score`, `views_count`, `parent_id`, `answers_count`, `accepted_answer_id`, `created_date`, `modified_date`, `owner_id` FROM `post` AS `Post`", (err, result) => {
         if (err) {
             console.log(err);
             console.log("Error while calling test api");
         }
         console.log(result.length);
         console.log("Successsss");
-        db.end();
+        //db.end();
         return res.status(200).json(result);
     });
 });
 
 //This is the base + DB connection pooling api - B + D
-app.get('/getAllQuestionsForTesting-BD', async (req, res) => {
-    const questions = await Post.findAll();
+app.get('/api/getAllQuestionsForTesting-BD', async (req, res) => {
+    const questions = await Post.findAll({
+        attributes: { exclude: ['body'] }
+    });
     return res.status(200).json(questions);
 });
 

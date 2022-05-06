@@ -20,11 +20,5 @@
     "database": "database_production",
     "host": "127.0.0.1",
     "dialect": "mysql"
-  },
-  "pool": {
-    "max": 500,
-    "min": 0,
-    "acquire": 60000,
-    "idle": 60000
   }
 }

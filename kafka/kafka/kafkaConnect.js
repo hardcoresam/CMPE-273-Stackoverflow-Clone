@@ -12,6 +12,8 @@ exports.getConsumer = (topicName) => {
     var Consumer = kafka.Consumer
     var kafkaConsumer = new Consumer(client, [
         { topic: topicName, partition: 0 }
-    ])
+    ], {
+        fetchMaxBytes: 4024 * 4024
+    })
     return kafkaConsumer
 }
