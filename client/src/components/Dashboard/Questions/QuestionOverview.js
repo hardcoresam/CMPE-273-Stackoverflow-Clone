@@ -91,13 +91,21 @@ const QuestionOverview = () => {
   }
 
   const voteQuestion = async (voteType) => {
-    const res = await axios.post(`${Constants.uri}/api/post/${question.id}/vote`,{type:voteType},{withCredentials:true})
+    const res = await axios.post(`${Constants.uri}/api/post/${question.id}/vote`, { type: voteType }, { withCredentials: true })
     console.log(res.data)
-    if(res.data){
-      if(voteType == "UPVOTE")
+    if (res.data) {
+      if (voteType == "UPVOTE")
         toast.success("Up voted the question")
       else
-      toast.success("Down voted the question")
+        toast.success("Down voted the question")
+    }
+  }
+
+  const acceptAnswer = async (answer) => {
+    const res = await axios.post(`${Constants.uri}/api/post/acceptAnswer`, { answerId: answer.id }, { withCredentials: true })
+    console.log(res)
+    if (res) {
+      toast.success("Accepeted answer")
     }
   }
 
@@ -116,9 +124,9 @@ const QuestionOverview = () => {
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
               <Row>
                 <Col sm={1}>
-                  <div className='uptriangle' onClick={()=>voteQuestion("UPVOTE")}></div>
+                  <div className='uptriangle' onClick={() => voteQuestion("UPVOTE")}></div>
                   <div>&nbsp;&nbsp;{question.score}</div>
-                  <div className='downtriangle' onClick={()=>voteQuestion("DOWNVOTE")}></div>
+                  <div className='downtriangle' onClick={() => voteQuestion("DOWNVOTE")}></div>
                   <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" onClick={() => bookMarkQuestion()} style={{ color: isQuestionBookMarked ? "#fce303" : "#c2d6d6" }}></i></div>
                   <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" style={{ color: "#c2d6d6" }}></i></div>
                 </Col>
@@ -141,16 +149,16 @@ const QuestionOverview = () => {
                 <Col sm={1}></Col>
                 <Col>
                   <Card style={{ backgroundColor: "#b3f0ff" }}>
-                    <Card.Title><span style={{ fontSize: 12, padding:10 }} className='text-muted'>asked on {question.created_date.split('T')[0]}</span></Card.Title>
+                    <Card.Title><span style={{ fontSize: 12, padding: 10 }} className='text-muted'>asked on {question.created_date.split('T')[0]}</span></Card.Title>
                     <Row>
-                      <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding:3 }} src={img1}></img></Col>
+                      <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={img1}></img></Col>
                       <Col>
-                        <Row><Link to={`/User/${question.User.id}`} style={{ textDecoration:'none', fontSize:13 }}>{question.User.username}</Link></Row>
+                        <Row><Link to={`/User/${question.User.id}`} style={{ textDecoration: 'none', fontSize: 13 }}>{question.User.username}</Link></Row>
                         <Row>
                           <Col sm={4}>4321</Col>
-                          <Col><span><i class="fa fa-circle" style={{ color:'gold',fontSize:10}} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
-                          <span><i class="fa fa-circle" style={{ color:'#C0C0C0',fontSize:10}} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
-                          <span><i class="fa fa-circle" style={{ color:'#CD7F32',fontSize:10}} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                          <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                            <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                            <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
                           </Col>
                         </Row>
                       </Col>
@@ -202,6 +210,9 @@ const QuestionOverview = () => {
                     <div className='uptriangle'></div>
                     <div>{answer.score}</div>
                     <div className='downtriangle'></div>
+                    {question.accepted_answer_id == answer.id && (
+                      <div style={{ color: 'green', fontSize: 30 }}><i class="fa fa-check" aria-hidden="true"></i></div>
+                    )}
                   </Col>
                   <Col>
                     <text>{answer.title}</text>
@@ -211,8 +222,11 @@ const QuestionOverview = () => {
                       </text>
                     </Card>
                     <Row>
-                      <Col sm={3}></Col>
-                      <Col></Col>
+                      <Col sm={3}>
+                      </Col>
+                      <Col>
+                        <Button className='btn btn-success rounded-pill' onClick={() => acceptAnswer(answer)} style={{ width: 'auto', height: 'auto', textAlign: 'left' }}>Accept answer</Button>
+                      </Col>
                       <Col sm={3}>
                         <Card>
                           <Card.Title><span style={{ fontSize: 12 }}>Answered on {answer.modified_date.split(',')[0]}</span></Card.Title>
