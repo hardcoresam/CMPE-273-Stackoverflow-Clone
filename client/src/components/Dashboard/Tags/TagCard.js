@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Card, Col, Row, InputGroup, FormControl } from 'react-bootstrap'
-import './Styles.css'
+import './TagStyles.css'
 import { useNavigate } from 'react-router'
 import axios from 'axios'
 import Constants from './../../util/Constants.json'
@@ -14,6 +14,7 @@ const TagCard = () => {
     async function getTags() {
       const res = await axios.get(`${Constants.uri}/api/tags`)
       setTagsGrid(res.data)
+      console.log(res.data)
     }
     getTags()
   }, [])
@@ -76,10 +77,10 @@ const TagCard = () => {
             <Card style={{ width: "16rem", height: "13rem", marginRight: "9px" , marginBottom:"9px"}}>
               <Card.Body style={{ fontSize: "13px" }}>
                 <Row><Col sm={3}><button className='tagButton'  onClick={() => openTag(tag)}>{tag.name}</button></Col></Row>
-                <Row style={{ marginTop: "1rem" }}><text className='textLimit'>{tag.description}</text></Row>
+                <Row style={{ marginTop: "1rem" }}><text className='textLimitt'>{tag.description}</text></Row>
                 <Row style={{ marginTop: "1rem" }}>
-                  <Col sm={5}>{tag.total_questions_asked} questions</Col>
-                  <Col>{tag.total_questions_asked_today} asked today {tag.total_questions_asked_today} asked this week</Col>
+                  <Col sm={5}>{tag.no_of_questions} questions</Col>
+                  <Col>{tag.no_of_questions_asked_today} asked today {tag.no_of_questions_asked_this_week} asked this week</Col>
                 </Row>
               </Card.Body>
             </Card>

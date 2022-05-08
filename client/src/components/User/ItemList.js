@@ -24,7 +24,7 @@ const ItemList = (props) => {
                                 <Col sm={2}><text>{i.score} votes</text></Col>
                                 {i.accepted_answer_id && <Col><Button style={{ backgroundColor: "green", color: "white", marginTop: "-10px" }}>✔{props.text}</Button></Col>}
                             </Row>
-                            <Row className='textLimit'><text style={{ color: "hsl(206deg 100% 40%)", fontSize: "14px" }} onClick={() => openQuestion(i.question.id)}>{parse(i.body)}</text></Row>
+                            <Row className='textLimit3'><text style={{ color: "hsl(206deg 100% 40%)", fontSize: "14px" }} onClick={() => openQuestion(i.question.id)}>{parse(i.body)}</text></Row>
                             <Row>
 
                                 {

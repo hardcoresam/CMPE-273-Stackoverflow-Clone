@@ -2,7 +2,12 @@ import React, { useState } from 'react'
 import { Button, Row, Col, Dropdown } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { postReducer } from '../../../features/PostSlice'
+import Constants from  '../../util/Constants.json'
+import axios from 'axios'
 const MainTopCard = () => {
+  const dispatch = useDispatch();
   const obj = useSelector(state => state.DashboardTopSlice)
   const { Title, questionCount } = obj.value
   const [title, settitle] = useState("")
@@ -10,17 +15,25 @@ const MainTopCard = () => {
   const askquestion = () => {
     navigate('/askQuestion')
   }
-  const openInteresting = ()=>{
+  const openInteresting = async()=>{
+    const res = await axios.get(`${Constants.uri}/api/post/dashboard/?filterBy=interesting`);
+    dispatch(postReducer(res.data));
      settitle("Interesting")
   }
-  const openHot = ()=>{
+  const openHot = async()=>{
+    const res = await axios.get(`${Constants.uri}/api/post/dashboard/?filterBy=hot`);
+    dispatch(postReducer(res.data));
     settitle("Hot")    
   }
-  const openScore = ()=>{
+  const openScore = async()=>{
+    const res = await axios.get(`${Constants.uri}/api/post/dashboard/?filterBy=score`);
+    dispatch(postReducer(res.data));
     settitle("Score")
    
   }
-  const openUnanswered = ()=>{
+  const openUnanswered = async()=>{
+    const res = await axios.get(`${Constants.uri}/api/post/dashboard/?filterBy=unanswered`);
+    dispatch(postReducer(res.data));
     settitle("Unanswered")
  
   }

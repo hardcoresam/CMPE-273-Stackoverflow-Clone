@@ -8,19 +8,19 @@ import moment from 'moment'
 import './styles.css'
 import parse from 'html-react-parser'
 import { clickReducer } from '../../../features/DashboardTopSlice';
+import { postReducer } from '../../../features/PostSlice'
+import { useSelector } from 'react-redux'
 const MainCard = () => {
     const dispatch = useDispatch();
-    const [questions, setQuestions] = useState([])
-
+    // const [questions, setQuestions] = useState([])
+    const obj = useSelector(state => state.PostSlice)
+    const {questions} = obj.value;
     useEffect(() => {
         async function getQuests() {
             const res = await axios.get(`${Constants.uri}/api/post/dashboard`)
             console.log(res)
-            setQuestions(res.data)
-            dispatch(clickReducer({
-                Title: "All Questions",
-                questionCount: res.data.length
-            }))
+            // setQuestions(res.data)
+            dispatch(postReducer(res.data))
         }
         getQuests()
     }, [])

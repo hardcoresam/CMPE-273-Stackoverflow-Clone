@@ -51,12 +51,14 @@ const NavBar = () => {
     }
     const handleKeyDown = (event) =>{
         if(event.key === 'Enter'){
-            navigate(`/Dashboard/search?searchString=${searchString}`);
+            navigate({
+                pathname: '/Dashboard/search',
+                search: `?searchString=${searchString}&orderBy=score`
+              })
+            // navigate(`/Dashboard/search?searchString=${searchString}`);
+            // console.log(searchString)
         }
-    }
-
-    const handleChange = (value) =>{
-        setsearchString(value)
+        // console.log(searchString)
     }
     return (
         <div>
@@ -66,16 +68,15 @@ const NavBar = () => {
                     <Navbar.Toggle aria-controls="navbarScroll" />
                     <Navbar.Collapse id="responsive-navbar-nav">
                         <Col sm={10}>
-                            <Form className="d-flex">
-                                <FormControl
-                                    type="search"
+                            <input
+                                    style={{width:"53rem"}}
                                     placeholder="Search"
-                                    className="me-1"
                                     aria-label="Search"
                                     onKeyDown={handleKeyDown}
-                                    onChange={(e) =>handleChange(e.target.value)}
-                                />
-                            </Form>
+                                    onChange={(e) =>setsearchString(e.target.value)}>
+                            
+                            </input>
+                            
                         </Col>
                         {
                             !Cookies.get("access-token") ? <Col sm={2}>

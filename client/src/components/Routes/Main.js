@@ -22,7 +22,7 @@ const Main = () => {
                     }
                         <Route path="/Dashboard" element={<Home />} />
                         <Route path="/Dashboard/Tags" element={<TagsHome />} />
-                        <Route path="/Dashboard/Search" element={<Search />} />
+                        <Route path="/Dashboard/search" element={<Search />} />
                         <Route path="/Dashboard/Users" element={<UsersHome />} />
                         <Route path="/User/:userid" element={<User />} />
                         <Route path="/askQuestion" element={<AskQuestion />} />

@@ -8,6 +8,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import DashboardTop from './features/DashboardTopSlice';
 import DashboardSecondTop from './features/DashboardSecondTopSlice';
+import Posts from './features/PostSlice'
 import loginReducer from './features/login'
 import registerreducer from './features/register'
 import logoutReducer from './features/logout'
@@ -25,7 +26,8 @@ const store = configureStore({
     DashboardTopSlice: DashboardTop,
     DashboardSecondTopSlice : DashboardSecondTop,
     UserSlice : User,
-    QuestionBodySlice : QuestionBody
+    QuestionBodySlice : QuestionBody,
+    PostSlice :  Posts
   },
 })
 
