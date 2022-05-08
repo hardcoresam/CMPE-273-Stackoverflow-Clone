@@ -356,6 +356,8 @@ const acceptAnswer = async (payload, callback) => {
                     type: Sequelize.QueryTypes.UPDATE
                 });
 
+                console.log("rechin here-----------------------")
+
                 //log repuation data
                 const reputationdata = new ReputationHistory({
                     post_id: answer.parent_id,
@@ -376,7 +378,11 @@ const acceptAnswer = async (payload, callback) => {
 
             }
 
-            return callback({ errors: { name: { msg: "You are not the owner of the question!" } } }, null)
+            else {
+                return callback({ errors: { name: { msg: "You are not the owner of the question!" } } }, null)
+
+            }
+
 
         } catch (error) {
             return callback({ errors: { name: { msg: "Failed to accept the answer, try again!" } } }, null)
