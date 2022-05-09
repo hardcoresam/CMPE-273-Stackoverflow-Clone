@@ -11,6 +11,9 @@ const ItemList = (props) => {
         // console.log(id)
         navigate(`/questions/${id}`);
     }
+    const openTag = (tag) => {
+        navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=${false}`);
+      }
     return (
         <div>
             <Row>
@@ -30,9 +33,9 @@ const ItemList = (props) => {
                                 {
                                     <Row>
                                         <Col sm={6}>{i.tags.map((obj) => (
-                                            <Button style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>
-                                                <text style={{ fontSize: "13px" }}>{obj}</text>
-                                            </Button>
+                                            <button onClick={() => openTag(obj)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>
+                                                <text  style={{ fontSize: "13px", cursor:"pointer" }}>{obj}</text>
+                                            </button>
                                         ))
                                         }</Col>
                                         <Col sm={1}></Col>

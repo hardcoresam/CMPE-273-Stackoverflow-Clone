@@ -44,6 +44,7 @@ const ActivitySubTab = () => {
         await Axios.get(`${Constants.uri}/api/users/${userid}/activity/answers`, {
             withCredentials: true
         }).then((r) => {
+            console.log(r.data)
             setstate2(r.data)
         })
     }

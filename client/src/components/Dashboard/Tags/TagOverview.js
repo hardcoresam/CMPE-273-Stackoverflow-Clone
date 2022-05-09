@@ -44,7 +44,7 @@ const TagOverview = () => {
                                 <Row><span style={{ marginLeft: "50px", color: "hsl(27,90%,55%)" }}>{question.views_count} views</span></Row>
                             </Col>
                             <Col sm={1}></Col>
-                            <Col>
+                            <Col sm={9}>
                                 <Row>
                                     <Col>
                                     <Link to={`/questions/${question.id}`} style={{ textDecoration: "none", fontSize: 20, color: "hsl(206deg 100% 40%)", fontSize: "17px" }}>{question.title}</Link>
@@ -61,7 +61,7 @@ const TagOverview = () => {
                                     <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
                                 </Row>
                                 <Row>
-                                    <Col><hr style={{ marginTop: "1rem", marginLeft: "-218px" }}></hr></Col>
+                                    <Col><hr style={{ marginTop: "1rem", marginLeft: "-143px" }}></hr></Col>
 
                                 </Row>
                             </Col>

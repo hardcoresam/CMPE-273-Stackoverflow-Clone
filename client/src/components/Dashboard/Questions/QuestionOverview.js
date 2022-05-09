@@ -30,6 +30,7 @@ const QuestionOverview = () => {
     status: "ACTIVE",
     answers_count: 0
   })
+  const [message,setMessage] = useState("");
   const [commentForm, setCommentForm] = useState()
   const [isQuestionBookMarked, setIsQuestionBookMarked] = useState(false)
   const [enableComment, setEnableComment] = useState(false)
@@ -126,9 +127,9 @@ const QuestionOverview = () => {
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
               <Row>
                 <Col sm={1}>
-                  <div className='uptriangle' onClick={() => voteQuestion("UPVOTE")}></div>
+                  {question.score === 1 ? <div className='uptriangleonclick' onClick={() => voteQuestion("UPVOTE")}></div>: <div className='uptriangle' onClick={() => voteQuestion("UPVOTE")}></div> }
                   <div>&nbsp;&nbsp;{question.score}</div>
-                  <div className='downtriangle' onClick={() => voteQuestion("DOWNVOTE")}></div>
+                {question.score===-1 ? <div className='downtriangleonclick' onClick={() => voteQuestion("DOWNVOTE")}></div> :<div className='downtriangle' onClick={() => voteQuestion("DOWNVOTE")}></div>}
                   <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" onClick={() => bookMarkQuestion()} style={{ color: isQuestionBookMarked ? "#fce303" : "#c2d6d6" }}></i></div>
                   <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" style={{ color: "#c2d6d6" }}></i></div>
                 </Col>

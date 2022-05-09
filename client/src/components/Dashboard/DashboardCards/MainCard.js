@@ -5,12 +5,14 @@ import Constants from './../../util/Constants.json'
 import { Link } from 'react-router-dom'
 import { useDispatch } from "react-redux";
 import moment from 'moment'
+import { useNavigate } from 'react-router'
 import './styles.css'
 import parse from 'html-react-parser'
 import { clickReducer } from '../../../features/DashboardTopSlice';
 import { postReducer } from '../../../features/PostSlice'
 import { useSelector } from 'react-redux'
 const MainCard = () => {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     // const [questions, setQuestions] = useState([])
     const obj = useSelector(state => state.PostSlice)
@@ -24,6 +26,10 @@ const MainCard = () => {
         }
         getQuests()
     }, [])
+
+    const openTag = (tag) => {
+        navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=${false}`);
+      }
 
     return (
         <div>
@@ -48,7 +54,7 @@ const MainCard = () => {
                                     <text  style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
                                 </Row>
                                 <Row>
-                                    <Col sm={6}>{question.tags.map(tag => (<Button style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
+                                    <Col sm={6}>{question.tags.map(tag => (<button onClick={()=>openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</button>))}&nbsp;&nbsp;&nbsp;</Col>
 
                                 </Row>
                                 <Row>
