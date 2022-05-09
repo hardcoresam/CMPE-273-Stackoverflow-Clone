@@ -10,7 +10,7 @@ const MainTopCard = () => {
   const dispatch = useDispatch();
   const obj = useSelector(state => state.DashboardTopSlice)
   const { Title, questionCount } = obj.value
-  const [title, settitle] = useState("")
+  const [title, settitle] = useState("Interesting")
   var navigate = useNavigate();
   const askquestion = () => {
     navigate('/askQuestion')
