@@ -170,3 +170,14 @@ exports.editProfile = async (req, res) => {
     }
   );
 };
+
+exports.filterByUsername = async (req,res) => {
+  kafka.sendKafkaRequest(
+    kafkaTopics.USERS_TOPIC,
+    { ...req.body, params: req.params, action: actions.FILTER_BY_USERNAME },
+    (err, data) => {
+      if (err) return res.status(400).json({ message: err });
+      return res.json(data);
+    }
+  );
+}
