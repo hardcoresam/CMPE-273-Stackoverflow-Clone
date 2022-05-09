@@ -54,21 +54,21 @@ const AdminDashboard = () => {
     ],
   };
 
-  const [tagForm,setTagForm] = useState({
-    name:"",description:""
+  const [tagForm, setTagForm] = useState({
+    name: "", description: ""
   })
 
-  const {name,description} = tagForm
+  const { name, description } = tagForm
 
   const onChangeTagData = (e) => {
     e.preventDefault()
-    setTagForm({...tagForm,[e.target.name]:e.target.value})
-  } 
+    setTagForm({ ...tagForm, [e.target.name]: e.target.value })
+  }
 
   const addTag = async (e) => {
     e.preventDefault()
-    const res = await axios.post(`${Constants.uri}/api/admin/new-tag`,tagForm,{withCredentials:true})
-    if(res){
+    const res = await axios.post(`${Constants.uri}/api/admin/new-tag`, tagForm, { withCredentials: true })
+    if (res) {
       setmodal(false)
       toast.success(`Created new tag, ${name}`)
     }
@@ -104,6 +104,7 @@ const AdminDashboard = () => {
   const [leastTenUsers, setLeastTenUsers] = useState({})
   const [optionsLeastTenUsers, setOptionsLeastTenUsers] = useState({})
 
+  const [pendingApprovals, setPendingApprovals] = useState([1, 2])
 
   useEffect(() => {
     async function adminstats() {
@@ -346,10 +347,29 @@ const AdminDashboard = () => {
 
         </div> :
           <div>
-            <Row>
-              <Col sm={5}></Col>
+            <br/>
+            <Row style={{marginLeft:'20%',marginRight:"20%"}}>
               <Col>
-                <h4>Pendings</h4>
+                <h4 style={{textAlign:'center'}}>Pending Approvals</h4>
+                <br/>
+                {pendingApprovals ? (
+                  <>
+                    {pendingApprovals.map(pending => (
+                      <>
+                        <Row>
+                          <Col sm={6}>Here is the title f the question from stackoverflow?</Col>
+                          <Col sm={2}>Posted 2 days ago</Col>
+                          <Col sm={2}><Button className='btn btn-success rounded-pill'>Approve</Button></Col>
+                          <Col sm={2}><Button className='btn btn-danger rounded-pill'>Reject</Button></Col>
+                        </Row>
+                        <hr />
+                      </>
+                    ))}
+                  </>
+                ) :
+                  (
+                    <h6>No questions for Approvals</h6>
+                  )}
               </Col>
             </Row>
           </div>
@@ -367,15 +387,15 @@ const AdminDashboard = () => {
         <Modal.Body>
           <Row style={{ marginBottom: "2rem" }}>
             <Col sm={4}>Tag Name</Col>
-            <Col sm={6}><input name="name" value={name} onChange={(e)=>onChangeTagData(e)}></input></Col>
+            <Col sm={6}><input name="name" value={name} onChange={(e) => onChangeTagData(e)}></input></Col>
           </Row>
           <Row>
             <Col sm={4}>Tag Description</Col>
-            <Col sm={6}><textarea style={{ width: "15rem", height:"15rem" }} name="description" value={description} onChange={(e)=>onChangeTagData(e)}></textarea></Col>
+            <Col sm={6}><textarea style={{ width: "15rem", height: "15rem" }} name="description" value={description} onChange={(e) => onChangeTagData(e)}></textarea></Col>
           </Row>
           <Row>
             <Col sm={10}></Col>
-            <Col><Button style={{ backgroundColor: "#008000" }} onClick={(e)=>addTag(e)}>Create</Button></Col>
+            <Col><Button style={{ backgroundColor: "#008000" }} onClick={(e) => addTag(e)}>Create</Button></Col>
           </Row>
         </Modal.Body>
       </Modal>
