@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Col, Row } from 'react-bootstrap'
+import { Button, Col, Row, Pagination } from 'react-bootstrap'
 import axios from 'axios'
 import Constants from './../../util/Constants.json'
 import { Link } from 'react-router-dom'
@@ -11,12 +11,19 @@ import parse from 'html-react-parser'
 import { clickReducer } from '../../../features/DashboardTopSlice';
 import { postReducer } from '../../../features/PostSlice'
 import { useSelector } from 'react-redux'
+
 const MainCard = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     // const [questions, setQuestions] = useState([])
     const obj = useSelector(state => state.PostSlice)
-    const {questions} = obj.value;
+    const { questions } = obj.value;
+
+    const [pageCount, setPageCount] = useState([])
+    const [startOffset, setStartOffset] = useState(1)
+    const [endOffset, setEndOffset] = useState(15)
+
+
     useEffect(() => {
         async function getQuests() {
             const res = await axios.get(`${Constants.uri}/api/post/dashboard`)
@@ -25,11 +32,38 @@ const MainCard = () => {
             dispatch(postReducer(res.data))
         }
         getQuests()
+
+        var list = []
+        for (var i = startOffset; i <= endOffset; i++) {
+            list.push(i)
+        }
+        setPageCount(list)
     }, [])
 
     const openTag = (tag) => {
         navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=${false}`);
       }
+    const nextPageSet = () => {
+        var list = []
+        for (var i = startOffset+15; i <= endOffset+15; i++) {
+            list.push(i)
+        }
+        setPageCount(list)
+        setStartOffset(startOffset+15)
+        setEndOffset(endOffset+15)
+    }
+
+    const previousPageSet = () => {
+        if(startOffset >= 15){
+            var list = []
+            for (var i = startOffset-15; i <= endOffset-15; i++) {
+                list.push(i)
+            }
+            setPageCount(list)
+            setStartOffset(startOffset-15)
+            setEndOffset(endOffset-15)
+        }
+    }
 
     return (
         <div>
@@ -47,11 +81,11 @@ const MainCard = () => {
                             <Col sm={9}>
                                 <Row>
                                     <Col>
-                                    <Link to={`/questions/${question.id}`} style={{ textDecoration: "none", fontSize: 20, color: "hsl(206deg 100% 40%)", fontSize: "17px" }}>{question.title}</Link>
+                                        <Link to={`/questions/${question.id}`} style={{ textDecoration: "none", fontSize: 20, color: "hsl(206deg 100% 40%)", fontSize: "17px" }}>{question.title}</Link>
                                     </Col>
                                 </Row>
                                 <Row className='textLimit'>
-                                    <text  style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
+                                    <text style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
                                 </Row>
                                 <Row>
                                     <Col sm={6}>{question.tags.map(tag => (<button onClick={()=>openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</button>))}&nbsp;&nbsp;&nbsp;</Col>
@@ -86,7 +120,17 @@ const MainCard = () => {
                     </>
                 ))}
 
+                <Pagination>
+                    <Pagination.First onClick={()=>previousPageSet()}/>
+
+                    {pageCount.map(item => (
+                        <Pagination.Item>{item}</Pagination.Item>
+                    ))}
+                    <Pagination.Last onClick={()=>nextPageSet()}/>
+                </Pagination>
             </div>
+
+
 
             <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
         </div>
