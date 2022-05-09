@@ -13,6 +13,7 @@ import TagsHome from '../Dashboard/Home/TagsHome'
 import UsersHome from '../Dashboard/Home/UsersHome'
 import VerifyAuth from '../util/VerifyAuth'
 import Search from '../Dashboard/Search/Search'
+import Messages from '../Messages/Messages'
 const Main = () => {
     return (
         <div>
@@ -26,6 +27,7 @@ const Main = () => {
                         <Route path="/Dashboard/Users" element={<UsersHome />} />
                         <Route path="/User/:userid" element={<User />} />
                         <Route path="/askQuestion" element={<AskQuestion />} />
+                        <Route path="/Messages" element={<Messages />} />
                         <Route path="/questions/:qid" element={<QuestionOverview />} />
                         <Route path="/tags/:tagname" element={<TagOverview />} />
                     {// </Route>

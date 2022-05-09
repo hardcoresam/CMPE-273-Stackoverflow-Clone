@@ -1,13 +1,32 @@
 import React, { useEffect, useState } from 'react'
 import { Row, Col, Card, Button } from 'react-bootstrap'
+import Constants from '../util/Constants.json'
+import Axios from 'axios'
+import { useParams } from 'react-router-dom'
 const BadgeList = (props) => {
+  const { userid } = useParams();
+  const [state,setstate] = useState([]);
+  useEffect(()=>{
+    async function getBadges(){
+      await Axios.get(`${Constants.uri}/api/users/${userid}/activity/badges`, {
+        withCredentials: true
+    }).then((r) => {
+        let gridProducts = [];
+        for (let i = 0; i < r.data.length; i = i + 4) {
+            gridProducts.push(r.data.slice(i, i + 4));
+        }
+        setstate(gridProducts)
+    })
+    }
+   getBadges()  
+  },[])
   return (
     <div>
       <Row>
-        <h5>{props.state.length} {props.text}</h5>
+        <h5>{state.length} {props.text}</h5>
       </Row>
       {
-        props.state.map((array) => (
+        state.map((array) => (
           <Row>
             {array.map((obj) => (
 

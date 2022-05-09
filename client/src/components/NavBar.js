@@ -12,8 +12,11 @@ import logo from './images/stackoverflowlogo.PNG'
 import Login from './Login/Login'
 import Register from './Register/Register'
 import { logoutPending, logoutSuccess } from '../features/logout';
+import "react-chat-elements/dist/main.css";
+import { MessageBox } from "react-chat-elements";
+import { ChatItem } from "react-chat-elements";
 const NavBar = () => {
-    const userid =  Cookies.get("ID");
+    const userid = Cookies.get("ID");
     const dispatch = useDispatch();
     var navigate = useNavigate();
 
@@ -46,20 +49,24 @@ const NavBar = () => {
         Cookies.remove('ID')
         navigate("/Dashboard")
     }
-    const gotouser = () =>{
+    const gotouser = () => {
         navigate(`/User/${userid}`)
     }
-    const handleKeyDown = (event) =>{
-        if(event.key === 'Enter'){
+    const gotomessages = () => {
+        navigate(`/Messages`)
+    }
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
             navigate({
                 pathname: '/Dashboard/search',
                 search: `?searchString=${searchString}&orderBy=score`
-              })
+            })
             // navigate(`/Dashboard/search?searchString=${searchString}`);
             // console.log(searchString)
         }
         // console.log(searchString)
     }
+
     return (
         <div>
             <Navbar collapseOnSelect expand="lg" bg="light" variant="light" sticky="top">
@@ -69,14 +76,14 @@ const NavBar = () => {
                     <Navbar.Collapse id="responsive-navbar-nav">
                         <Col sm={10}>
                             <input
-                                    style={{width:"53rem"}}
-                                    placeholder="Search"
-                                    aria-label="Search"
-                                    onKeyDown={handleKeyDown}
-                                    onChange={(e) =>setsearchString(e.target.value)}>
-                            
+                                style={{ width: "53rem" }}
+                                placeholder="Search"
+                                aria-label="Search"
+                                onKeyDown={handleKeyDown}
+                                onChange={(e) => setsearchString(e.target.value)}>
+
                             </input>
-                            
+
                         </Col>
                         {
                             !Cookies.get("access-token") ? <Col sm={2}>
@@ -85,7 +92,7 @@ const NavBar = () => {
                             </Col> :
                                 <Col sm={3} style={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
                                     <i class="fa-solid fa-user" style={{ fontSize: "30px", cursor: "pointer" }} onClick={gotouser}></i>
-                                    <i class="fa-solid fa-message" style={{ fontSize: "30px", cursor: "pointer" }}></i>
+                                    <i class="fa-solid fa-message" style={{ fontSize: "30px", cursor: "pointer" }} onClick={gotomessages}></i>
                                     <i onClick={logout} class="fa-solid fa-right-from-bracket" style={{ fontSize: "30px", cursor: "pointer" }}></i>
                                 </Col>
 

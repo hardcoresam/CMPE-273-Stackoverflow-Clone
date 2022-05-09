@@ -13,6 +13,7 @@ import loginReducer from './features/login'
 import registerreducer from './features/register'
 import logoutReducer from './features/logout'
 import User from './features/UserSlice';
+import UserActivity from  './features/UserActivitySlice'
 import QuestionBody from './features/QuestionBodySlice'
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -27,7 +28,8 @@ const store = configureStore({
     DashboardSecondTopSlice : DashboardSecondTop,
     UserSlice : User,
     QuestionBodySlice : QuestionBody,
-    PostSlice :  Posts
+    PostSlice :  Posts,
+    UserActivitySlice : UserActivity
   },
 })
 

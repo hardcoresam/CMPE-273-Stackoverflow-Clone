@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Row, Col, Card, Button } from 'react-bootstrap'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import goldbadge from '../images/goldbadge.PNG'
 import silverbadge from '../images/silverbadge.PNG'
 import bronzebadge from '../images/bronzebadge.PNG'
@@ -8,7 +8,9 @@ import Axios from 'axios'
 import { useParams } from 'react-router'
 import moment from 'moment'
 import Constants from '../util/Constants.json'
+import { statusReducer } from '../../features/UserActivitySlice'
 const ProfileSubTab = (props) => {
+    const dispatch = useDispatch();
     const obj = useSelector(state => state.UserSlice)
     const { gold_badges_count, about, silver_badges_count, bronzeBadges, silverBadges, goldBadges, bronze_badges_count, reputation, userReach, answersCount, questionsCount } = obj.value
     const arr = [1, 2, 3];
@@ -82,12 +84,15 @@ const ProfileSubTab = (props) => {
 
     }
 
-    const viewAllBadges = () => {
+    const viewAllBadges = () => {     
+        dispatch(statusReducer("Badges"))
         props.settabflag(false)
     }
 
     const viewAllTags = () => {
+        dispatch(statusReducer("Tags"))
         props.settabflag(false)
+ 
     }
     return (
         <div>

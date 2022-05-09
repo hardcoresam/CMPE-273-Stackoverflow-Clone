@@ -38,7 +38,7 @@ const MainCard = () => {
                                 <Row><span style={{ marginLeft: "50px", color: "hsl(27,90%,55%)" }}>{question.views_count} views</span></Row>
                             </Col>
                             <Col sm={1}></Col>
-                            <Col>
+                            <Col sm={9}>
                                 <Row>
                                     <Col>
                                     <Link to={`/questions/${question.id}`} style={{ textDecoration: "none", fontSize: 20, color: "hsl(206deg 100% 40%)", fontSize: "17px" }}>{question.title}</Link>

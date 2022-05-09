@@ -10,19 +10,25 @@ import BadgeList from './BadgeList'
 import Reputation from './Reputation'
 import { useParams } from 'react-router-dom'
 import BookmarkList from './BookmarkList'
+import { statusReducer } from '../../features/UserActivitySlice'
+import { useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 const ActivitySubTab = () => {
-
-    const [status, setstatus] = useState("Answers")
+    const dispatch  = useDispatch();
+    const obj = useSelector(state =>state.UserActivitySlice)
+    const {status} = obj.value;
+    // const [status, setstatus] = useState("Answers")
     const [state, setstate] = useState([]); //storing questions state
     const [state2, setstate2] = useState([]); // storing answers state 
     const [state3, setstate3] = useState([]); // storing badges state
     const [state4, setstate4] = useState([]); // storing bookmarks state
     const [state5, setstate5] = useState([]); // storing tags state
+    const [state6, setstate6] = useState([]); // storing tags reputation
     // const [tagstate,settagstate] = useState([]);
     const { userid } = useParams();
     useEffect(() => {
         async function getAnswers() {
-            setstatus("Answers")
+            // dispatch(statusReducer("Answers"))
 
             await Axios.get(`${Constants.uri}/api/users/${userid}/activity/answers`, {
                 withCredentials: true
@@ -32,9 +38,9 @@ const ActivitySubTab = () => {
         }
         getAnswers();
     }, [userid])
-    const showAnswers = async () => {
-        setstatus("Answers")
 
+    const showAnswers = async () => {
+        dispatch(statusReducer("Answers"))
         await Axios.get(`${Constants.uri}/api/users/${userid}/activity/answers`, {
             withCredentials: true
         }).then((r) => {
@@ -42,7 +48,7 @@ const ActivitySubTab = () => {
         })
     }
     const showQuestions = async () => {
-        setstatus("Questions")
+        dispatch(statusReducer("Questions"))
 
         await Axios.get(`${Constants.uri}/api/users/${userid}/activity/questions`, {
             withCredentials: true
@@ -51,33 +57,32 @@ const ActivitySubTab = () => {
         })
     }
     const showTags = async () => {
-        setstatus("Tags")
+        dispatch(statusReducer("Tags"))
 
-        await Axios.get(`${Constants.uri}/api/users/${userid}/activity/tags`, {
-            withCredentials: true
-        }).then((r) => {
-            setstate5(r.data)
-        })
     }
     const showReputation = async () => {
-        setstatus("Reputation")
-    }
-    const showBadges = async () => {
-        setstatus("Badges")
+        dispatch(statusReducer("Reputation"))
 
-        await Axios.get(`${Constants.uri}/api/users/${userid}/activity/badges`, {
+        await Axios.get(`${Constants.uri}/api/users/${userid}/profile`, {
             withCredentials: true
         }).then((r) => {
-            let gridProducts = [];
-            for (let i = 0; i < r.data.length; i = i + 4) {
-                gridProducts.push(r.data.slice(i, i + 4));
-            }
-            setstate3(gridProducts)
+            // console.log(r)
+            // let gridProducts = [];
+            // for (let i = 0; i < r.data.length; i = i + 4) {
+            //     gridProducts.push(r.data.slice(i, i + 4));
+            // }
+            // setstate3(gridProducts)
         })
-    }
-    const showBookmarks = async () => {
-        setstatus("Bookmarks")
 
+    }
+    const showBadges = async () => {
+        dispatch(statusReducer("Badges"))
+
+    }
+
+    
+    const showBookmarks = async () => {
+        dispatch(statusReducer("Bookmarks"))
         await Axios.get(`${Constants.uri}/api/users/${userid}/activity/bookmarks`, {
             withCredentials: true
         }).then((r) => {
@@ -111,14 +116,14 @@ const ActivitySubTab = () => {
                         status === "Answers" && <AnswerList text={status} state={state2} />
                     }
                     {
-                        status === "Tags" && <TagList text={status} state={state5} />
+                        status === "Tags" && <TagList text={status} />
                     }
 
                     {
-                        status === "Badges" && <BadgeList text={status} state={state3} />
+                        status === "Badges" && <BadgeList text={status} />
                     }
                     {
-                        status === "Reputation" && <Reputation text={status} state={state} />
+                        status === "Reputation" && <Reputation text={status} state={state6} />
                     }
 
 

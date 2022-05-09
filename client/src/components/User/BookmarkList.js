@@ -1,6 +1,9 @@
 import React from 'react'
 import { Row, Col, Card, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router'
+import moment from 'moment'
+import './styles.css'
+import parse from 'html-react-parser'
 const BookmarkList = (props) => {
     const navigate = useNavigate();
     const openQuestion = () => {
@@ -19,17 +22,17 @@ const BookmarkList = (props) => {
                                 <Col sm={2}><text>{i.Post.score} votes</text></Col>
                                 {i.Post.accepted_answer_id && <Col><Button style={{ backgroundColor: "green", color: "white", marginTop: "-10px" }}>✔{props.text}</Button></Col>}
                             </Row>
-                            <Row><text onClick={openQuestion}>{i.Post.body}</text></Row>
+                            <Row className='textLimit3' ><text onClick={openQuestion}>{parse(i.Post.body)}</text></Row>
                             <Row>
                                 <Col sm={6}>
                                     {
                                         <Row>
-                                            {//i.Post.tags.map((obj) => (
-                                                //     <Card style={{ width: "auto" }}>
-                                                //     <text style={{fontSize:"13px"}}>{obj}</text>
-                                                //     </Card>
-                                                // ))
-                                            }
+                                           { i.Post.tags.map((obj) => (
+                                                    <Card style={{ width: "auto" }}>
+                                                    <text style={{fontSize:"13px"}}>{obj}</text>
+                                                    </Card>
+                                                ))}
+                                            
                                         </Row>
 
                                     }

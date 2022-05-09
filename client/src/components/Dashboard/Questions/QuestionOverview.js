@@ -33,6 +33,7 @@ const QuestionOverview = () => {
   const [commentForm, setCommentForm] = useState()
   const [isQuestionBookMarked, setIsQuestionBookMarked] = useState(false)
   const [enableComment, setEnableComment] = useState(false)
+  const [flag,setFlag] = useState(true)
 
   const { title, body } = answerForm
 
@@ -66,7 +67,7 @@ const QuestionOverview = () => {
       }
     }
     getQuestion()
-  }, [])
+  }, [flag])
 
   const bookMarkQuestion = async () => {
     if (!isQuestionBookMarked) {
@@ -94,6 +95,7 @@ const QuestionOverview = () => {
     const res = await axios.post(`${Constants.uri}/api/post/${question.id}/vote`, { type: voteType }, { withCredentials: true })
     console.log(res.data)
     if (res.data) {
+      setFlag(!flag)
       if (voteType == "UPVOTE")
         toast.success("Up voted the question")
       else
