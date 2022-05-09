@@ -17,23 +17,23 @@ const MainTopCard = () => {
   }
   const openInteresting = async()=>{
     const res = await axios.get(`${Constants.uri}/api/post/dashboard/?filterBy=interesting`);
-    dispatch(postReducer(res.data));
+    dispatch(postReducer(res.data.questionsForDashboard));
      settitle("Interesting")
   }
   const openHot = async()=>{
     const res = await axios.get(`${Constants.uri}/api/post/dashboard/?filterBy=hot`);
-    dispatch(postReducer(res.data));
+    dispatch(postReducer(res.data.questionsForDashboard));
     settitle("Hot")    
   }
   const openScore = async()=>{
     const res = await axios.get(`${Constants.uri}/api/post/dashboard/?filterBy=score`);
-    dispatch(postReducer(res.data));
+    dispatch(postReducer(res.data.questionsForDashboard));
     settitle("Score")
    
   }
   const openUnanswered = async()=>{
     const res = await axios.get(`${Constants.uri}/api/post/dashboard/?filterBy=unanswered`);
-    dispatch(postReducer(res.data));
+    dispatch(postReducer(res.data.questionsForDashboard));
     settitle("Unanswered")
  
   }

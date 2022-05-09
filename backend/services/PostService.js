@@ -117,6 +117,12 @@ const createAnswer = async (payload, callback) => {
 
 const getQuestionsForDashboard = async (payload, callback) => {
     const filterBy = payload.query.filterBy;
+   
+    let offset = 0;
+    if(payload.query.offset){
+        offset = payload.query.offset
+    }
+    
     let whereStatement = {
         type: "QUESTION"
     };
@@ -132,7 +138,7 @@ const getQuestionsForDashboard = async (payload, callback) => {
         orderBy = 'modified_date';
     }
 
-    const guestionsForDashboard = await Post.findAll({
+    const questionsForDashboard = await Post.findAll({
         where: whereStatement,
         include: {
             model: User,
@@ -140,9 +146,12 @@ const getQuestionsForDashboard = async (payload, callback) => {
             required: true
         },
         order: [[orderBy, 'DESC']],
+        offset:parseInt(offset),
         limit: 10
     });
-    return callback(null, guestionsForDashboard);
+    const questionsCount = await Post.count({where: whereStatement})
+    
+    return callback(null, {questionsForDashboard,questionsCount});
 }
 
 const getQuestion = async (payload, callback) => {

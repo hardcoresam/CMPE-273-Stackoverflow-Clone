@@ -48,6 +48,8 @@ exports.handle_request = (payload, callback) => {
     case actions.EDIT_PROFILE:
       editProfile(payload, callback);
       break;
+    case actions.FILTER_BY_USERNAME:
+      filterByUsername(payload,callback)
   }
 };
 
@@ -239,7 +241,6 @@ const getUserQuestions = async (payload, callback) => {
       type: "QUESTION",
     },
     order: [["score", "DESC"]],
-    limit:10
   });
   return callback(null, userQuestions);
 };
@@ -336,3 +337,14 @@ const editProfile = async (payload, callback) => {
 
   return callback(null, "User profile edited successfully");
 };
+
+
+const filterByUsername = async (payload,callback) => {
+  const name = payload.params.username;
+  const users = await User.findAll();
+  if (users) {
+    const filteredUsers = users.filter((user) => user.username.includes(name) == true);
+    return callback(null, filteredUsers);
+  }
+  return callback(null, []);
+}

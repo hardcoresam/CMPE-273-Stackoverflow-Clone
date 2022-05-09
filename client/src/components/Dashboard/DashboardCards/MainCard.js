@@ -17,6 +17,7 @@ const MainCard = () => {
     const dispatch = useDispatch();
     // const [questions, setQuestions] = useState([])
     const obj = useSelector(state => state.PostSlice)
+
     const { questions } = obj.value;
 
     const [pageCount, setPageCount] = useState([])
@@ -29,7 +30,7 @@ const MainCard = () => {
             const res = await axios.get(`${Constants.uri}/api/post/dashboard`)
             console.log(res)
             // setQuestions(res.data)
-            dispatch(postReducer(res.data))
+            dispatch(postReducer(res.data.questionsForDashboard))
         }
         getQuests()
 
@@ -63,6 +64,11 @@ const MainCard = () => {
             setStartOffset(startOffset-15)
             setEndOffset(endOffset-15)
         }
+    }
+
+    const handlePage = async (index) => {
+        const res = await axios.get(`${Constants.uri}/api/post/dashboard?offset=${10*(index-1)}`)
+        dispatch(postReducer(res.data.questionsForDashboard))
     }
 
     return (
@@ -124,7 +130,7 @@ const MainCard = () => {
                     <Pagination.First onClick={()=>previousPageSet()}/>
 
                     {pageCount.map(item => (
-                        <Pagination.Item>{item}</Pagination.Item>
+                        <Pagination.Item onClick={()=>handlePage(item)}>{item}</Pagination.Item>
                     ))}
                     <Pagination.Last onClick={()=>nextPageSet()}/>
                 </Pagination>
