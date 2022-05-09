@@ -18,7 +18,7 @@ const MainCard = () => {
     // const [questions, setQuestions] = useState([])
     const obj = useSelector(state => state.PostSlice)
 
-    const { questions } = obj.value;
+    const { questions ,Title} = obj.value;
 
     const [pageCount, setPageCount] = useState([])
     const [startOffset, setStartOffset] = useState(1)
