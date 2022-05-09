@@ -257,7 +257,6 @@ const ProfileSubTab = (props) => {
             </Row>
             }
             {
-                topposts.length>0 &&
                 <Row style={{ marginTop: "0rem" }}>
                 <Col sm={3}>
 
@@ -278,8 +277,9 @@ const ProfileSubTab = (props) => {
                     </Row>
 
                     {
+                        topposts.length>0 ?
                         topposts.map((i) => (
-                            <Card style={{ width: "47rem", height: "auto" }}>
+                            <Card style={{ width: "47rem", height: "auto"}}>
                                 <Card.Body>
                                     <Row>
                                         <Col sm={2}>
@@ -300,6 +300,14 @@ const ProfileSubTab = (props) => {
                                 </Card.Body>
                             </Card>
                         ))
+                        :
+                        <Card style={{ width: "47rem", height: "auto"}}>
+                                <Card.Body>
+                                    <Row>
+                                        <h5>No Data</h5>
+                                    </Row>
+                                </Card.Body>
+                            </Card>
                     }
 
                 </Col>
