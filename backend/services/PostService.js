@@ -48,6 +48,12 @@ exports.handle_request = (payload, callback) => {
         case actions.ADMIN_STATS:
             getAdminStats(payload, callback);
             break;
+        case actions.PENDING_APPROVAL_QUESTIONS:
+            getPendingApprovalQuestions(payload,callback)
+            break
+        case actions.APPROVE_QUESTION:
+            approveQuestion(payload,callback)
+            break
     }
 };
 
@@ -538,4 +544,24 @@ const getAdminStats = async (payload, callback) => {
         topTenUsers,
         leastTenUsers
     });
+}
+
+const getPendingApprovalQuestions = async (payload,callback) => {
+    const questions = await Post.findAll({where:{status:"PENDING"}})
+    return callback(null,questions)
+}
+
+const approveQuestion = async (payload,callback) => {
+    const {id,approve} = payload
+    let sqlQuery = ""
+    if(approve){
+        sqlQuery = "update post set status = 'ACTIVE' where id = :questionId"
+    }else{
+        sqlQuery = "update post set status = 'CLOSED' where id = :questionId"
+    }
+    const data = await sequelize.query(sqlQuery, {
+        replacements: { questionId: id },
+        type: Sequelize.QueryTypes.UPDATE
+    });
+    return callback(null,"Updated the status")
 }

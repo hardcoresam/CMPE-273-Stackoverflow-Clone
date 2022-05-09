@@ -14,6 +14,7 @@ import {
 import { Bar } from 'react-chartjs-2';
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
+import moment from 'moment'
 
 ChartJS.register(
   CategoryScale,
@@ -104,7 +105,7 @@ const AdminDashboard = () => {
   const [leastTenUsers, setLeastTenUsers] = useState({})
   const [optionsLeastTenUsers, setOptionsLeastTenUsers] = useState({})
 
-  const [pendingApprovals, setPendingApprovals] = useState([1, 2])
+  const [pendingApprovals, setPendingApprovals] = useState([])
 
   useEffect(() => {
     async function adminstats() {
@@ -270,8 +271,27 @@ const AdminDashboard = () => {
 
 
     }
+
+    async function getPendingApprovalQuestions(){
+      const res = await axios.get(`${Constants.uri}/api/admin/pending-approval`,{withCredentials:true})
+      setPendingApprovals(res.data)
+    }
+
     adminstats()
+    getPendingApprovalQuestions()
   }, [])
+
+  const approveQuestion = async (id,approve) => {
+    const res = await axios.post(`${Constants.uri}/api/admin/approve`,{id,approve},{withCredentials:true})
+    if(res && approve){
+      toast.success('Aprroved the question')
+      window.location.reload()
+    }
+    if(res && !approve){
+      toast.success("Question Rejected, Status: closed")
+      window.location.reload()
+    }
+  }
 
   return (
     <div style={{ margin: "1rem", backgroundColor: "#e6e6e6", width: "78rem", height: "78rem" }}>
@@ -357,10 +377,10 @@ const AdminDashboard = () => {
                     {pendingApprovals.map(pending => (
                       <>
                         <Row>
-                          <Col sm={6}>Here is the title f the question from stackoverflow?</Col>
-                          <Col sm={2}>Posted 2 days ago</Col>
-                          <Col sm={2}><Button className='btn btn-success rounded-pill'>Approve</Button></Col>
-                          <Col sm={2}><Button className='btn btn-danger rounded-pill'>Reject</Button></Col>
+                          <Col sm={6}>{pending.title}</Col>
+                          <Col sm={2}>Posted {moment(pending.created_date).fromNow()}</Col>
+                          <Col sm={2}><Button className='btn btn-success rounded-pill' onClick={()=>approveQuestion(pending.id,true)}>Approve</Button></Col>
+                          <Col sm={2}><Button className='btn btn-danger rounded-pill'  onClick={()=>approveQuestion(pending.id,false)}>Reject</Button></Col>
                         </Row>
                         <hr />
                       </>
