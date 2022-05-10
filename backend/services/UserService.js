@@ -53,6 +53,8 @@ exports.handle_request = (payload, callback) => {
   }
 };
 
+//TODO - Check wherever we are implementing pagination and keep that code and remove from elsewhere
+
 const createUser = async (payload, callback) => {
   const { displayName, email, password } = payload;
   const previousMember = await User.findOne({
@@ -102,7 +104,6 @@ const login = async (payload, callback) => {
 };
 
 const getUserProfile = async (payload, callback) => {
-  console.log(payload.params);
   const userId = payload.params.userId;
   const user = await User.findOne({
     where: { id: userId },
@@ -125,11 +126,7 @@ const getUserProfile = async (payload, callback) => {
     } else {
       goldBadges.push(badge);
     }
-    if (
-      bronzeBadges.length >= 3 &&
-      silverBadges.length >= 3 &&
-      goldBadges.length >= 3
-    ) {
+    if (bronzeBadges.length >= 3 && silverBadges.length >= 3 && goldBadges.length >= 3) {
       break;
     }
   }
@@ -187,16 +184,7 @@ const getUserProfileTopPosts = async (payload, callback) => {
     where: whereStatement,
     include: {
       model: Post,
-      attributes: [
-        "id",
-        "tags",
-        "title",
-        "type",
-        "score",
-        "answers_count",
-        "accepted_answer_id",
-        "owner_id",
-      ],
+      attributes: ["id", "tags", "title", "type", "score", "answers_count", "accepted_answer_id", "owner_id"],
       as: "question",
     },
     order: orderBy,
@@ -212,7 +200,7 @@ const getUserAnswers = async (payload, callback) => {
   if (payload.query.offset) {
     offset = payload.query.offset
   }
-  
+
   const userAnswers = await Post.findAll({
     where: {
       owner_id: userId,
@@ -220,16 +208,7 @@ const getUserAnswers = async (payload, callback) => {
     },
     include: {
       model: Post,
-      attributes: [
-        "id",
-        "tags",
-        "title",
-        "type",
-        "score",
-        "answers_count",
-        "accepted_answer_id",
-        "owner_id",
-      ],
+      attributes: ["id", "tags", "title", "type", "score", "answers_count", "accepted_answer_id", "owner_id"],
       as: "question",
     },
     order: [["score", "DESC"]],
@@ -311,7 +290,6 @@ const getUser = async (payload, callback) => {
       }
       return callback(null, {});
     }
-    console.log(res);
     return callback(null, res);
   });
 };
@@ -342,7 +320,6 @@ const editProfile = async (payload, callback) => {
   const about = payload.about;
   const location = payload.location;
   const username = payload.username;
-  console.log("These are the params", payload.params);
   let sqlQuery =
     "update user set photo = :photo, about =:about, location =:location, username=:username where id = :user_id";
   await sequelize.query(sqlQuery, {
