@@ -497,9 +497,27 @@ const search = async (payload, callback) => {
             return callback({ error: `Invalid parameter ${str} specified while searching` }, null);
         }
         let searchWithAcceptedPosts = str === "yes" ? true : false;
-        //TODO - @Sai Krishna - This is pending. Need to complete
-
-
+        let acceptedAnswerIds = [];
+        const sqlResult = await Post.findAll({
+            where: { accepted_answer_id: { [Sequelize.Op.ne]: null } },
+            attributes: ["accepted_answer_id"]
+        });
+        for (let acceptedAnswer of sqlResult) {
+            acceptedAnswerIds.push(acceptedAnswer.accepted_answer_id);
+        }
+        if (searchWithAcceptedPosts) {
+            searchOptionsString = "Search options not deleted is accepted answer";
+            whereStatement.id = {
+                [Sequelize.Op.in]: acceptedAnswerIds
+            }
+        } else {
+            searchOptionsString = "Search options not deleted not accepted answer";
+            whereStatement.id = {
+                [Sequelize.Op.notIn]: acceptedAnswerIds
+            };
+        }
+        resultString = "Results for " + searchString;
+        whereStatement.type = 'ANSWER';
     } else {
         resultString = "Results for " + fullSearchString;
         searchOptionsString = "Search options not deleted";
