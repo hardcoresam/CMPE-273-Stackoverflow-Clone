@@ -175,7 +175,7 @@ const getQuestion = async (payload, callback) => {
                 as: "answers",
                 include: [{
                     model: User,
-                    attrbutes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
+                    attributes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
                 }, {
                     model: Comment
                 }]
@@ -411,14 +411,17 @@ const updateQuestion = async (payload, callback) => {
     const { title, body } = payload
     let data = await Post.findOne({ where: { id: payload.params.questionId } })
     data = data.dataValues
+    console.log(data)
     if (data.owner_id == payload.USER_ID) {
-        let updateddata = await Post.update(
-            { title: title, body: body },
-            { where: { id: data.id } }
-        );
+        sqlQuery = "update post set title = :title, body = :body where id = :questionId"
+        const updateddata = await sequelize.query(sqlQuery, {
+            replacements: { title: title, body: body, questionId: payload.params.questionId },
+            type: Sequelize.QueryTypes.UPDATE
+        });
+        console.log(updateddata)
         const loggedInUser = await User.findOne({
             where: { id: payload.USER_ID },
-            attrbutes: ['username']
+            attributes: ['username']
         });
         await new PostHistory({
             post_id: payload.params.questionId,
@@ -497,9 +500,27 @@ const search = async (payload, callback) => {
             return callback({ error: `Invalid parameter ${str} specified while searching` }, null);
         }
         let searchWithAcceptedPosts = str === "yes" ? true : false;
-        //TODO - @Sai Krishna - This is pending. Need to complete
-
-
+        let acceptedAnswerIds = [];
+        const sqlResult = await Post.findAll({
+            where: { accepted_answer_id: { [Sequelize.Op.ne]: null } },
+            attributes: ["accepted_answer_id"]
+        });
+        for (let acceptedAnswer of sqlResult) {
+            acceptedAnswerIds.push(acceptedAnswer.accepted_answer_id);
+        }
+        if (searchWithAcceptedPosts) {
+            searchOptionsString = "Search options not deleted is accepted answer";
+            whereStatement.id = {
+                [Sequelize.Op.in]: acceptedAnswerIds
+            }
+        } else {
+            searchOptionsString = "Search options not deleted not accepted answer";
+            whereStatement.id = {
+                [Sequelize.Op.notIn]: acceptedAnswerIds
+            };
+        }
+        resultString = "Results for " + searchString;
+        whereStatement.type = 'ANSWER';
     } else {
         resultString = "Results for " + fullSearchString;
         searchOptionsString = "Search options not deleted";

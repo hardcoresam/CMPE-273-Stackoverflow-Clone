@@ -91,10 +91,6 @@ exports.checkAndAwardBadges = async (payload) => {
             createBadgeIfNotPresent("Pundit", "SILVER", payload.commentedUserId);
         }
     }
-
-    //Not that important
-    if (action === "QUESTION_EDITED") {
-    }
 }
 
 const createBadgeIfNotPresent = async (name, type, userId) => {
