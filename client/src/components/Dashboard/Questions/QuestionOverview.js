@@ -11,7 +11,7 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom'
 import parse from 'html-react-parser'
-
+import Cookies from 'js-cookie'
 import AskQ from './AskQ.js'
 import { useNavigate } from 'react-router'
 import { useSelector } from 'react-redux'
@@ -162,8 +162,8 @@ const QuestionOverview = () => {
                   <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" style={{ color: "#c2d6d6" }}></i></div>
                 </Col>
                 <Col sm={7}>
-                  <Card style={{ width: "40rem", height: "auto", backgroundColor: "#e7f4f4" }}>
-                    <text>
+                  <Card style={{ width: "40rem", height: "auto", backgroundColor: "hsl(0deg 0% 97%)" }}>
+                    <text style={{padding:"14px"}}>
                       {parse(question.body)}
                     </text>
                   </Card>
@@ -177,17 +177,17 @@ const QuestionOverview = () => {
                 </Col>
                 <Col sm={1}></Col>
                 <Col>
-                  <Card style={{ backgroundColor: "#b3f0ff" }}>
-                    <Card.Title><span style={{ fontSize: 12, padding: 10 }} className='text-muted'>asked on {question.created_date.split('T')[0]}</span></Card.Title>
+                  <Card style={{ backgroundColor: "hsl(206deg 96% 90%)" }}>
+                    <Card.Title><span style={{ fontSize: 12, padding: 10, color:"hsl(210deg 8% 45%)" }} className='text-muted'>asked on {question.created_date.split('T')[0]}</span></Card.Title>
                     <Row>
                       <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={question.User.photo}></img></Col>
                       <Col>
-                        <Row><Link to={`/User/${question.User.id}`} style={{ textDecoration: 'none', fontSize: 13 }}>{question.User.username}</Link></Row>
+                        <Row><Link to={`/User/${question.User.id}`} style={{ textDecoration: 'none', fontSize: 13, color:"hsl(206deg 100% 40%)" }}>{question.User.username}</Link></Row>
                         <Row>
-                          <Col sm={4}>4321</Col>
+                          <Col style={{fontWeight:"bold", color:"hsl(210deg 8% 45%)"}} sm={4}>{question.User.reputation}</Col>
                           <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
-                            <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
-                            <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                            <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.silver_badges_count}&nbsp;</span>
+                            <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.bronze_badges_count}&nbsp;</span>
                           </Col>
                         </Row>
                       </Col>
@@ -227,7 +227,7 @@ const QuestionOverview = () => {
         </Col>
       </Row>
       <div style={{ marginTop: "5rem" }}>
-        <text style={{ marginLeft: "15rem" }}>{question.answers_count} answers</text>
+        <h5 style={{ marginLeft: "15rem", fontSize:"19px" }}>{question.answers_count===1 ? <text>{ question.answers_count} answer</text> : <text>{ question.answers_count} answers</text>}</h5>
         {
           answers.map((answer) => (
             <Row >
@@ -237,45 +237,46 @@ const QuestionOverview = () => {
                 <Row style={{ marginTop: "1rem" }}>
                   <Col sm={1}>
                     <div className='uptriangle'></div>
-                    <div>{answer.score}</div>
+                    <div style={{marginLeft:"10px"}}>{answer.score}</div>
                     <div className='downtriangle'></div>
                     {question.accepted_answer_id == answer.id && (
                       <div style={{ color: 'green', fontSize: 30 }}><i class="fa fa-check" aria-hidden="true"></i></div>
                     )}
                   </Col>
                   <Col>
-                    <Card style={{ width: "40rem", height: "auto", backgroundColor: " #e6e6e6" }}>
-                      <text>
+                    <Card style={{ width: "40rem", height: "auto", backgroundColor: "hsl(0deg 0% 97%)" }}>
+                      <text style={{padding:"14px"}}>
                         {parse(answer.body)}
                       </text>
                     </Card>
                     <Row>
-                      <Col sm={3}>
+                      <Col sm={9}>
                       </Col>
                       <Col>
-                        <Button className='btn btn-success rounded-pill' onClick={() => acceptAnswer(answer)} style={{ width: 'auto', height: 'auto', textAlign: 'left' }}>Accept answer</Button>
+                      {
+                        Cookies.get("ID")===question.User.id && <Button className='btn btn-success rounded-pill' onClick={() => acceptAnswer(answer)} style={{ width: 'auto', height: 'auto', textAlign: 'left' }}>Accept answer</Button>
+                      }
                       </Col>
                       
                     </Row>
                   </Col>
                   <Col>
-                  <Card>
+                  <Card style={{padding:"3px"}}>
                           <Card.Title><span style={{ fontSize: 12 }}>Answered {moment(answer.modified_date.split(',')[0]).format("MMM Do YY")}</span></Card.Title>
                           <Row>
-                            <Col sm={3}><img style={{ width: "2rem", height: "2rem" }} src={img1}></img></Col>
+                            <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={answer.User.photo}></img></Col>
                             <Col>
                               <Row>{answer.User && (<text>{answer.User.username}</text>)}</Row>
                               <Row>
-                                <Col sm={5}>432</Col>
-                                <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
-                                  <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
-                                  <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                                <Col sm={3}>{answer.User.reputation}</Col>
+                                <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.gold_badges_count}&nbsp;</span>
+                                  <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.silver_badges_count}&nbsp;</span>
+                                  <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.bronze_badges_count}&nbsp;</span>
                                 </Col>
                               </Row>
                             </Col>
                           </Row>
-
-                        </Card>
+                      </Card>
                   </Col>
                 </Row>
               </Col>
@@ -284,16 +285,16 @@ const QuestionOverview = () => {
         }
 
       </div>
-      <Row>
-        <Col sm={3}></Col>
-        <Col>
-          <Row>Your Answer</Row>
+      <Row style={{marginTop:"2rem"}}>
+        <Col sm={2}></Col>
+        <Col style={{marginLeft:"49px"}}>
+          <Row><Col><h5>Your Answer</h5></Col></Row>
           <Row>
-            <Col sm={8}><AskQ onChangeData={onChangeAnswerBody} onChange={onChange} />
+            <Col sm={9}><AskQ onChangeData={onChangeAnswerBody} onChange={onChange} />
             </Col>
           </Row>
           <Row>
-            <Col sm={3}><Button onClick={(e) => postAnswer(e)}>Post Your Answer</Button></Col>
+            <Col sm={3}><Button style={{marginTop:"1rem"}} onClick={(e) => postAnswer(e)}>Post Your Answer</Button></Col>
 
           </Row>
 
