@@ -7,6 +7,8 @@ import RichTextEditor,{ stateToHTML } from 'react-rte'
 import AskQ from './AskQ.js'
 import { useSelector } from 'react-redux'
 import Questionbody from './Questionbody'
+import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router'
 // import { updatingbody } from '../../../features/QuestionBodySlice'
 const AskQuestion = () => {
     const obj = useSelector(state => state.QuestionBodySlice);
@@ -20,6 +22,8 @@ const AskQuestion = () => {
 
     const {title,body,tags} = questionForm
 
+    const navigate = useNavigate()
+
     const onChangeData = async (e) => {
         e.preventDefault()
         setQuestionFormData({...questionForm,[e.target.name]:e.target.value})
@@ -31,7 +35,10 @@ const AskQuestion = () => {
         // console.log(questionForm)
         console.log("posting quesrion")
         const res = await axios.post(`${Constants.uri}/api/post/question`,questionForm,{withCredentials:true})
-        console.log(res)
+        if(res){
+            toast.success("Posted new Question")
+            navigate("/Dashboard")
+        }
     }
 
     const onChange = (value)=>{

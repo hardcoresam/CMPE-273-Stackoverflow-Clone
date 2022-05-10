@@ -62,7 +62,7 @@ const createQuestion = async (payload, callback) => {
     let tags = payload.tags
     var tagArr = tags.split(',');
 
-    let status = (payload.isImage !== undefined) ? "PENDING" : "ACTIVE"
+    let status = (payload.isImage) ? "PENDING" : "ACTIVE"
     const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
 
     for (let i = 0; i < tagArr.length; i++) {
