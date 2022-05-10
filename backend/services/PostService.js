@@ -172,11 +172,14 @@ const getQuestion = async (payload, callback) => {
             },
             {
                 model: Post,
-                as: "answers", include: {
+                as: "answers",
+                include: [{
+                    model: User,
+                    attrbutes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
+                }, {
                     model: Comment
-                }
-            }
-            ]
+                }]
+            }]
         }
     )
     data = data.dataValues
