@@ -83,23 +83,20 @@ handleTopicRequest(kafkaTopics.TAGS_TOPIC, TagService);
 
 BadgeService.startBadgeConsumer();
 
-//const mysql = require('mysql');
-const { Post } = require("./models/mysql");
-
+const mysql = require('mysql');
 var db = require('./config/db');
 
-// const db = mysql.createConnection({
-//     host: "stackoverflow.cjrtxvroomep.us-east-1.rds.amazonaws.com",
-//     user: "admin",
-//     password: "password",
-//     database: "stackoverflow",
-//     port: '3306'
-// });
+const db1 = mysql.createConnection({
+    host: "stackoverflow.cjrtxvroomep.us-east-1.rds.amazonaws.com",
+    user: "admin",
+    password: "password",
+    database: "stackoverflow",
+    port: '3306'
+});
 
 //This is the base api - B
 app.get('/api/getAllQuestionsForTesting-B', async (req, res) => {
-
-    db.query("SELECT `id`, `type`, `status`, `title`, `tags`, `score`, `views_count`, `parent_id`, `answers_count`, `accepted_answer_id`, `created_date`, `modified_date`, `owner_id` FROM `post` AS `Post`", (err, result) => {
+    db1.query("SELECT `id`, `type`, `status`, `title`, `tags`, `score`, `views_count`, `parent_id`, `answers_count`, `accepted_answer_id`, `created_date`, `modified_date`, `owner_id` FROM `post` AS `Post`", (err, result) => {
         if (err) {
             console.log(err);
             console.log("Error while calling test api");
@@ -113,12 +110,37 @@ app.get('/api/getAllQuestionsForTesting-B', async (req, res) => {
 
 //This is the base + DB connection pooling api - B + D
 app.get('/api/getAllQuestionsForTesting-BD', async (req, res) => {
-    const questions = await Post.findAll({
-        attributes: { exclude: ['body'] }
+    db.query("SELECT `id`, `type`, `status`, `title`, `tags`, `score`, `views_count`, `parent_id`, `answers_count`, `accepted_answer_id`, `created_date`, `modified_date`, `owner_id` FROM `post` AS `Post`", (err, result) => {
+        if (err) {
+            console.log(err);
+            console.log("Error while calling test api");
+        }
+        console.log(result.length);
+        return res.status(200).json(result);
     });
-    return res.status(200).json(questions);
 });
 
+const { cacheGet, cacheAdd } = require("./config/RedisClient");
+//This is the base + DB + Redis - B + D + R
+app.get('/api/getAllQuestionsForTesting-BDR', async (req, res) => {
+    cacheGet('questions', async (err, data) => {
+        if (err) {
+            console.log(err);
+            db.query("SELECT `id`, `type`, `status`, `title`, `tags`, `score`, `views_count`, `parent_id`, `answers_count`, `accepted_answer_id`, `created_date`, `modified_date`, `owner_id` FROM `post` AS `Post`", (err, result) => {
+                if (err) {
+                    console.log(err);
+                    console.log("Error while calling test api");
+                }
+                cacheAdd('questions', result);
+                console.log("df");
+                return res.status(200).json(result);
+            });
+        } else {
+            console.log("cache got");
+            return res.status(200).json(data);
+        }
+    });
+});
 
 app.listen(PORT, (req, res) => {
     console.log("Server running on port - ", PORT);

@@ -109,42 +109,33 @@ const createAnswer = async (payload, callback) => {
     return callback(null, newAnswer);
 }
 
-//const mysql = require('mysql');
-
-// const db = mysql.createConnection({
-//     host: "stackoverflow.cjrtxvroomep.us-east-1.rds.amazonaws.com",
-//     user: "admin",
-//     password: "password",
-//     database: "stackoverflow",
-//     port: '3306'
-// });
-
 var db = require('../config/db');
 
-const getQuestionsForDashboard = async (payload, callback) => {
+const { cacheGet, cacheAdd } = require("../config/RedisClient");
 
-    db.query("SELECT `id`, `type`, `status`, `title`, `tags`, `score`, `views_count`, `parent_id`, `answers_count`, `accepted_answer_id`, `created_date`, `modified_date`, `owner_id` FROM `post` AS `Post`", (err, result) => {
+const getQuestionsForDashboard = async (payload, callback) => {
+    cacheGet('questions', async (err, data) => {
         if (err) {
             console.log(err);
-            console.log("Error while calling test api");
+            db.query("SELECT `id`, `type`, `status`, `title`, `tags`, `score`, `views_count`, `parent_id`, `answers_count`, `accepted_answer_id`, `created_date`, `modified_date`, `owner_id` FROM `post` AS `Post`", (err, result) => {
+                if (err) {
+                    console.log(err);
+                    console.log("Error while calling test api");
+                }
+                cacheAdd('questions', result);
+                console.log("df");
+                return callback(null, result);
+            });
+        } else {
+            console.log("cache got");
+            return callback(null, data);
         }
-        console.log(result.length);
-        //console.log("Successsss");
-        //db.end();
-        return callback(null, result);
     });
 
     // const questions = await Post.findAll({
     //     attrbutes: { exclude: ['body'] }
     // });
     // return callback(null, questions);
-
-//   "pool": {
-//     "max": 50,
-//     "min": 0,
-//     "acquire": 60000,
-//     "idle": 50000
-//   }
 
     // if (payload.query.testing) {
     //     console.log("Inside testing loop");
