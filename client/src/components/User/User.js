@@ -7,6 +7,7 @@ import ActivitySubTab from './ActivitySubTab'
 import Axios from 'axios'
 import Constants from '../util/Constants.json'
 import './styles.css'
+import moment from 'moment';
 import save from '../util/Util.js'
 // import Constants from "../util/Constants.json"
 import { useParams } from 'react-router-dom'
@@ -99,7 +100,7 @@ const User = () => {
                 <text style={{ fontSize: "30px" }}>{obj.value.username}</text>
               </Row>
               <Row>
-                <text><i class="fa-solid fa-cake-candles"></i>Member from {obj.value.registered_on} <i class="fa-solid fa-clock"></i> lastseen {obj.value.last_login_time}</text>
+                <text><i class="fa-solid fa-cake-candles"></i>Member for {moment(obj.value.registered_on).fromNow(true)} <i class="fa-solid fa-clock"></i> lastseen {moment(obj.value.last_login_time).fromNow()}</text>
               </Row>
               <Row>
                 <text><i class="fa-solid fa-location-pin"></i>{obj.value.location}</text>
@@ -166,7 +167,7 @@ const User = () => {
 
           <Row style={{ margin: 20 }}>
             <Col sm={4}>Username</Col>
-            <Col sm={6}><input onChange={(e) => setuname(e.target.value)} defaultValue={obj.value.username} style={{ width: "12rem" }}></input></Col>
+            <Col sm={6}><input disabled={true} onChange={(e) => setuname(e.target.value)} defaultValue={obj.value.username} style={{ width: "12rem" }}></input></Col>
           </Row>
           <Row style={{ margin: 20 }}>
             <Col sm={4}>Location</Col>
