@@ -42,8 +42,10 @@ const EditQuestion = () => {
     const updateQuestion = async (e) => {
         e.preventDefault()
         console.log(questionForm)
-        // const res = await axios.post(`${Constants.uri}/api/post/question`,questionForm,{withCredentials:true})
-        // console.log(res)
+        const res = await axios.put(`${Constants.uri}/api/post/question/${params.questionId}`,
+        questionForm
+        ,{withCredentials:true})
+        console.log(res)
     }
 
     const onChange = (value)=>{
@@ -78,12 +80,12 @@ const EditQuestion = () => {
                             <text>Include all the information someone would need to answer your question</text>
                             {//<RichTextEditor value={state} onChange={onChange} />
                             }
-                            <EditQ onChangeData={onChangeData} body={body} onChange={onChange}/>
+                            {body && (<EditQ onChangeData={onChangeData} body={body} onChange={onChange}/>)}
                             <Card.Title>
                                 Tags
                             </Card.Title>
                             <text>Add up to 5 tags to describe what your question is about</text>
-                            <input name="tags" value={tags} onChange={(e)=>onChangeData(e)}></input>
+                            <input name="tags" value={tags} ></input>
                         </div>
                     </Card>
                     <Button style={{marginTop :"20px"}} onClick={(e)=>updateQuestion(e)}>Update question</Button>

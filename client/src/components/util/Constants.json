@@ -1,3 +1,3 @@
 {
-    "uri" : "http://stackoverflow-LB-564229095.us-east-1.elb.amazonaws.com"
+    "uri" : "http://localhost:4000"
 }
