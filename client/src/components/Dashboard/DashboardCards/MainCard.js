@@ -24,13 +24,14 @@ const MainCard = () => {
     const [startOffset, setStartOffset] = useState(1)
     const [endOffset, setEndOffset] = useState(15)
 
+    const [totalPages,setTotalPages] = useState(0)
+
 
     useEffect(() => {
         async function getQuests() {
             const res = await axios.get(`${Constants.uri}/api/post/dashboard`)
-            console.log(res)
-            // setQuestions(res.data)
             dispatch(postReducer(res.data.questionsForDashboard))
+            setTotalPages(res.data.questionsCount/10)
         }
         getQuests()
 
@@ -46,12 +47,22 @@ const MainCard = () => {
       }
     const nextPageSet = () => {
         var list = []
-        for (var i = startOffset+15; i <= endOffset+15; i++) {
-            list.push(i)
+        if(endOffset + 15 <= totalPages){
+            for (var i = startOffset+15; i <= endOffset+15; i++) {
+                list.push(i)
+            }
+            setPageCount(list)
+            setStartOffset(startOffset+15)
+            setEndOffset(endOffset+15)
+        }else if(endOffset+15 > totalPages && endOffset < totalPages){
+            for (var i = startOffset+15; i <= totalPages; i++) {
+                list.push(i)
+            }
+            setPageCount(list)
+            setStartOffset(startOffset+15)
+            setEndOffset(totalPages)
         }
-        setPageCount(list)
-        setStartOffset(startOffset+15)
-        setEndOffset(endOffset+15)
+
     }
 
     const previousPageSet = () => {
@@ -67,7 +78,7 @@ const MainCard = () => {
     }
 
     const handlePage = async (index) => {
-        const res = await axios.get(`${Constants.uri}/api/post/dashboard?offset=${10*(index-1)}`)
+        const res = await axios.get(`${Constants.uri}/api/post/dashboard?filterBy=${Title.toLowerCase()}&offset=${10*(index-1)}`)
         dispatch(postReducer(res.data.questionsForDashboard))
     }
 

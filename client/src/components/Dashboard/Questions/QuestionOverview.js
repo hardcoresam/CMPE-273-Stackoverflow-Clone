@@ -11,10 +11,15 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom'
 import parse from 'html-react-parser'
+import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 toast.configure()
 
 const QuestionOverview = () => {
+
+  
+  const user = useSelector(state => state.UserSlice)
 
   const params = useParams()
   const [question, setQuestion] = useState({})
@@ -35,6 +40,8 @@ const QuestionOverview = () => {
   const [isQuestionBookMarked, setIsQuestionBookMarked] = useState(false)
   const [enableComment, setEnableComment] = useState(false)
   const [flag,setFlag] = useState(true)
+
+  var navigate = useNavigate();
 
   const { title, body } = answerForm
 
@@ -112,6 +119,10 @@ const QuestionOverview = () => {
     }
   }
 
+  const editQuestion = () => {
+    navigate(`/editQuestion/${params.qid}`)
+  }
+
 
 
   return (
@@ -122,8 +133,11 @@ const QuestionOverview = () => {
           {question && question.User && (
             <>
               <Row><text style={{ fontSize: "2rem" }}>{question.title}</text></Row>
+              
               <Row style={{ marginLeft: "1px" }}>Asked  {moment(question.created_date).fromNow()} &nbsp;
-                Modified {moment(question.modified_date).fromNow()}</Row>
+                Modified {moment(question.modified_date).fromNow()} &nbsp; &nbsp; &nbsp; &nbsp; 
+                <Button style={{width:'auto'}} className="btn btn-secondary" onClick={()=>editQuestion()}>Edit Question</Button>
+                </Row>
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
               <Row>
                 <Col sm={1}>
