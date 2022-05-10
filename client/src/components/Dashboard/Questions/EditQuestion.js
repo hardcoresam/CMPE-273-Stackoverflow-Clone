@@ -1,6 +1,6 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Col, Row } from 'react-bootstrap'
+import { Button, Card, Col, Row, Toast } from 'react-bootstrap'
 import questionlogo from '../../images/questionlogo1.PNG'
 import Constants from '../../util/Constants.json'
 import RichTextEditor,{ stateToHTML } from 'react-rte'
@@ -8,6 +8,8 @@ import AskQ from './AskQ.js'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router'
 import EditQ from './EditQ'
+import { toast } from 'react-toastify'
+
 // import { updatingbody } from '../../../features/QuestionBodySlice'
 const EditQuestion = () => {
     const obj = useSelector(state => state.QuestionBodySlice);
@@ -45,7 +47,9 @@ const EditQuestion = () => {
         const res = await axios.put(`${Constants.uri}/api/post/question/${params.questionId}`,
         questionForm
         ,{withCredentials:true})
-        console.log(res)
+        if(res){
+            toast.success("Updated Question")
+        }
     }
 
     const onChange = (value)=>{
