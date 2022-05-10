@@ -6,7 +6,6 @@ import Constants from './../../util/Constants.json'
 import RichTextEditor,{ stateToHTML } from 'react-rte'
 import AskQ from './AskQ.js'
 import { useSelector } from 'react-redux'
-import Questionbody from './Questionbody'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router'
 // import { updatingbody } from '../../../features/QuestionBodySlice'
@@ -46,8 +45,6 @@ const AskQuestion = () => {
             ...questionForm,
             body : value
         })
-       console.log(value)
-       console.log(questionForm)
     }
 
     return (

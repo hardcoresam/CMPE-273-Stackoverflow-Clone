@@ -18,7 +18,7 @@ const MainCard = () => {
     // const [questions, setQuestions] = useState([])
     const obj = useSelector(state => state.PostSlice)
 
-    const { questions ,Title} = obj.value;
+    const { questions, Title } = obj.value;
 
     const [pageCount, setPageCount] = useState([])
     const [startOffset, setStartOffset] = useState(1)
@@ -44,7 +44,7 @@ const MainCard = () => {
 
     const openTag = (tag) => {
         navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=${false}`);
-      }
+    }
     const nextPageSet = () => {
         var list = []
         if(endOffset + 15 <= totalPages){
@@ -66,14 +66,14 @@ const MainCard = () => {
     }
 
     const previousPageSet = () => {
-        if(startOffset >= 15){
+        if (startOffset >= 15) {
             var list = []
-            for (var i = startOffset-15; i <= endOffset-15; i++) {
+            for (var i = startOffset - 15; i <= endOffset - 15; i++) {
                 list.push(i)
             }
             setPageCount(list)
-            setStartOffset(startOffset-15)
-            setEndOffset(endOffset-15)
+            setStartOffset(startOffset - 15)
+            setEndOffset(endOffset - 15)
         }
     }
 
@@ -85,10 +85,10 @@ const MainCard = () => {
     return (
         <div>
 
-            <div style={{ marginTop: "1rem", marginLeft: "45px", overflow: "hidden" }}>
+            <div style={{ marginTop: "39px" }}>
                 {questions && questions.map(question => (
                     <>
-                        <Row>
+                        <Row style={{marginTop:"-30px"}}>
                             <Col sm={2} style={{ marginRight: "-3rem" }}>
                                 <Row style={{ marginLeft: "50px" }}>{question.score} votes</Row>
                                 <Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>
@@ -105,14 +105,14 @@ const MainCard = () => {
                                     <text style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
                                 </Row>
                                 <Row>
-                                    <Col sm={6}>{question.tags.map(tag => (<button onClick={()=>openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</button>))}&nbsp;&nbsp;&nbsp;</Col>
+                                    <Col sm={6}>{question.tags.map(tag => (<button onClick={() => openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</button>))}&nbsp;&nbsp;&nbsp;</Col>
 
                                 </Row>
                                 <Row>
                                     <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
                                 </Row>
                                 <Row>
-                                    <Col><hr style={{ marginTop: "1rem", marginLeft: "-218px" }}></hr></Col>
+                                    <Col><hr style={{ marginTop: "1rem", marginLeft: "-182px", marginRight:"-50px" }}></hr></Col>
 
                                 </Row>
                             </Col>
@@ -138,19 +138,15 @@ const MainCard = () => {
                 ))}
 
                 <Pagination>
-                    <Pagination.First onClick={()=>previousPageSet()}/>
+                    <Pagination.First onClick={() => previousPageSet()} />
 
                     {pageCount.map(item => (
-                        <Pagination.Item onClick={()=>handlePage(item)}>{item}</Pagination.Item>
+                        <Pagination.Item onClick={() => handlePage(item)}>{item}</Pagination.Item>
                     ))}
-                    <Pagination.Last onClick={()=>nextPageSet()}/>
+                    <Pagination.Last onClick={() => nextPageSet()} />
                 </Pagination>
             </div>
-
-
-
-            <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
-        </div>
+        </div >
     )
 }
 

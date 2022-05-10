@@ -49,10 +49,10 @@ exports.handle_request = (payload, callback) => {
             getAdminStats(payload, callback);
             break;
         case actions.PENDING_APPROVAL_QUESTIONS:
-            getPendingApprovalQuestions(payload,callback)
+            getPendingApprovalQuestions(payload, callback)
             break
         case actions.APPROVE_QUESTION:
-            approveQuestion(payload,callback)
+            approveQuestion(payload, callback)
             break
     }
 };
@@ -81,7 +81,6 @@ const createQuestion = async (payload, callback) => {
         post_id: newQuestion.id,
         user_id: payload.USER_ID,
         user_display_name: loggedInUser.username,
-        comment: payload.title,
         type: "QUESTION_ASKED"
     }).save();
 
@@ -104,10 +103,9 @@ const createAnswer = async (payload, callback) => {
     });
 
     await new PostHistory({
-        post_id: newAnswer.id,
+        post_id: payload.parent_id,
         user_id: payload.USER_ID,
         user_display_name: loggedInUser.username,
-        comment: payload.body,
         type: "ANSWER_POSTED"
     }).save();
 
@@ -117,12 +115,11 @@ const createAnswer = async (payload, callback) => {
 
 const getQuestionsForDashboard = async (payload, callback) => {
     const filterBy = payload.query.filterBy;
-   
     let offset = 0;
-    if(payload.query.offset){
+    if (payload.query.offset) {
         offset = payload.query.offset
     }
-    
+
     let whereStatement = {
         type: "QUESTION"
     };
@@ -146,12 +143,12 @@ const getQuestionsForDashboard = async (payload, callback) => {
             required: true
         },
         order: [[orderBy, 'DESC']],
-        offset:parseInt(offset),
+        offset: parseInt(offset),
         limit: 10
     });
-    const questionsCount = await Post.count({where: whereStatement})
-    
-    return callback(null, {questionsForDashboard,questionsCount});
+    const questionsCount = await Post.count({ where: whereStatement });
+
+    return callback(null, { questionsForDashboard, questionsCount });
 }
 
 const getQuestion = async (payload, callback) => {
@@ -175,11 +172,14 @@ const getQuestion = async (payload, callback) => {
             },
             {
                 model: Post,
-                as: "answers", include: {
+                as: "answers",
+                include: [{
+                    model: User,
+                    attrbutes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
+                }, {
                     model: Comment
-                }
-            }
-            ]
+                }]
+            }]
         }
     )
     data = data.dataValues
@@ -415,7 +415,17 @@ const updateQuestion = async (payload, callback) => {
         let updateddata = await Post.update(
             { title: title, body: body },
             { where: { id: data.id } }
-        )
+        );
+        const loggedInUser = await User.findOne({
+            where: { id: payload.USER_ID },
+            attrbutes: ['username']
+        });
+        await new PostHistory({
+            post_id: payload.params.questionId,
+            user_id: payload.USER_ID,
+            user_display_name: loggedInUser.username,
+            type: "QUESTION_EDITED"
+        }).save();
         return callback(null, updateddata);
     }
     else return callback({ errors: { name: { msg: "Error in updating the question" } } }, null)
@@ -428,7 +438,7 @@ const search = async (payload, callback) => {
         orderBy = 'created_date';
     }
     let offset = 0;
-    if(payload.query.offset){
+    if (payload.query.offset) {
         offset = payload.query.offset
     }
     const fullSearchString = payload.searchString;
@@ -507,14 +517,14 @@ const search = async (payload, callback) => {
     const posts = await Post.findAll({
         where: whereStatement,
         include: includeStatement,
-        limit:10,
-        offset:parseInt(offset),
+        limit: 10,
+        offset: parseInt(offset),
         order: [[orderBy, "DESC"]]
     });
 
     const postsCount = await Post.count({
-        where:whereStatement,
-        include:includeStatement
+        where: whereStatement,
+        include: includeStatement
     })
     return callback(null, { posts, resultString, searchOptionsString, tagDescription, postsCount });
 }
@@ -565,22 +575,23 @@ const getAdminStats = async (payload, callback) => {
     });
 }
 
-const getPendingApprovalQuestions = async (payload,callback) => {
-    const questions = await Post.findAll({where:{status:"PENDING"}})
-    return callback(null,questions)
+const getPendingApprovalQuestions = async (payload, callback) => {
+    const questions = await Post.findAll({ where: { status: "PENDING" } })
+    return callback(null, questions)
 }
 
-const approveQuestion = async (payload,callback) => {
-    const {id,approve} = payload
+const approveQuestion = async (payload, callback) => {
+    const { id, approve } = payload
     let sqlQuery = ""
-    if(approve){
+    if (approve) {
         sqlQuery = "update post set status = 'ACTIVE' where id = :questionId"
-    }else{
+    } else {
+        //TODO - Need to change this
         sqlQuery = "update post set status = 'CLOSED' where id = :questionId"
     }
     const data = await sequelize.query(sqlQuery, {
         replacements: { questionId: id },
         type: Sequelize.QueryTypes.UPDATE
     });
-    return callback(null,"Updated the status")
+    return callback(null, "Updated the status")
 }

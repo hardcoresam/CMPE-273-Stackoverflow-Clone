@@ -72,7 +72,7 @@ const AnswerList = (props) => {
     return (
         <div>
             <Row>
-                <h5>{props.state.length} {props.text}</h5>
+                <h5>{state.length} {props.text}</h5>
             </Row>
             {
                 state.map((i) => (
