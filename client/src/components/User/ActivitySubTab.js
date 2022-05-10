@@ -18,12 +18,7 @@ const ActivitySubTab = () => {
     const obj = useSelector(state =>state.UserActivitySlice)
     const {status} = obj.value;
     // const [status, setstatus] = useState("Answers")
-    const [state, setstate] = useState([]); //storing questions state
     const [state2, setstate2] = useState([]); // storing answers state 
-    const [state3, setstate3] = useState([]); // storing badges state
-    const [state4, setstate4] = useState([]); // storing bookmarks state
-    const [state5, setstate5] = useState([]); // storing tags state
-    const [state6, setstate6] = useState([]); // storing tags reputation
     // const [tagstate,settagstate] = useState([]);
     const { userid } = useParams();
     useEffect(() => {
@@ -41,12 +36,6 @@ const ActivitySubTab = () => {
 
     const showAnswers = async () => {
         dispatch(statusReducer("Answers"))
-        await Axios.get(`${Constants.uri}/api/users/${userid}/activity/answers`, {
-            withCredentials: true
-        }).then((r) => {
-            console.log(r.data)
-            setstate2(r.data)
-        })
     }
     const showQuestions = async () => {
         dispatch(statusReducer("Questions"))
@@ -64,11 +53,6 @@ const ActivitySubTab = () => {
     
     const showBookmarks = async () => {
         dispatch(statusReducer("Bookmarks"))
-        // await Axios.get(`${Constants.uri}/api/users/${userid}/activity/bookmarks`, {
-        //     withCredentials: true
-        // }).then((r) => {
-        //     setstate4(r.data)
-        // })
     }
 
     return (
@@ -94,7 +78,7 @@ const ActivitySubTab = () => {
                     }
                     
                     {
-                        status === "Answers" && <AnswerList text={status} state={state2} />
+                        status === "Answers" && <AnswerList text={status} />
                     }
                     {
                         status === "Tags" && <TagList text={status} />
@@ -104,7 +88,7 @@ const ActivitySubTab = () => {
                         status === "Badges" && <BadgeList text={status} />
                     }
                     {
-                        status === "Reputation" && <Reputation text={status} state={state6} />
+                        status === "Reputation" && <Reputation text={status} />
                     }
 
 

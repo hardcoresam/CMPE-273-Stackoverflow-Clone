@@ -6,7 +6,6 @@ import Constants from './../../util/Constants.json'
 import RichTextEditor,{ stateToHTML } from 'react-rte'
 import AskQ from './AskQ.js'
 import { useSelector } from 'react-redux'
-import Questionbody from './Questionbody'
 // import { updatingbody } from '../../../features/QuestionBodySlice'
 const AskQuestion = () => {
     const obj = useSelector(state => state.QuestionBodySlice);
@@ -39,8 +38,6 @@ const AskQuestion = () => {
             ...questionForm,
             body : value
         })
-       console.log(value)
-       console.log(questionForm)
     }
 
     return (

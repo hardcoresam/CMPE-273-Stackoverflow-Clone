@@ -11,11 +11,13 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom'
 import parse from 'html-react-parser'
-
+import AskQ from './AskQ.js'
+import { useNavigate } from 'react-router'
 toast.configure()
 
-const QuestionOverview = () => {
 
+const QuestionOverview = () => {
+  const navigate = useNavigate();
   const params = useParams()
   const [question, setQuestion] = useState({})
   const [answers, setAnswers] = useState([])
@@ -30,11 +32,11 @@ const QuestionOverview = () => {
     status: "ACTIVE",
     answers_count: 0
   })
-  const [message,setMessage] = useState("");
+  const [message, setMessage] = useState("");
   const [commentForm, setCommentForm] = useState()
   const [isQuestionBookMarked, setIsQuestionBookMarked] = useState(false)
   const [enableComment, setEnableComment] = useState(false)
-  const [flag,setFlag] = useState(true)
+  const [flag, setFlag] = useState(true)
 
   const { title, body } = answerForm
 
@@ -45,6 +47,7 @@ const QuestionOverview = () => {
 
   const postAnswer = async (e) => {
     e.preventDefault()
+    // console.log(answerForm)
     answerForm.title = question.title
     answerForm.question_id = answerForm.parent_id = question.id
     answerForm.answers_count = question.answers_count
@@ -92,6 +95,10 @@ const QuestionOverview = () => {
     window.location.reload()
   }
 
+  const openTag = (tag) => {
+    navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=${false}`);
+  }
+
   const voteQuestion = async (voteType) => {
     const res = await axios.post(`${Constants.uri}/api/post/${question.id}/vote`, { type: voteType }, { withCredentials: true })
     console.log(res.data)
@@ -114,6 +121,14 @@ const QuestionOverview = () => {
 
 
 
+  const onChange = (value) => {
+    setAnswerForm({
+      ...answerForm,
+      body: value
+    })
+  }
+
+
   return (
     <div>
       <Row>
@@ -127,9 +142,9 @@ const QuestionOverview = () => {
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
               <Row>
                 <Col sm={1}>
-                  {question.score === 1 ? <div className='uptriangleonclick' onClick={() => voteQuestion("UPVOTE")}></div>: <div className='uptriangle' onClick={() => voteQuestion("UPVOTE")}></div> }
+                  {question.score === 1 ? <div className='uptriangleonclick' onClick={() => voteQuestion("UPVOTE")}></div> : <div className='uptriangle' onClick={() => voteQuestion("UPVOTE")}></div>}
                   <div>&nbsp;&nbsp;{question.score}</div>
-                {question.score===-1 ? <div className='downtriangleonclick' onClick={() => voteQuestion("DOWNVOTE")}></div> :<div className='downtriangle' onClick={() => voteQuestion("DOWNVOTE")}></div>}
+                  {question.score === -1 ? <div className='downtriangleonclick' onClick={() => voteQuestion("DOWNVOTE")}></div> : <div className='downtriangle' onClick={() => voteQuestion("DOWNVOTE")}></div>}
                   <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" onClick={() => bookMarkQuestion()} style={{ color: isQuestionBookMarked ? "#fce303" : "#c2d6d6" }}></i></div>
                   <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" style={{ color: "#c2d6d6" }}></i></div>
                 </Col>
@@ -139,13 +154,11 @@ const QuestionOverview = () => {
                       {parse(question.body)}
                     </text>
                   </Card>
-                  <Row>
-                    <Col sm={3}>
-                      {question.tags}
-                    </Col>
-                    <Col></Col>
-                    <Col sm={3}>
-
+                  <Row style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+                    <Col>
+                      {
+                        question.tags.split(",").map(tag => (<button onClick={() => openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</button>))
+                      }
                     </Col>
                   </Row>
                 </Col>
@@ -154,7 +167,7 @@ const QuestionOverview = () => {
                   <Card style={{ backgroundColor: "#b3f0ff" }}>
                     <Card.Title><span style={{ fontSize: 12, padding: 10 }} className='text-muted'>asked on {question.created_date.split('T')[0]}</span></Card.Title>
                     <Row>
-                      <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={img1}></img></Col>
+                      <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={question.User.photo}></img></Col>
                       <Col>
                         <Row><Link to={`/User/${question.User.id}`} style={{ textDecoration: 'none', fontSize: 13 }}>{question.User.username}</Link></Row>
                         <Row>
@@ -218,10 +231,9 @@ const QuestionOverview = () => {
                     )}
                   </Col>
                   <Col>
-                    <text>{answer.title}</text>
                     <Card style={{ width: "40rem", height: "auto", backgroundColor: " #e6e6e6" }}>
                       <text>
-                        {answer.body}
+                        {parse(answer.body)}
                       </text>
                     </Card>
                     <Row>
@@ -230,23 +242,27 @@ const QuestionOverview = () => {
                       <Col>
                         <Button className='btn btn-success rounded-pill' onClick={() => acceptAnswer(answer)} style={{ width: 'auto', height: 'auto', textAlign: 'left' }}>Accept answer</Button>
                       </Col>
-                      <Col sm={3}>
-                        <Card>
-                          <Card.Title><span style={{ fontSize: 12 }}>Answered on {answer.modified_date.split(',')[0]}</span></Card.Title>
+                      
+                    </Row>
+                  </Col>
+                  <Col>
+                  <Card>
+                          <Card.Title><span style={{ fontSize: 12 }}>Answered {moment(answer.modified_date.split(',')[0]).format("MMM Do YY")}</span></Card.Title>
                           <Row>
                             <Col sm={3}><img style={{ width: "2rem", height: "2rem" }} src={img1}></img></Col>
                             <Col>
                               <Row>{answer.User && (<text>{answer.User.username}</text>)}</Row>
                               <Row>
                                 <Col sm={5}>432</Col>
-                                <Col>g1 s3 b3</Col>
+                                <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                                  <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                                  <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                                </Col>
                               </Row>
                             </Col>
                           </Row>
 
                         </Card>
-                      </Col>
-                    </Row>
                   </Col>
                 </Row>
               </Col>
@@ -259,11 +275,10 @@ const QuestionOverview = () => {
         <Col sm={3}></Col>
         <Col>
           <Row>Your Answer</Row>
-
-          <textarea rows="6" cols="80" name="body" value={body} onChange={(e) => onChangeAnswerBody(e)}>
-
-          </textarea>
-
+          <Row>
+            <Col sm={8}><AskQ onChangeData={onChangeAnswerBody} onChange={onChange} />
+            </Col>
+          </Row>
           <Row>
             <Col sm={3}><Button onClick={(e) => postAnswer(e)}>Post Your Answer</Button></Col>
 
