@@ -11,13 +11,19 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom'
 import parse from 'html-react-parser'
+
 import AskQ from './AskQ.js'
 import { useNavigate } from 'react-router'
+import { useSelector } from 'react-redux'
+
 toast.configure()
 
 
 const QuestionOverview = () => {
   const navigate = useNavigate();
+  
+  const user = useSelector(state => state.UserSlice)
+
   const params = useParams()
   const [question, setQuestion] = useState({})
   const [answers, setAnswers] = useState([])
@@ -119,6 +125,10 @@ const QuestionOverview = () => {
     }
   }
 
+  const editQuestion = () => {
+    navigate(`/editQuestion/${params.qid}`)
+  }
+
 
 
   const onChange = (value) => {
@@ -137,8 +147,11 @@ const QuestionOverview = () => {
           {question && question.User && (
             <>
               <Row><text style={{ fontSize: "2rem" }}>{question.title}</text></Row>
+              
               <Row style={{ marginLeft: "1px" }}>Asked  {moment(question.created_date).fromNow()} &nbsp;
-                Modified {moment(question.modified_date).fromNow()}</Row>
+                Modified {moment(question.modified_date).fromNow()} &nbsp; &nbsp; &nbsp; &nbsp; 
+                <Button style={{width:'auto'}} className="btn btn-secondary" onClick={()=>editQuestion()}>Edit Question</Button>
+                </Row>
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
               <Row>
                 <Col sm={1}>
