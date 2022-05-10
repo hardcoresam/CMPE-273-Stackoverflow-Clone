@@ -13,13 +13,16 @@ import Login from './Login/Login'
 import Register from './Register/Register'
 import { logoutPending, logoutSuccess } from '../features/logout';
 import "react-chat-elements/dist/main.css";
-import { MessageBox } from "react-chat-elements";
-import { ChatItem } from "react-chat-elements";
+import img from './images/emptyimage.png'
+import axios from 'axios'
+import Constants from './util/Constants.json'
+import { userReducer } from '../features/UserSlice'
 const NavBar = () => {
     const userid = Cookies.get("ID");
     const dispatch = useDispatch();
     var navigate = useNavigate();
-
+    const userobject = useSelector(state => state.UserSlice)
+    const {photo} = userobject.value;
     const obj = useSelector(state => state.login)
 
     const location = useLocation()
@@ -31,6 +34,14 @@ const NavBar = () => {
     useEffect(() => {
         if (Cookies.get("access-token")) {
             setauthflag(true)
+            async function getProfpic() {
+                await axios.get(`${Constants.uri}/api/users/${Cookies.get("ID")}/profile`, {
+                    withCredentials: true
+                }).then((r) => {
+                    dispatch(userReducer(r.data))
+                })
+            }
+            getProfpic();
         }
         else {
             setauthflag(false)
@@ -91,9 +102,9 @@ const NavBar = () => {
                                 <Button variant="outline-primary" onClick={register}>Sign up</Button>
                             </Col> :
                                 <Col sm={3} style={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
-                                    <i class="fa-solid fa-user" style={{ fontSize: "30px", cursor: "pointer" }} onClick={gotouser}></i>
-                                    <i class="fa-solid fa-message" style={{ fontSize: "30px", cursor: "pointer" }} onClick={gotomessages}></i>
-                                    <i onClick={logout} class="fa-solid fa-right-from-bracket" style={{ fontSize: "30px", cursor: "pointer" }}></i>
+                                    <img src={photo ? photo : img} style={{ width: "2rem", height: "2rem", borderRadius: "3px", cursor: "pointer" }} onClick={gotouser}></img>
+                                    <i class="fa fa-comment-o" aria-hidden="true" style={{ fontSize: "30px", cursor: "pointer" }} onClick={gotomessages}></i>
+                                    <Button style={{ border: "0", backgroundColor: "#666666", color: "white" }} onClick={logout}>logout</Button>
                                 </Col>
 
 
