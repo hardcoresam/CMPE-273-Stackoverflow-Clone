@@ -50,45 +50,25 @@ const ActivitySubTab = () => {
     }
     const showQuestions = async () => {
         dispatch(statusReducer("Questions"))
-
-        await Axios.get(`${Constants.uri}/api/users/${userid}/activity/questions`, {
-            withCredentials: true
-        }).then((r) => {
-            setstate(r.data)
-        })
     }
     const showTags = async () => {
         dispatch(statusReducer("Tags"))
-
     }
     const showReputation = async () => {
         dispatch(statusReducer("Reputation"))
-
-        await Axios.get(`${Constants.uri}/api/users/${userid}/profile`, {
-            withCredentials: true
-        }).then((r) => {
-            // console.log(r)
-            // let gridProducts = [];
-            // for (let i = 0; i < r.data.length; i = i + 4) {
-            //     gridProducts.push(r.data.slice(i, i + 4));
-            // }
-            // setstate3(gridProducts)
-        })
-
     }
     const showBadges = async () => {
         dispatch(statusReducer("Badges"))
-
     }
 
     
     const showBookmarks = async () => {
         dispatch(statusReducer("Bookmarks"))
-        await Axios.get(`${Constants.uri}/api/users/${userid}/activity/bookmarks`, {
-            withCredentials: true
-        }).then((r) => {
-            setstate4(r.data)
-        })
+        // await Axios.get(`${Constants.uri}/api/users/${userid}/activity/bookmarks`, {
+        //     withCredentials: true
+        // }).then((r) => {
+        //     setstate4(r.data)
+        // })
     }
 
     return (
@@ -107,10 +87,10 @@ const ActivitySubTab = () => {
                 <Col>
 
                     {
-                        status === "Questions"  && <ItemList text={status} state={state} />
+                        status === "Questions"  && <ItemList text={status} />
                     }
                     {
-                        status === "Bookmarks" && <BookmarkList text={status} state={state4}/>
+                        status === "Bookmarks" && <BookmarkList text={status} />
                     }
                     
                     {

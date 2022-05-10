@@ -6,11 +6,13 @@ import { useParams } from 'react-router-dom'
 const BadgeList = (props) => {
   const { userid } = useParams();
   const [state,setstate] = useState([]);
+  const [badgecount,setbadgecount] = useState();
   useEffect(()=>{
     async function getBadges(){
       await Axios.get(`${Constants.uri}/api/users/${userid}/activity/badges`, {
         withCredentials: true
     }).then((r) => {
+      setbadgecount(r.data.length);
         let gridProducts = [];
         for (let i = 0; i < r.data.length; i = i + 4) {
             gridProducts.push(r.data.slice(i, i + 4));
@@ -23,7 +25,7 @@ const BadgeList = (props) => {
   return (
     <div>
       <Row>
-        <h5>{state.length} {props.text}</h5>
+        <h5>{badgecount} {props.text}</h5>
       </Row>
       {
         state.map((array) => (

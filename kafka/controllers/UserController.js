@@ -75,7 +75,7 @@ exports.getUserProfileTopPosts = async (req, res) => {
 exports.getUserAnswers = async (req, res) => {
   kafka.sendKafkaRequest(
     kafkaTopics.USERS_TOPIC,
-    { ...req.body, params: req.params, action: actions.GET_USER_ANSWERS },
+    { ...req.body,query: req.query, params: req.params, action: actions.GET_USER_ANSWERS },
     (err, data) => {
       if (err) return res.status(400).json({ message: err });
       return res.json(data);
@@ -86,7 +86,7 @@ exports.getUserAnswers = async (req, res) => {
 exports.getUserQuestions = async (req, res) => {
   kafka.sendKafkaRequest(
     kafkaTopics.USERS_TOPIC,
-    { ...req.body, params: req.params, action: actions.GET_USER_QUESTIONS },
+    { ...req.body,query: req.query, params: req.params, action: actions.GET_USER_QUESTIONS },
     (err, data) => {
       if (err) return res.status(400).json({ message: err });
       return res.json(data);
@@ -97,7 +97,7 @@ exports.getUserQuestions = async (req, res) => {
 exports.getUserBookmarks = async (req, res) => {
   kafka.sendKafkaRequest(
     kafkaTopics.USERS_TOPIC,
-    { ...req.body, params: req.params, action: actions.GET_USER_BOOKMARKS },
+    { ...req.body, query: req.query, params: req.params, action: actions.GET_USER_BOOKMARKS },
     (err, data) => {
       if (err) return res.status(400).json({ message: err });
       return res.json(data);

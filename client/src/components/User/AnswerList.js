@@ -1,10 +1,35 @@
-import React from 'react'
-import { Row, Col, Card, Button } from 'react-bootstrap'
+import React, {useState,useEffect} from 'react'
+import { Row, Col, Card, Button , Pagination} from 'react-bootstrap'
 import { useNavigate } from 'react-router'
 import moment from 'moment'
+import { useParams } from 'react-router-dom'
+import Axios from 'axios'
+import Constants from '../util/Constants.json'
 const AnswerList = (props) => {
     // const arr = [1, 2, 3, 4, 5, 6]
+    const { userid } = useParams();
     const navigate = useNavigate();
+    const [state,setstate] = useState([]);
+    useEffect(()=>{
+        async function getAnswers(){
+            await Axios.get(`${Constants.uri}/api/users/${userid}/activity/answers`, {
+              withCredentials: true
+          }).then((r) => {
+              setstate(r.data)
+          })
+          }
+         getAnswers()  
+         var list = []
+        for (var i = startOffset; i <= endOffset; i++) {
+            list.push(i)
+        }
+        setPageCount(list)
+    },[])
+
+    const [pageCount, setPageCount] = useState([])
+    const [startOffset, setStartOffset] = useState(1)
+    const [endOffset, setEndOffset] = useState(5)
+
     const openQuestion = (id) =>{
         navigate(`/questions/${id}`);
         // console.log(id)
@@ -13,13 +38,44 @@ const AnswerList = (props) => {
     const openTag = (tag) => {
         navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=${false}`);
       }
+
+
+      
+    const nextPageSet = () => {
+        var list = []
+        for (var i = startOffset+15; i <= endOffset+15; i++) {
+            list.push(i)
+        }
+        setPageCount(list)
+        setStartOffset(startOffset+15)
+        setEndOffset(endOffset+15)
+    }
+
+    const previousPageSet = () => {
+        if(startOffset >= 15){
+            var list = []
+            for (var i = startOffset-15; i <= endOffset-15; i++) {
+                list.push(i)
+            }
+            setPageCount(list)
+            setStartOffset(startOffset-15)
+            setEndOffset(endOffset-15)
+        }
+    }
+    const handlePage = async (index) => {
+        
+        const res = await Axios.get(`${Constants.uri}/api/users/${userid}/activity/answers?offset=${10*(index-1)}`)
+        // dispatch(postReducer(res.data.questionsForDashboard))
+        setstate(res.data);
+    }
+
     return (
         <div>
             <Row>
                 <h5>{props.state.length} {props.text}</h5>
             </Row>
             {
-                props.state.map((i) => (
+                state.map((i) => (
                     <Card>
                         <div style={{ margin: "1rem" }}>
                             <Row>
@@ -48,7 +104,15 @@ const AnswerList = (props) => {
                     </Card>
                 ))
             }
+            <Pagination style={{marginLeft:"24rem"}}>
+            <Pagination.First onClick={() => previousPageSet()} />
 
+            {pageCount.map(item => (
+               <Pagination.Item onClick={() => handlePage(item)}>{item}</Pagination.Item>
+            ))
+        }
+            <Pagination.Last onClick={() => nextPageSet()} />
+        </Pagination>
         </div>
     )
 }
