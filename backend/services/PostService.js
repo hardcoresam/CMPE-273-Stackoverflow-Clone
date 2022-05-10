@@ -427,6 +427,10 @@ const search = async (payload, callback) => {
     if (payload.query.orderBy && payload.query.orderBy === 'newest') {
         orderBy = 'created_date';
     }
+    let offset = 0;
+    if(payload.query.offset){
+        offset = payload.query.offset
+    }
     const fullSearchString = payload.searchString;
     const searchType = fullSearchString.substring(0, fullSearchString.indexOf(' '));
     const searchString = fullSearchString.substring(fullSearchString.indexOf(' ') + 1);
@@ -450,7 +454,7 @@ const search = async (payload, callback) => {
         if (tag === null) {
             return callback({ error: `Invalid tag name ${tagName} specified while searching` }, null);
         }
-        resultString = "Results for " + searchString + " tagged with " + tagName;
+        resultString = "Results for '" + searchString + "' tagged with " + tagName;
         searchOptionsString = "Search options not deleted";
         tagDescription = tag.description;
         includeStatement.push({
@@ -503,10 +507,16 @@ const search = async (payload, callback) => {
     const posts = await Post.findAll({
         where: whereStatement,
         include: includeStatement,
+        limit:10,
+        offset:parseInt(offset),
         order: [[orderBy, "DESC"]]
     });
 
-    return callback(null, { posts, resultString, searchOptionsString, tagDescription });
+    const postsCount = await Post.count({
+        where:whereStatement,
+        include:includeStatement
+    })
+    return callback(null, { posts, resultString, searchOptionsString, tagDescription, postsCount });
 }
 
 const getAdminStats = async (payload, callback) => {
