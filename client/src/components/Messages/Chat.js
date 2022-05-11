@@ -17,6 +17,28 @@ const Chat = () => {
 
     const [recipient,setRecipient] = useState("")
 
+    const [newMessage,setNewMessage] = useState("")
+
+    const [sent,setSent] = useState(false)
+
+    const onChangeMessageData = (e) => {
+        e.preventDefault()
+        setNewMessage(e.target.value)
+    }
+
+    const sendMessage = async () => {
+        let from = username
+        let to=""
+        if(messages[0].from == username){
+            to = messages[0].to
+        }else{
+            to = messages[0].from
+        }
+        const res = await axios.post(`${Constants.uri}/api/chat/sendMessage`,{to,from,content:newMessage},{withCredentials:true})
+        setSent(!sent)
+    }
+
+
     useEffect(() => {
         const room_id = params.roomId
         async function getMessages() {
@@ -31,11 +53,11 @@ const Chat = () => {
             setMessages(res.data)
         }
         getMessages()
-    }, [])
+    }, [sent])
 
     return (
         <div>
-            <Row>
+            <Row>git 
                 <Col sm={2}></Col>
                 <Col>
                     <Row>
@@ -57,9 +79,9 @@ const Chat = () => {
                                 ))}
                             </Row>
                             <Row>
-                                <Col sm={11}><input style={{ width: "34rem" }}></input>
+                                <Col sm={11}><input style={{ width: "34rem" }} name="newMessage" value={newMessage} onChange={(e)=>onChangeMessageData(e)}></input>
                                 </Col>
-                                <Col><i style={{ cursor: "pointer" }} class="fa fa-paper-plane" aria-hidden="true"></i></Col>
+                                <Col><i style={{ cursor: "pointer" }} class="fa fa-paper-plane" aria-hidden="true" onClick={()=>sendMessage()}></i></Col>
                             </Row>
                         </Card>
                     </Row>
