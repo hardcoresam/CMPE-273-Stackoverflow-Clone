@@ -31,7 +31,7 @@ const Login = (props) => {
               if(r.data.member.is_admin)
               navigate('/AdminDashBoard')
               else
-              navigate('/DashBoard')
+              window.location.reload()
             }
             else{
               dispatch(loginFail(r.data.message.errors.email.msg))

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Card, Col, Row } from 'react-bootstrap'
 import questionlogo from '../../images/questionlogo1.PNG'
 import Constants from './../../util/Constants.json'
@@ -8,7 +8,9 @@ import AskQ from './AskQ.js'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router'
-// import { updatingbody } from '../../../features/QuestionBodySlice'
+import Login from './../../Login/Login'
+import Cookies from 'js-cookie'
+
 const AskQuestion = () => {
     const obj = useSelector(state => state.QuestionBodySlice);
     const [questionForm,setQuestionFormData] = useState({
@@ -20,8 +22,16 @@ const AskQuestion = () => {
     })
 
     const {title,body,tags} = questionForm
+    const [modalShow,setModalShow] = useState(false)
 
     const navigate = useNavigate()
+
+    useEffect(()=>{
+        if(!Cookies.get('ID')){
+            setModalShow(true)
+            toast('Please Login to ask a question')
+          }
+    },[])
 
     const onChangeData = async (e) => {
         e.preventDefault()
@@ -83,6 +93,11 @@ const AskQuestion = () => {
                     <Button style={{marginTop :"20px"}} onClick={(e)=>askQuestion(e)}>Post your question</Button>
                 </Col>
             </Row>
+            <Login
+                show={modalShow}
+                setModalShow={setModalShow}
+                onHide={() => setModalShow(false)}
+            />
         </div>
     )
 }

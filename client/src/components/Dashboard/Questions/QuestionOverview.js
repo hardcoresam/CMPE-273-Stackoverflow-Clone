@@ -15,6 +15,7 @@ import Cookies from 'js-cookie'
 import AskQ from './AskQ.js'
 import { useNavigate } from 'react-router'
 import { useSelector } from 'react-redux'
+import Login from './../../Login/Login'
 
 toast.configure()
 
@@ -46,6 +47,8 @@ const QuestionOverview = () => {
   const [approveanswer, setpproveAnswer] = useState(false)
   const [acceptanswer,setacceptAnswer]= useState(false)
   const { title, body } = answerForm
+
+  const [modalShow,setModalShow] = useState(false)
 
   const onChangeAnswerBody = (e) => {
     e.preventDefault()
@@ -80,6 +83,10 @@ const QuestionOverview = () => {
       }
     }
     console.log(Cookies.get('ID'))
+    if(!Cookies.get('ID')){
+      setModalShow(true)
+      toast('Please Login to view Question')
+    }
     getQuestion()
   }, [flag,acceptanswer])
 
@@ -319,6 +326,12 @@ const QuestionOverview = () => {
 
         </Col>
       </Row>
+
+      <Login
+                show={modalShow}
+                setModalShow={setModalShow}
+                onHide={() => setModalShow(false)}
+            />
     </div>
   )
 }
