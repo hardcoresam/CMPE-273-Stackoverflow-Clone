@@ -97,13 +97,13 @@ const User = () => {
             <Col sm={2}><img style={{ height: "8rem",width:"9rem", borderRadius: "8px" }} src={obj.value.photo}></img></Col>
             <Col style={{ marginTop: "2rem", marginLeft: "1rem" }}>
               <Row>
-                <text style={{ fontSize: "30px" }}>{obj.value.username}</text>
+                <text style={{ fontSize: "30px", fontFamily:"sans-serif" }}>{obj.value.username}</text>
               </Row>
               <Row>
-                <text><i class="fa-solid fa-cake-candles"></i>Member for {moment(obj.value.registered_on).fromNow(true)} <i class="fa-solid fa-clock"></i> lastseen {moment(obj.value.last_login_time).fromNow()}</text>
+                <text style={{color:"hsl(210deg 8% 45%)"}}><i style={{marginRight:"10px"}} class="fa-solid fa-cake-candles"></i>Member for {moment(obj.value.registered_on).fromNow(true)} <i style={{marginLeft:"10px"}} class="fa-solid fa-clock"></i> lastseen {moment(obj.value.last_login_time).fromNow()}</text>
               </Row>
               <Row>
-                <text><i class="fa-solid fa-location-pin"></i>{obj.value.location}</text>
+                <text style={{color:"hsl(210deg 8% 45%)"}}><i class="fa-solid fa-location-pin"></i>{obj.value.location}</text>
               </Row>
             </Col>
           </Row>

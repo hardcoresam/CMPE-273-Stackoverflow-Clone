@@ -8,8 +8,10 @@ import Axios from 'axios'
 import { useParams } from 'react-router'
 import moment from 'moment'
 import Constants from '../util/Constants.json'
+import { useNavigate } from 'react-router'
 import { statusReducer } from '../../features/UserActivitySlice'
 const ProfileSubTab = (props) => {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const obj = useSelector(state => state.UserSlice)
     const { gold_badges_count, about, silver_badges_count, bronzeBadges, silverBadges, goldBadges, bronze_badges_count, reputation, userReach, answersCount, questionsCount } = obj.value
@@ -94,6 +96,13 @@ const ProfileSubTab = (props) => {
         props.settabflag(false)
  
     }
+
+    const openPost = (id)=>{
+        navigate(`/questions/${id}`);
+    }
+    const openTag = (tag) => {
+        navigate(`/tags/${tag}/?show_user_posts=${true}&filterBy=${false}`);
+      }
     return (
         <div>
             <Row style={{ marginTop: "1rem" }}>
@@ -244,7 +253,7 @@ const ProfileSubTab = (props) => {
                             <Card style={{ width: "47rem", height: "3rem" }}>
                                 <Card.Body>
                                     <Row>
-                                        <Col>{i.name}</Col>
+                                        <Col style={{cursor:"pointer"}} onClick={() => openTag(i.name)}>{i.name}</Col>
                                         <Col sm={2}></Col>
                                         <Col>{i.score} score {i.totalPosts} posts 84 posts %</Col>
                                     </Row>
@@ -294,8 +303,8 @@ const ProfileSubTab = (props) => {
                                                 
                                             </Row>
                                         </Col>
-                                        <Col sm={7}>{i.title}</Col>
-                                        <Col>{i.modified_date}</Col>
+                                        <Col style={{cursor:"pointer"}} onClick={() =>openPost(i.id)} sm={7}>{i.title}</Col>
+                                        <Col>{moment(i.modified_date).fromNow()}</Col>
                                     </Row>
                                 </Card.Body>
                             </Card>

@@ -43,7 +43,8 @@ const QuestionOverview = () => {
   const [isQuestionBookMarked, setIsQuestionBookMarked] = useState(false)
   const [enableComment, setEnableComment] = useState(false)
   const [flag, setFlag] = useState(true)
-
+  const [approveanswer, setpproveAnswer] = useState(false)
+  const [acceptanswer,setacceptAnswer]= useState(false)
   const { title, body } = answerForm
 
   const onChangeAnswerBody = (e) => {
@@ -69,6 +70,8 @@ const QuestionOverview = () => {
     async function getQuestion() {
       const res = await axios.get(`${Constants.uri}/api/post/${params.qid}`, { withCredentials: true })
       console.log(res.data)
+      if(res.data.User.id==Cookies.get("ID"))
+      setpproveAnswer(true)
       setQuestion(res.data)
       setAnswers(res.data.answers)
       setComments(res.data.Comments)
@@ -77,7 +80,7 @@ const QuestionOverview = () => {
       }
     }
     getQuestion()
-  }, [flag])
+  }, [flag,acceptanswer])
 
   const bookMarkQuestion = async () => {
     if (!isQuestionBookMarked) {
@@ -121,6 +124,7 @@ const QuestionOverview = () => {
     const res = await axios.post(`${Constants.uri}/api/post/acceptAnswer`, { answerId: answer.id }, { withCredentials: true })
     console.log(res)
     if (res) {
+      setacceptAnswer(!acceptanswer)
       toast.success("Accepeted answer")
     }
   }
@@ -230,7 +234,7 @@ const QuestionOverview = () => {
         <h5 style={{ marginLeft: "15rem", fontSize:"19px" }}>{question.answers_count===1 ? <text>{ question.answers_count} answer</text> : <text>{ question.answers_count} answers</text>}</h5>
         {
           answers.map((answer) => (
-            <Row >
+            <Row>
               <Col sm={2}></Col>
               <Col sm={9}>
 
@@ -251,10 +255,19 @@ const QuestionOverview = () => {
                     </Card>
                     <Row>
                       <Col sm={9}>
+                      <Row>
+                    <span className='text-muted' style={{ fontSize: 12, cursor: 'pointer' }} onClick={() => setEnableComment(true)}>Add a comment</span>
+                    {enableComment && (
+                      <>
+                        <span><textarea name="comment" value={commentForm} onChange={(e) => setCommentForm(e.target.value)} /></span>
+                        <span><Button className='btn btn-secondary' onClick={() => addComment()} style={{ padding: 0 }}>Post</Button></span>
+                      </>
+                    )}
+                  </Row>
                       </Col>
                       <Col>
                       {
-                        Cookies.get("ID")===question.User.id && <Button className='btn btn-success rounded-pill' onClick={() => acceptAnswer(answer)} style={{ width: 'auto', height: 'auto', textAlign: 'left' }}>Accept answer</Button>
+                        (approveanswer) && <Button className='btn btn-success rounded-pill' onClick={() => acceptAnswer(answer)} style={{marginTop:"10px", width: 'auto', height: 'auto', textAlign: 'left' }}>Accept answer</Button>
                       }
                       </Col>
                       
@@ -268,7 +281,7 @@ const QuestionOverview = () => {
                             <Col>
                               <Row>{answer.User && (<text>{answer.User.username}</text>)}</Row>
                               <Row>
-                                <Col sm={3}>{answer.User.reputation}</Col>
+                                <Col sm={4}>{answer.User.reputation}</Col>
                                 <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.gold_badges_count}&nbsp;</span>
                                   <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.silver_badges_count}&nbsp;</span>
                                   <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.bronze_badges_count}&nbsp;</span>
@@ -280,7 +293,9 @@ const QuestionOverview = () => {
                   </Col>
                 </Row>
               </Col>
+              <hr style={{marginLeft:"14rem",width:"60rem", marginTop:"8px", marginBottom:"1rem"}} />
             </Row>
+            
           ))
         }
 

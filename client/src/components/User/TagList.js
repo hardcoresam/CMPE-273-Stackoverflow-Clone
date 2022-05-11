@@ -20,8 +20,8 @@ const TagList = (props) => {
     },[])
     const arr =[1]
     const navigate = useNavigate();
-    const openTag = ()=>{
-        navigate(`/tags/${"javascript"}/?show_user_posts=${true}&filterBy=${true}`);
+    const openTag = (tag)=>{
+        navigate(`/tags/${tag}/?show_user_posts=${true}&filterBy=${true}`);
     }
 
     return (
@@ -34,7 +34,7 @@ const TagList = (props) => {
                     <Card>
                 <div style={{ margin: "1rem" }}>
                     <Row>
-                        <Col sm={2}><text style={{cursor:"pointer"}} onClick={openTag}>{i.name}</text></Col>
+                        <Col sm={2}><text style={{cursor:"pointer"}} onClick={() => openTag(i.name)}>{i.name}</text></Col>
                         <Col></Col>
                         <Col sm={2}>{i.score} Score</Col>
                         <Col sm={2}>{i.totalPosts} Posts</Col>
