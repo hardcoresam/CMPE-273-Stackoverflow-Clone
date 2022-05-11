@@ -31,7 +31,7 @@ const Main = () => {
                         <Route path="/askQuestion" element={<AskQuestion />} />
                         <Route path="/editQuestion/:questionId" element={<EditQuestion />} />
                         <Route path="/Messages" element={<Messages />} />
-                        <Route path="/messages/chat/:recepientid" element={<Chat />} />
+                        <Route path="/messages/chat/:roomId" element={<Chat />} />
                         <Route path="/questions/:qid" element={<QuestionOverview />} />
                         <Route path="/tags/:tagname" element={<TagOverview />} />
                     {// </Route>

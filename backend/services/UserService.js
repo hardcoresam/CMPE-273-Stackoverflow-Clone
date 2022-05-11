@@ -130,9 +130,6 @@ const getUserProfile = async (payload, callback) => {
     } else {
       goldBadges.push(badge);
     }
-    if (bronzeBadges.length >= 3 && silverBadges.length >= 3 && goldBadges.length >= 3) {
-      break;
-    }
   }
 
   const answersCount = await Post.count({
@@ -160,9 +157,9 @@ const getUserProfile = async (payload, callback) => {
   user.setDataValue("answersCount", answersCount);
   user.setDataValue("questionsCount", questionsCount);
   user.setDataValue("userReach", userReach === null ? 0 : userReach);
-  user.setDataValue("bronzeBadges", bronzeBadges);
-  user.setDataValue("silverBadges", silverBadges);
-  user.setDataValue("goldBadges", goldBadges);
+  user.setDataValue("bronzeBadges", bronzeBadges.slice(0, 3));
+  user.setDataValue("silverBadges", silverBadges.slice(0, 3));
+  user.setDataValue("goldBadges", goldBadges.slice(0, 3));
   return callback(null, user);
 };
 
