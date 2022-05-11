@@ -81,6 +81,7 @@ const ItemList = (props) => {
                             <Row>
                                 <Col sm={2}><text>{i.score} votes</text></Col>
                                 {i.accepted_answer_id && <Col><Button style={{ backgroundColor: "green", color: "white", marginTop: "-10px" }}>✔{props.text}</Button></Col>}
+                                <Col sm={2}><text>{i.views_count} views</text></Col>
                             </Row>
                             <Row className='textLimit3'><text style={{ color: "hsl(206deg 100% 40%)", fontSize: "14px", cursor:"pointer" }} onClick={() => openQuestion(i.id)}>{parse(i.body)}</text></Row>
                             <Row>

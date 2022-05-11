@@ -29,20 +29,23 @@ const TagList = (props) => {
             <Row>
                 <h5>{state.length} {props.text}</h5>
             </Row>
+            <div style={{marginBottom:"2rem"}}>
             {
                 state.map((i)=>(
                     <Card>
                 <div style={{ margin: "1rem" }}>
                     <Row>
                         <Col sm={2}><text style={{cursor:"pointer"}} onClick={() => openTag(i.name)}>{i.name}</text></Col>
-                        <Col></Col>
+                        <Col sm={6}></Col>
                         <Col sm={2}>{i.score} Score</Col>
-                        <Col sm={2}>{i.totalPosts} Posts</Col>
+                        <Col>{i.totalPosts} Posts</Col>
                     </Row>
                 </div>
             </Card>
                 ))
             }
+            </div>
+            
             
         </div>
     )

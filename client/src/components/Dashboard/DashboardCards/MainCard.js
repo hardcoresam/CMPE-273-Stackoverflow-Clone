@@ -91,7 +91,7 @@ const MainCard = () => {
                         <Row style={{marginTop:"-30px"}}>
                             <Col sm={2} style={{ marginRight: "-3rem" }}>
                                 <Row style={{ marginLeft: "50px" }}>{question.score} votes</Row>
-                                <Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>
+                                {}<Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>
                                 <Row><span style={{ marginLeft: "50px", color: "hsl(27,90%,55%)" }}>{question.views_count} views</span></Row>
                             </Col>
                             <Col sm={1}></Col>
@@ -109,7 +109,7 @@ const MainCard = () => {
 
                                 </Row>
                                 <Row>
-                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
+                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo}></img>{question.User.username}</Link> asked,  {moment(question.created_date).format("MMM Do")} at {moment(question.created_date).format("ha")} </span>
                                 </Row>
                                 <Row>
                                     <Col><hr style={{ marginTop: "1rem", marginLeft: "-182px", marginRight:"-50px" }}></hr></Col>
