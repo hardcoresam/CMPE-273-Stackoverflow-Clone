@@ -15,13 +15,13 @@ const TagOverview = () => {
     // var description = "swdasd"
     const [description, setdescription] = useState("");
     const [questions, setQuestions] = useState([])
-    const [title, settitle] = useState("")
+    const [title, settitle] = useState("Interesting")
     const navigate = useNavigate();
 
     useEffect(() => {
         async function getQuestionforTags() {
-            // const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/?show_user_posts=${show_user_posts}&filterBy=${filterBy}`, { withCredentials: true })
-            const res1 = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?filterBy=interesting`)
+            const res1 = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?show_user_posts=${show_user_posts}&filterBy=${filterBy}`, { withCredentials: true })
+            // const res1 = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?filterBy=interesting`)
             setQuestions(res1.data.Posts)
             setdescription(res1.data.description);
         }
@@ -52,7 +52,7 @@ const TagOverview = () => {
       }
 
       const openTag = (tag) => {
-        navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=${false}`);
+        navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=interesting`);
       }
 
     return (

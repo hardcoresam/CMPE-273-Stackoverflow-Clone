@@ -113,7 +113,7 @@ const QuestionOverview = () => {
   }
 
   const openTag = (tag) => {
-    navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=${false}`);
+    navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=interesting`);
   }
 
   const voteQuestion = async (voteType) => {
