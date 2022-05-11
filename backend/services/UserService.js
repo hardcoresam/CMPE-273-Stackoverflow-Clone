@@ -36,6 +36,9 @@ exports.handle_request = (payload, callback) => {
     case actions.GET_USER_TAGS:
       getUserTags(payload, callback);
       break;
+    case actions.GET_USER_REPUTATION_HISTORY:
+      getUserReputationHistory(payload, callback);
+      break;
     case actions.GET_USER:
       getUser(payload, callback);
       break;
@@ -277,6 +280,12 @@ const getUserTags = async (payload, callback) => {
   const userId = payload.params.userId;
   let userTags = await TagService.getUserActivityTags(userId, false);
   return callback(null, userTags);
+};
+
+const getUserReputationHistory = async (payload, callback) => {
+  const userId = payload.params.userId;
+
+
 };
 
 const getUser = async (payload, callback) => {

@@ -15,6 +15,7 @@ router.get("/:userId/activity/questions", UserController.getUserQuestions);
 router.get("/:userId/activity/bookmarks", UserController.getUserBookmarks);
 router.get("/:userId/activity/badges", UserController.getUserBadges);
 router.get("/:userId/activity/tags", UserController.getUserTags);
+router.get("/:userId/activity/reputation", UserController.getReputationHistory);
 router.get("/:username", UserController.getUser);
 router.get("/profile/getProfile", UserController.getProfile);
 router.get("/", UserController.getAllUsers);

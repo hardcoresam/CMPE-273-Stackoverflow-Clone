@@ -126,7 +126,7 @@ const QuestionOverview = () => {
     console.log(res)
     if (res) {
       setacceptAnswer(!acceptanswer)
-      toast.success("Accepeted answer")
+      toast.success("Accepted answer")
     }
   }
 
