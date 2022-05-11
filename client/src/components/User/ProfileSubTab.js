@@ -295,10 +295,12 @@ const ProfileSubTab = (props) => {
                                             <Row>
                                             {
                                                 i.type==="QUESTION" ? ( i.accepted_answer_id===null ? <Col sm={3}><i class="fa fa-question-circle" aria-hidden="true"></i></Col> :<Col sm={3}><i class="fa fa-question-circle" aria-hidden="true" style={{color:"green"}}></i></Col>) :
-                                                (i.accepted_answer_id===null ? <Col sm={3}><i class="fa-brands fa-adn"></i></Col> : <Col sm={3}><i class="fa-brands fa-adn" style={{color:"green"}}></i></Col>)
+                                                (i.id!==i.question.accepted_answer_id ? <Col sm={3}><i class="fa-brands fa-adn"></i></Col> : <Col sm={3}><i class="fa-brands fa-adn" style={{color:"green"}}></i></Col>)
                                             }
                                             {
-                                                i.accepted_answer_id===null ?<Col sm={6}><Button style={{backgroundColor:"white", color:"black", borderColor:"black"}}>{i.score}</Button></Col>:<Col sm={6}><Button variant='success'>{i.score}</Button></Col>
+                                                i.type==="QUESTION" ? ( i.accepted_answer_id===null ? <Col sm={6}><Button style={{backgroundColor:"white", color:"black", borderColor:"black"}}>{i.score}</Button></Col> :<Col sm={6}><Button variant='success'>{i.score}</Button></Col>) :
+                                                (i.id!==i.question.accepted_answer_id ? <Col sm={6}><Button style={{backgroundColor:"white", color:"black", borderColor:"black"}}>{i.score}</Button></Col> : <Col sm={6}><Button variant='success'>{i.score}</Button></Col>)
+                                                // i.accepted_answer_id===null ?<Col sm={6}><Button style={{backgroundColor:"white", color:"black", borderColor:"black"}}>{i.score}</Button></Col>:<Col sm={6}><Button variant='success'>{i.score}</Button></Col>
                                             }
                                                 
                                             </Row>

@@ -35,7 +35,7 @@ const TagList = (props) => {
                     <Card>
                 <div style={{ margin: "1rem" }}>
                     <Row>
-                        <Col sm={2}><text style={{cursor:"pointer"}} onClick={() => openTag(i.name)}>{i.name}</text></Col>
+                        <Col sm={2}><button style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px",cursor:"pointer", paddingBottom: "4px", paddingLeft: "6px", paddingRight: "6px" }} onClick={() => openTag(i.name)}>{i.name}</button></Col>
                         <Col sm={6}></Col>
                         <Col sm={2}>{i.score} Score</Col>
                         <Col>{i.totalPosts} Posts</Col>

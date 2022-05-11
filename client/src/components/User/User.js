@@ -10,7 +10,6 @@ import './styles.css'
 import moment from 'moment';
 import save from '../util/Util.js'
 import emptyimageurl from '../util/DefaultImage.js'
-// import Constants from "../util/Constants.json"
 import { useParams } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux';
 import { userReducer } from '../../features/UserSlice';
