@@ -50,8 +50,12 @@ exports.getUserActivityTags = async (userId, shouldLimit) => {
 
 const getQuestionsForTag = async (payload, callback) => {
   const tagName = payload.params.tagName;
+  const tagFromDb = await Tag.findOne({ where: { name: tagName } });
+  if (tagFromDb === null) {
+    return callback({ error: "Invalid tag name specified" }, null);
+  }
   const filterBy = payload.query.filterBy;
-  const show_user_posts = payload.query.show_user_posts;
+  const show_user_posts = payload.query.show_user_posts === 'true';
   let whereCondition = {};
   if (show_user_posts && payload.USER_ID) {
     whereCondition.id = payload.USER_ID;
@@ -79,14 +83,14 @@ const getQuestionsForTag = async (payload, callback) => {
           model: User,
           where: whereCondition,
           attributes: ["id", "username", "photo", "reputation"],
-          required: true,
-        },
+          required: true
+        }
       ],
-      required: true,
+      required: true
     },
-    order: [[Post, orderBy, "DESC"]],
+    order: [[Post, orderBy, "DESC"]]
   });
-  return callback(null, tagQuestions);
+  return callback(null, tagQuestions !== null ? tagQuestions : []);
 };
 
 const createNewTag = async (payload, callback) => {
