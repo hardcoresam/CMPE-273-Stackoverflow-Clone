@@ -4,7 +4,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import Constants from '../../util/Constants.json'
 import axios from 'axios'
 import moment from 'moment'
-
+import parse from 'html-react-parser'
 const TagOverview = () => {
     const { tagname } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -37,41 +37,36 @@ const TagOverview = () => {
                     <hr style={{ marginTop: "1rem" }}></hr>
 
                     {questions && questions.map(question => (
-                        <Card>
-                            <div style={{ margin: "1rem" }}>
-
-
+                        <Row>
+                            <Col sm={2} style={{ marginRight: "-3rem" }}>
+                                <Row style={{ marginLeft: "50px" }}>{question.score} votes</Row>
+                                <Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>
+                                <Row><span style={{ marginLeft: "50px", color: "hsl(27,90%,55%)" }}>{question.views_count} views</span></Row>
+                            </Col>
+                            <Col sm={1}></Col>
+                            <Col sm={9}>
                                 <Row>
-                                    <Col sm={2}>
-                                        <Row><text>{question.score} votes</text></Row>
-                                        <Row><span>{question.answers_count} answers</span></Row>
-                                        <Row><span>{question.views_count} views</span></Row>
-                                    </Col>
                                     <Col>
-                                        <Row>
-                                            <Link to="" style={{ textDecoration: "none" }}>{question.title}</Link>
-                                        </Row>
-                                        <Row>
-                                            <text>{question.body}</text>
-                                        </Row>
-                                        <Row>
-                                            {question.tags && question.tags.map(tag => (
-                                                <span className='text-muted' style={{ fontSize: 13 }}>{tag}&nbsp;</span>
-                                            ))}
-                                        </Row>
-                                    </Col>
-
-                                </Row>
-
-
-                                <Row>
-                                    <Col sm={2}></Col>
-                                    <Col>
-                                        <span style={{float:'right'}}>asked on {moment(question.modified_date.split(',')[0]+question.modified_date.split(',')[1]).fromNow()}</span>
+                                    <Link to={`/questions/${question.id}`} style={{ textDecoration: "none", fontSize: 20, color: "hsl(206deg 100% 40%)", fontSize: "17px" }}>{question.title}</Link>
                                     </Col>
                                 </Row>
-                            </div>
-                        </Card>
+                                <Row className='textLimit'>
+                                    <text  style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
+                                </Row>
+                                <Row>
+                                    <Col sm={6}>{question.tags.map(tag => (<Button style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
+
+                                </Row>
+                                <Row>
+                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
+                                </Row>
+                                <Row>
+                                    <Col><hr style={{ marginTop: "1rem", marginLeft: "-143px" }}></hr></Col>
+
+                                </Row>
+                            </Col>
+
+                        </Row>
                     ))}
 
                 </Col>

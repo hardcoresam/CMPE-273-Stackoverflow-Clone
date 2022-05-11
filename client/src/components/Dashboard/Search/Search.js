@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Col, Row, Card, Button } from 'react-bootstrap'
+import { Col, Row, Card, Button, Pagination } from 'react-bootstrap'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import Constants from '../../util/Constants.json'
 import axios from 'axios'
@@ -16,6 +16,12 @@ const Search = () => {
     const orderBy = searchParams.get("orderBy");
     const [data, setData] = useState({})
     const [questions, setQuestions] = useState([])
+
+    const [pageCount, setPageCount] = useState([])
+    const [startOffset, setStartOffset] = useState(1)
+    const [endOffset, setEndOffset] = useState(15)
+    const [totalPages, setTotalPages] = useState(0)
+
     useEffect(() => {
         async function getSearchresult() {
             const res1 = await axios.post(`${Constants.uri}/api/post/search?orderBy=${orderBy}`, {
@@ -23,14 +29,80 @@ const Search = () => {
             }, { withCredentials: true });
             setData(res1.data)
             setQuestions(res1.data.posts)
+            setTotalPages(res1.data.postsCount / 10)
 
+            var list = []
+            if((res1.data.postsCount/10) < 15){
+                setEndOffset(res1.data.postsCount/10)
+                for (var i = startOffset; i <= res1.data.postsCount/10; i++) {
+                    list.push(i)
+                }
+            }else{
+                setEndOffset(15)
+                for (var i = startOffset; i <= 15; i++) {
+                    list.push(i)
+                }
+            }
+            setPageCount(list)
         }
         getSearchresult();
-    },[location])
+    }, [location])
 
     const askquestion = () => {
         navigate('/askQuestion')
-      }
+    }
+
+    const previousPageSet = () => {
+        console.log(startOffset,endOffset)
+        if (startOffset >= 15) {
+            var list = []
+            if(endOffset==totalPages){
+                setEndOffset(startOffset)
+                for (var i = startOffset - 15; i <= startOffset; i++) {
+                    list.push(i)
+                }
+            }else{
+                for (var i = startOffset - 15; i <= endOffset - 15; i++) {
+                    list.push(i)
+                }
+            }
+
+            setPageCount(list)
+            setStartOffset(startOffset - 15)
+            setEndOffset(endOffset - 15)
+        }
+    }
+
+    const nextPageSet = () => {
+        var list = []
+        console.log(startOffset, endOffset, totalPages)
+        if (endOffset + 15 <= totalPages) {
+            for (var i = startOffset + 15; i <= endOffset + 15; i++) {
+                list.push(i)
+            }
+            setPageCount(list)
+            setStartOffset(startOffset + 15)
+            setEndOffset(endOffset + 15)
+        }else if(endOffset + 15 > totalPages && endOffset < totalPages){
+            for (var i = startOffset+15; i <= totalPages; i++) {
+                list.push(i)
+            }
+            setPageCount(list)
+            setStartOffset(startOffset+15)
+            setEndOffset(totalPages)
+        }
+
+    }
+
+    const handlePage = async (index) => {
+        console.log(index)
+        const res = await axios.post(`${Constants.uri}/api/post/search?orderBy=${orderBy}&offset=${10*(index-1)}`, {
+            searchString: searchString
+        }, { withCredentials: true });
+        setData(res.data)
+        setQuestions(res.data.posts)
+    }
+
     return (
         <div>
             <Row>
@@ -49,14 +121,11 @@ const Search = () => {
                         </Row>
                         <Row style={{ marginTop: "2rem" }}>
                             <Col sm={3}>
-                            <text>{data.resultString}</text>
-
+                                <span><span style={{ fontWeight: 'bold' }}>{data.postsCount}</span> Results Found</span>
                             </Col>
-                            <Col style={{ marginRight: "48px" }} sm={2}></Col>
-                            <Col sm={7} style={{ marginLeft: "-3rem", marginTop: "7px" }}>
-                            </Col>
+                            <Col style={{ marginRight: "48px" }} sm={5}><span>{data.resultString}</span></Col>
+                            <Col sm={4} style={{ marginLeft: "-3rem", marginTop: "7px", textAlign: 'right' }}>
 
-                            <Col>
                             </Col>
                         </Row>
                     </div>
@@ -64,47 +133,59 @@ const Search = () => {
                     <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
 
                     <div style={{ marginTop: "1rem", marginLeft: "45px", overflow: "hidden" }}>
-                {questions && questions.map(question => (
-                    <>
-                        <Row>
-                            <Col sm={2} style={{ marginRight: "-3rem" }}>
-                                <Row style={{ marginLeft: "50px" }}>{question.score} votes</Row>
-                                <Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>
-                                <Row><span style={{ marginLeft: "50px", color: "hsl(27,90%,55%)" }}>{question.views_count} views</span></Row>
-                            </Col>
-                            <Col sm={1}></Col>
-                            <Col>
+                        {questions && questions.map(question => (
+                            <>
                                 <Row>
-                                    <Col>
-                                    <Link to={`/questions/${question.id}`} style={{ textDecoration: "none", fontSize: 20, color: "hsl(206deg 100% 40%)", fontSize: "17px" }}>{question.title}</Link>
+                                    <Col sm={2} style={{ marginRight: "-3rem" }}>
+                                        <Row style={{ marginLeft: "50px" }}>{question.score} votes</Row>
+                                        <Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>
+                                        <Row><span style={{ marginLeft: "50px", color: "hsl(27,90%,55%)" }}>{question.views_count} views</span></Row>
                                     </Col>
-                                </Row>
-                                <Row className='textLimit'>
-                                    <text  style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
-                                </Row>
-                                <Row>
-                                    <Col sm={6}>{question.tags.map(tag => (<Button style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
+                                    <Col sm={1}></Col>
+                                    <Col sm={9}>
+                                        <Row>
+                                            <Col>
+                                                <Link to={`/questions/${question.id}`} style={{ textDecoration: "none", fontSize: 20, color: "hsl(206deg 100% 40%)", fontSize: "17px" }}>{question.title}</Link>
+                                            </Col>
+                                        </Row>
+                                        <Row className='textLimit'>
+                                            <text style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
+                                        </Row>
+                                        <Row>
+                                            <Col sm={6}>{question.tags.map(tag => (<Button style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
+
+                                        </Row>
+                                        <Row>
+                                            <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
+                                        </Row>
+                                        <Row>
+                                            <Col><hr style={{ marginTop: "1rem", marginLeft: "-218px" }}></hr></Col>
+
+                                        </Row>
+                                    </Col>
 
                                 </Row>
-                                <Row>
-                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
-                                </Row>
-                                <Row>
-                                    <Col><hr style={{ marginTop: "1rem", marginLeft: "-218px" }}></hr></Col>
 
-                                </Row>
-                            </Col>
+                                <br />
+                            </>
+                        ))}
 
-                        </Row>
-                        
-                        <br />
-                    </>
-                ))}
+                    </div>
 
-            </div>
+                    <Pagination>
+                        <Pagination.First onClick={() => previousPageSet()} />
+
+                        {pageCount.map(item => (
+                            <Pagination.Item onClick={() => handlePage(item)}>{item}</Pagination.Item>
+                        ))}
+                        <Pagination.Last onClick={() => nextPageSet()} />
+                    </Pagination>
                 </Col>
 
+
             </Row>
+
+
         </div>
     )
 }

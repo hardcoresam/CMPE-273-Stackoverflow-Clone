@@ -6,20 +6,24 @@ import { useNavigate } from 'react-router'
 import Axios from 'axios'
 import Constants from '../util/Constants.json'
 import { useSelector, useDispatch } from 'react-redux';
-import {loginSuccess} from './../../features/login'
+import {loginSuccess, loginFail, loginPending} from './../../features/login'
 const Login = (props) => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const dispatch = useDispatch();
 
+    const obj = useSelector(state => state.login)
+    const {isLoading,isAuth,error} = obj.value
+
     const signInUser = async () => {
+        dispatch(loginPending())
         Axios.post(`${Constants.uri}/api/users/login`,{
             email : email,
             password : password
           },{
-            withCredentials : true
-            // validateStatus: status => status<500
+            withCredentials : true,
+            validateStatus: status => status<500
           }).then((r)=>{
             if(r.status===200){
             dispatch(loginSuccess())
@@ -30,7 +34,7 @@ const Login = (props) => {
               navigate('/DashBoard')
             }
             else{
-            //   dispatch(loginFail(r.data.message.msg))
+              dispatch(loginFail(r.data.message.errors.email.msg))
             }
           })
     }
@@ -47,7 +51,7 @@ const Login = (props) => {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body className="signmodalbody">
-                {//error && <Alert variant="danger">{error}</Alert> 
+                {error && <Alert variant="danger">{error}</Alert> 
                 }
 
                 <div style={{display:"flex", flexDirection : "column", justifyContent:"space-between", height:"11rem"}}>
@@ -66,7 +70,7 @@ const Login = (props) => {
                 </div>
                 
 
-                {//isLoading && <Spinner variant="primary" animation="border"/>
+                {isLoading && <Spinner variant="primary" animation="border"/>
                 }
 
 

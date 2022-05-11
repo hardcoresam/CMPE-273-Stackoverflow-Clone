@@ -13,6 +13,9 @@ import TagsHome from '../Dashboard/Home/TagsHome'
 import UsersHome from '../Dashboard/Home/UsersHome'
 import VerifyAuth from '../util/VerifyAuth'
 import Search from '../Dashboard/Search/Search'
+import Messages from '../Messages/Messages'
+import Chat from '../Messages/Chat'
+import EditQuestion from '../Dashboard/Questions/EditQuestion'
 const Main = () => {
     return (
         <div>
@@ -26,6 +29,9 @@ const Main = () => {
                         <Route path="/Dashboard/Users" element={<UsersHome />} />
                         <Route path="/User/:userid" element={<User />} />
                         <Route path="/askQuestion" element={<AskQuestion />} />
+                        <Route path="/editQuestion/:questionId" element={<EditQuestion />} />
+                        <Route path="/Messages" element={<Messages />} />
+                        <Route path="/messages/chat/:recepientid" element={<Chat />} />
                         <Route path="/questions/:qid" element={<QuestionOverview />} />
                         <Route path="/tags/:tagname" element={<TagOverview />} />
                     {// </Route>

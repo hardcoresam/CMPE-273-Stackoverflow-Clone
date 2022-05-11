@@ -1,16 +1,19 @@
 import axios from 'axios'
-import React, { useState } from 'react'
-import { Button, Card, Col, Row } from 'react-bootstrap'
+import React, { useEffect, useState } from 'react'
+import { Button, Card, Col, Row, Toast } from 'react-bootstrap'
 import questionlogo from '../../images/questionlogo1.PNG'
-import Constants from './../../util/Constants.json'
+import Constants from '../../util/Constants.json'
 import RichTextEditor,{ stateToHTML } from 'react-rte'
 import AskQ from './AskQ.js'
 import { useSelector } from 'react-redux'
+import { useParams } from 'react-router'
+import EditQ from './EditQ'
 import { toast } from 'react-toastify'
-import { useNavigate } from 'react-router'
+
 // import { updatingbody } from '../../../features/QuestionBodySlice'
-const AskQuestion = () => {
+const EditQuestion = () => {
     const obj = useSelector(state => state.QuestionBodySlice);
+
     const [questionForm,setQuestionFormData] = useState({
         title:"",
         body:"",
@@ -21,7 +24,16 @@ const AskQuestion = () => {
 
     const {title,body,tags} = questionForm
 
-    const navigate = useNavigate()
+    const params = useParams()
+
+    useEffect(()=>{
+        async function getQuestion(){
+            const res = await axios.get(`${Constants.uri}/api/post/${params.questionId}`,{withCredentials:true})
+            console.log(res)
+            setQuestionFormData({...setQuestionFormData,title:res.data.title,body:res.data.body,tags:res.data.tags})
+        }
+        getQuestion()
+    },[])
 
     const onChangeData = async (e) => {
         e.preventDefault()
@@ -29,14 +41,14 @@ const AskQuestion = () => {
         console.log(e)
     }
 
-    const askQuestion = async (e) => {
+    const updateQuestion = async (e) => {
         e.preventDefault()
-        // console.log(questionForm)
-        console.log("posting quesrion")
-        const res = await axios.post(`${Constants.uri}/api/post/question`,questionForm,{withCredentials:true})
+        console.log(questionForm)
+        const res = await axios.put(`${Constants.uri}/api/post/question/${params.questionId}`,
+        questionForm
+        ,{withCredentials:true})
         if(res){
-            toast.success("Posted new Question")
-            navigate("/Dashboard")
+            toast.success("Updated Question")
         }
     }
 
@@ -52,7 +64,7 @@ const AskQuestion = () => {
             <Row>
             <Col sm={2}></Col>
                 <Col style={{marginTop: "30px" }}>
-                    <text style={{ fontSize: "30px" }}>Ask a public question</text>
+                    <text style={{ fontSize: "30px" }}>Edit your question</text>
                 </Col>
                 <Col>
                     <img style={{ width: "33rem" }} src={questionlogo}></img>
@@ -72,19 +84,19 @@ const AskQuestion = () => {
                             <text>Include all the information someone would need to answer your question</text>
                             {//<RichTextEditor value={state} onChange={onChange} />
                             }
-                            <AskQ onChangeData={onChangeData} onChange={onChange}/>
+                            {body && (<EditQ onChangeData={onChangeData} body={body} onChange={onChange}/>)}
                             <Card.Title>
                                 Tags
                             </Card.Title>
                             <text>Add up to 5 tags to describe what your question is about</text>
-                            <input name="tags" value={tags} onChange={(e)=>onChangeData(e)}></input>
+                            <input name="tags" value={tags} ></input>
                         </div>
                     </Card>
-                    <Button style={{marginTop :"20px"}} onClick={(e)=>askQuestion(e)}>Post your question</Button>
+                    <Button style={{marginTop :"20px"}} onClick={(e)=>updateQuestion(e)}>Update question</Button>
                 </Col>
             </Row>
         </div>
     )
 }
 
-export default AskQuestion
+export default EditQuestion

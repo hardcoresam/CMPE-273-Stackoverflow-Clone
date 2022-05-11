@@ -11,10 +11,18 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom'
 import parse from 'html-react-parser'
+import Cookies from 'js-cookie'
+import AskQ from './AskQ.js'
+import { useNavigate } from 'react-router'
+import { useSelector } from 'react-redux'
 
 toast.configure()
 
+
 const QuestionOverview = () => {
+  const navigate = useNavigate();
+  
+  const user = useSelector(state => state.UserSlice)
 
   const params = useParams()
   const [question, setQuestion] = useState({})
@@ -30,10 +38,13 @@ const QuestionOverview = () => {
     status: "ACTIVE",
     answers_count: 0
   })
+  const [message, setMessage] = useState("");
   const [commentForm, setCommentForm] = useState()
   const [isQuestionBookMarked, setIsQuestionBookMarked] = useState(false)
   const [enableComment, setEnableComment] = useState(false)
-
+  const [flag, setFlag] = useState(true)
+  const [approveanswer, setpproveAnswer] = useState(false)
+  const [acceptanswer,setacceptAnswer]= useState(false)
   const { title, body } = answerForm
 
   const onChangeAnswerBody = (e) => {
@@ -43,6 +54,7 @@ const QuestionOverview = () => {
 
   const postAnswer = async (e) => {
     e.preventDefault()
+    // console.log(answerForm)
     answerForm.title = question.title
     answerForm.question_id = answerForm.parent_id = question.id
     answerForm.answers_count = question.answers_count
@@ -58,6 +70,8 @@ const QuestionOverview = () => {
     async function getQuestion() {
       const res = await axios.get(`${Constants.uri}/api/post/${params.qid}`, { withCredentials: true })
       console.log(res.data)
+      if(res.data.User.id==Cookies.get("ID"))
+      setpproveAnswer(true)
       setQuestion(res.data)
       setAnswers(res.data.answers)
       setComments(res.data.Comments)
@@ -65,8 +79,9 @@ const QuestionOverview = () => {
         setIsQuestionBookMarked(true)
       }
     }
+    console.log(Cookies.get('ID'))
     getQuestion()
-  }, [])
+  }, [flag,acceptanswer])
 
   const bookMarkQuestion = async () => {
     if (!isQuestionBookMarked) {
@@ -90,10 +105,15 @@ const QuestionOverview = () => {
     window.location.reload()
   }
 
+  const openTag = (tag) => {
+    navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=${false}`);
+  }
+
   const voteQuestion = async (voteType) => {
     const res = await axios.post(`${Constants.uri}/api/post/${question.id}/vote`, { type: voteType }, { withCredentials: true })
     console.log(res.data)
     if (res.data) {
+      setFlag(!flag)
       if (voteType == "UPVOTE")
         toast.success("Up voted the question")
       else
@@ -105,10 +125,23 @@ const QuestionOverview = () => {
     const res = await axios.post(`${Constants.uri}/api/post/acceptAnswer`, { answerId: answer.id }, { withCredentials: true })
     console.log(res)
     if (res) {
+      setacceptAnswer(!acceptanswer)
       toast.success("Accepeted answer")
     }
   }
 
+  const editQuestion = () => {
+    navigate(`/editQuestion/${params.qid}`)
+  }
+
+
+
+  const onChange = (value) => {
+    setAnswerForm({
+      ...answerForm,
+      body: value
+    })
+  }
 
 
   return (
@@ -119,46 +152,47 @@ const QuestionOverview = () => {
           {question && question.User && (
             <>
               <Row><text style={{ fontSize: "2rem" }}>{question.title}</text></Row>
+              
               <Row style={{ marginLeft: "1px" }}>Asked  {moment(question.created_date).fromNow()} &nbsp;
-                Modified {moment(question.modified_date).fromNow()}</Row>
+                Modified {moment(question.modified_date).fromNow()} &nbsp; &nbsp; &nbsp; &nbsp; 
+                <Button style={{width:'auto'}} className="btn btn-secondary" onClick={()=>editQuestion()}>Edit Question</Button>
+                </Row>
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
               <Row>
                 <Col sm={1}>
-                  <div className='uptriangle' onClick={() => voteQuestion("UPVOTE")}></div>
+                  {question.score === 1 ? <div className='uptriangleonclick' onClick={() => voteQuestion("UPVOTE")}></div> : <div className='uptriangle' onClick={() => voteQuestion("UPVOTE")}></div>}
                   <div>&nbsp;&nbsp;{question.score}</div>
-                  <div className='downtriangle' onClick={() => voteQuestion("DOWNVOTE")}></div>
+                  {question.score === -1 ? <div className='downtriangleonclick' onClick={() => voteQuestion("DOWNVOTE")}></div> : <div className='downtriangle' onClick={() => voteQuestion("DOWNVOTE")}></div>}
                   <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" onClick={() => bookMarkQuestion()} style={{ color: isQuestionBookMarked ? "#fce303" : "#c2d6d6" }}></i></div>
                   <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" style={{ color: "#c2d6d6" }}></i></div>
                 </Col>
                 <Col sm={7}>
-                  <Card style={{ width: "40rem", height: "auto", backgroundColor: "#e7f4f4" }}>
-                    <text>
+                  <Card style={{ width: "40rem", height: "auto", backgroundColor: "hsl(0deg 0% 97%)" }}>
+                    <text style={{padding:"14px"}}>
                       {parse(question.body)}
                     </text>
                   </Card>
-                  <Row>
-                    <Col sm={3}>
-                      {question.tags}
-                    </Col>
-                    <Col></Col>
-                    <Col sm={3}>
-
+                  <Row style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+                    <Col>
+                      {
+                        question.tags.split(",").map(tag => (<button onClick={() => openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</button>))
+                      }
                     </Col>
                   </Row>
                 </Col>
                 <Col sm={1}></Col>
                 <Col>
-                  <Card style={{ backgroundColor: "#b3f0ff" }}>
-                    <Card.Title><span style={{ fontSize: 12, padding: 10 }} className='text-muted'>asked on {question.created_date.split('T')[0]}</span></Card.Title>
+                  <Card style={{ backgroundColor: "hsl(206deg 96% 90%)" }}>
+                    <Card.Title><span style={{ fontSize: 12, padding: 10, color:"hsl(210deg 8% 45%)" }} className='text-muted'>asked on {question.created_date.split('T')[0]}</span></Card.Title>
                     <Row>
-                      <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={img1}></img></Col>
+                      <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={question.User.photo}></img></Col>
                       <Col>
-                        <Row><Link to={`/User/${question.User.id}`} style={{ textDecoration: 'none', fontSize: 13 }}>{question.User.username}</Link></Row>
+                        <Row><Link to={`/User/${question.User.id}`} style={{ textDecoration: 'none', fontSize: 13, color:"hsl(206deg 100% 40%)" }}>{question.User.username}</Link></Row>
                         <Row>
-                          <Col sm={4}>4321</Col>
+                          <Col style={{fontWeight:"bold", color:"hsl(210deg 8% 45%)"}} sm={4}>{question.User.reputation}</Col>
                           <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
-                            <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
-                            <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                            <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.silver_badges_count}&nbsp;</span>
+                            <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.bronze_badges_count}&nbsp;</span>
                           </Col>
                         </Row>
                       </Col>
@@ -198,71 +232,88 @@ const QuestionOverview = () => {
         </Col>
       </Row>
       <div style={{ marginTop: "5rem" }}>
-        <text style={{ marginLeft: "15rem" }}>{question.answers_count} answers</text>
+        <h5 style={{ marginLeft: "15rem", fontSize:"19px" }}>{question.answers_count===1 ? <text>{ question.answers_count} answer</text> : <text>{ question.answers_count} answers</text>}</h5>
         {
           answers.map((answer) => (
-            <Row >
+            <Row>
               <Col sm={2}></Col>
               <Col sm={9}>
 
                 <Row style={{ marginTop: "1rem" }}>
                   <Col sm={1}>
                     <div className='uptriangle'></div>
-                    <div>{answer.score}</div>
+                    <div style={{marginLeft:"10px"}}>{answer.score}</div>
                     <div className='downtriangle'></div>
                     {question.accepted_answer_id == answer.id && (
                       <div style={{ color: 'green', fontSize: 30 }}><i class="fa fa-check" aria-hidden="true"></i></div>
                     )}
                   </Col>
                   <Col>
-                    <text>{answer.title}</text>
-                    <Card style={{ width: "40rem", height: "auto", backgroundColor: " #e6e6e6" }}>
-                      <text>
-                        {answer.body}
+                    <Card style={{ width: "40rem", height: "auto", backgroundColor: "hsl(0deg 0% 97%)" }}>
+                      <text style={{padding:"14px"}}>
+                        {parse(answer.body)}
                       </text>
                     </Card>
                     <Row>
-                      <Col sm={3}>
+                      <Col sm={9}>
+                      <Row>
+                    <span className='text-muted' style={{ fontSize: 12, cursor: 'pointer' }} onClick={() => setEnableComment(true)}>Add a comment</span>
+                    {enableComment && (
+                      <>
+                        <span><textarea name="comment" value={commentForm} onChange={(e) => setCommentForm(e.target.value)} /></span>
+                        <span><Button className='btn btn-secondary' onClick={() => addComment()} style={{ padding: 0 }}>Post</Button></span>
+                      </>
+                    )}
+                  </Row>
                       </Col>
                       <Col>
-                        <Button className='btn btn-success rounded-pill' onClick={() => acceptAnswer(answer)} style={{ width: 'auto', height: 'auto', textAlign: 'left' }}>Accept answer</Button>
+                      {
+                        (approveanswer) && <Button className='btn btn-success rounded-pill' onClick={() => acceptAnswer(answer)} style={{marginTop:"10px", width: 'auto', height: 'auto', textAlign: 'left' }}>Accept answer</Button>
+                      }
                       </Col>
-                      <Col sm={3}>
-                        <Card>
-                          <Card.Title><span style={{ fontSize: 12 }}>Answered on {answer.modified_date.split(',')[0]}</span></Card.Title>
+                      
+                    </Row>
+                  </Col>
+                  <Col>
+                  <Card style={{padding:"3px"}}>
+                          <Card.Title><span style={{ fontSize: 12 }}>Answered {moment(answer.modified_date.split(',')[0]).format("MMM Do YY")}</span></Card.Title>
                           <Row>
-                            <Col sm={3}><img style={{ width: "2rem", height: "2rem" }} src={img1}></img></Col>
+                            <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={answer.User.photo}></img></Col>
                             <Col>
                               <Row>{answer.User && (<text>{answer.User.username}</text>)}</Row>
                               <Row>
-                                <Col sm={5}>432</Col>
-                                <Col>g1 s3 b3</Col>
+                                <Col sm={4}>{answer.User.reputation}</Col>
+                                <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.gold_badges_count}&nbsp;</span>
+                                  <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.silver_badges_count}&nbsp;</span>
+                                  <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.bronze_badges_count}&nbsp;</span>
+                                </Col>
                               </Row>
                             </Col>
                           </Row>
-
-                        </Card>
-                      </Col>
-                    </Row>
+                      </Card>
+                      {
+                        Cookies.get("ID")==question.User.id && <Button variant='outline-success' onClick={() => acceptAnswer(answer)} style={{ width: 'auto', height: 'auto', marginTop:'5px' }}>Accept answer</Button>
+                      }
                   </Col>
                 </Row>
               </Col>
+              <hr style={{marginLeft:"14rem",width:"60rem", marginTop:"8px", marginBottom:"1rem"}} />
             </Row>
+            
           ))
         }
 
       </div>
-      <Row>
-        <Col sm={3}></Col>
-        <Col>
-          <Row>Your Answer</Row>
-
-          <textarea rows="6" cols="80" name="body" value={body} onChange={(e) => onChangeAnswerBody(e)}>
-
-          </textarea>
-
+      <Row style={{marginTop:"2rem"}}>
+        <Col sm={2}></Col>
+        <Col style={{marginLeft:"49px"}}>
+          <Row><Col><h5>Your Answer</h5></Col></Row>
           <Row>
-            <Col sm={3}><Button onClick={(e) => postAnswer(e)}>Post Your Answer</Button></Col>
+            <Col sm={9}><AskQ onChangeData={onChangeAnswerBody} onChange={onChange} />
+            </Col>
+          </Row>
+          <Row>
+            <Col sm={3}><Button style={{marginTop:"1rem"}} onClick={(e) => postAnswer(e)}>Post Your Answer</Button></Col>
 
           </Row>
 

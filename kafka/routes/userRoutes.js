@@ -22,5 +22,6 @@ router.get("/:userId/activity/tags", UserController.getUserTags);
 router.get("/:username", UserController.getUser);
 router.get("/profile/getProfile", UserController.getProfile);
 router.get("/", UserController.getAllUsers);
+router.get("/filter/:username",UserController.filterByUsername)
 
 module.exports = router;

@@ -49,10 +49,10 @@ exports.handle_request = (payload, callback) => {
             getAdminStats(payload, callback);
             break;
         case actions.PENDING_APPROVAL_QUESTIONS:
-            getPendingApprovalQuestions(payload,callback)
+            getPendingApprovalQuestions(payload, callback)
             break
         case actions.APPROVE_QUESTION:
-            approveQuestion(payload,callback)
+            approveQuestion(payload, callback)
             break
     }
 };
@@ -62,7 +62,7 @@ const createQuestion = async (payload, callback) => {
     let tags = payload.tags
     var tagArr = tags.split(',');
 
-    let status = (payload.isImage !== undefined) ? "PENDING" : "ACTIVE"
+    let status = (payload.isImage) ? "PENDING" : "ACTIVE"
     const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
 
     for (let i = 0; i < tagArr.length; i++) {
@@ -81,7 +81,6 @@ const createQuestion = async (payload, callback) => {
         post_id: newQuestion.id,
         user_id: payload.USER_ID,
         user_display_name: loggedInUser.username,
-        comment: payload.title,
         type: "QUESTION_ASKED"
     }).save();
 
@@ -104,10 +103,9 @@ const createAnswer = async (payload, callback) => {
     });
 
     await new PostHistory({
-        post_id: newAnswer.id,
+        post_id: payload.parent_id,
         user_id: payload.USER_ID,
         user_display_name: loggedInUser.username,
-        comment: payload.body,
         type: "ANSWER_POSTED"
     }).save();
 
@@ -117,6 +115,11 @@ const createAnswer = async (payload, callback) => {
 
 const getQuestionsForDashboard = async (payload, callback) => {
     const filterBy = payload.query.filterBy;
+    let offset = 0;
+    if (payload.query.offset) {
+        offset = payload.query.offset
+    }
+
     let whereStatement = {
         type: "QUESTION"
     };
@@ -132,7 +135,7 @@ const getQuestionsForDashboard = async (payload, callback) => {
         orderBy = 'modified_date';
     }
 
-    const guestionsForDashboard = await Post.findAll({
+    const questionsForDashboard = await Post.findAll({
         where: whereStatement,
         include: {
             model: User,
@@ -140,9 +143,12 @@ const getQuestionsForDashboard = async (payload, callback) => {
             required: true
         },
         order: [[orderBy, 'DESC']],
+        offset: parseInt(offset),
         limit: 10
     });
-    return callback(null, guestionsForDashboard);
+    const questionsCount = await Post.count({ where: whereStatement });
+
+    return callback(null, { questionsForDashboard, questionsCount });
 }
 
 const getQuestion = async (payload, callback) => {
@@ -166,11 +172,14 @@ const getQuestion = async (payload, callback) => {
             },
             {
                 model: Post,
-                as: "answers", include: {
+                as: "answers",
+                include: [{
+                    model: User,
+                    attributes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
+                }, {
                     model: Comment
-                }
-            }
-            ]
+                }]
+            }]
         }
     )
     data = data.dataValues
@@ -402,11 +411,24 @@ const updateQuestion = async (payload, callback) => {
     const { title, body } = payload
     let data = await Post.findOne({ where: { id: payload.params.questionId } })
     data = data.dataValues
+    console.log(data)
     if (data.owner_id == payload.USER_ID) {
-        let updateddata = await Post.update(
-            { title: title, body: body },
-            { where: { id: data.id } }
-        )
+        sqlQuery = "update post set title = :title, body = :body where id = :questionId"
+        const updateddata = await sequelize.query(sqlQuery, {
+            replacements: { title: title, body: body, questionId: payload.params.questionId },
+            type: Sequelize.QueryTypes.UPDATE
+        });
+        console.log(updateddata)
+        const loggedInUser = await User.findOne({
+            where: { id: payload.USER_ID },
+            attributes: ['username']
+        });
+        await new PostHistory({
+            post_id: payload.params.questionId,
+            user_id: payload.USER_ID,
+            user_display_name: loggedInUser.username,
+            type: "QUESTION_EDITED"
+        }).save();
         return callback(null, updateddata);
     }
     else return callback({ errors: { name: { msg: "Error in updating the question" } } }, null)
@@ -417,6 +439,10 @@ const search = async (payload, callback) => {
     let orderBy = 'score';
     if (payload.query.orderBy && payload.query.orderBy === 'newest') {
         orderBy = 'created_date';
+    }
+    let offset = 0;
+    if (payload.query.offset) {
+        offset = payload.query.offset
     }
     const fullSearchString = payload.searchString;
     const searchType = fullSearchString.substring(0, fullSearchString.indexOf(' '));
@@ -441,7 +467,7 @@ const search = async (payload, callback) => {
         if (tag === null) {
             return callback({ error: `Invalid tag name ${tagName} specified while searching` }, null);
         }
-        resultString = "Results for " + searchString + " tagged with " + tagName;
+        resultString = "Results for '" + searchString + "' tagged with " + tagName;
         searchOptionsString = "Search options not deleted";
         tagDescription = tag.description;
         includeStatement.push({
@@ -474,9 +500,27 @@ const search = async (payload, callback) => {
             return callback({ error: `Invalid parameter ${str} specified while searching` }, null);
         }
         let searchWithAcceptedPosts = str === "yes" ? true : false;
-        //TODO - @Sai Krishna - This is pending. Need to complete
-
-
+        let acceptedAnswerIds = [];
+        const sqlResult = await Post.findAll({
+            where: { accepted_answer_id: { [Sequelize.Op.ne]: null } },
+            attributes: ["accepted_answer_id"]
+        });
+        for (let acceptedAnswer of sqlResult) {
+            acceptedAnswerIds.push(acceptedAnswer.accepted_answer_id);
+        }
+        if (searchWithAcceptedPosts) {
+            searchOptionsString = "Search options not deleted is accepted answer";
+            whereStatement.id = {
+                [Sequelize.Op.in]: acceptedAnswerIds
+            }
+        } else {
+            searchOptionsString = "Search options not deleted not accepted answer";
+            whereStatement.id = {
+                [Sequelize.Op.notIn]: acceptedAnswerIds
+            };
+        }
+        resultString = "Results for " + searchString;
+        whereStatement.type = 'ANSWER';
     } else {
         resultString = "Results for " + fullSearchString;
         searchOptionsString = "Search options not deleted";
@@ -494,10 +538,16 @@ const search = async (payload, callback) => {
     const posts = await Post.findAll({
         where: whereStatement,
         include: includeStatement,
+        limit: 10,
+        offset: parseInt(offset),
         order: [[orderBy, "DESC"]]
     });
 
-    return callback(null, { posts, resultString, searchOptionsString, tagDescription });
+    const postsCount = await Post.count({
+        where: whereStatement,
+        include: includeStatement
+    })
+    return callback(null, { posts, resultString, searchOptionsString, tagDescription, postsCount });
 }
 
 const getAdminStats = async (payload, callback) => {
@@ -546,22 +596,23 @@ const getAdminStats = async (payload, callback) => {
     });
 }
 
-const getPendingApprovalQuestions = async (payload,callback) => {
-    const questions = await Post.findAll({where:{status:"PENDING"}})
-    return callback(null,questions)
+const getPendingApprovalQuestions = async (payload, callback) => {
+    const questions = await Post.findAll({ where: { status: "PENDING" } })
+    return callback(null, questions)
 }
 
-const approveQuestion = async (payload,callback) => {
-    const {id,approve} = payload
+const approveQuestion = async (payload, callback) => {
+    const { id, approve } = payload
     let sqlQuery = ""
-    if(approve){
+    if (approve) {
         sqlQuery = "update post set status = 'ACTIVE' where id = :questionId"
-    }else{
+    } else {
+        //TODO - Need to change this
         sqlQuery = "update post set status = 'CLOSED' where id = :questionId"
     }
     const data = await sequelize.query(sqlQuery, {
         replacements: { questionId: id },
         type: Sequelize.QueryTypes.UPDATE
     });
-    return callback(null,"Updated the status")
+    return callback(null, "Updated the status")
 }

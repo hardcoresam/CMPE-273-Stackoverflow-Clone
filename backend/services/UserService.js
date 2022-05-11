@@ -48,8 +48,12 @@ exports.handle_request = (payload, callback) => {
     case actions.EDIT_PROFILE:
       editProfile(payload, callback);
       break;
+    case actions.FILTER_BY_USERNAME:
+      filterByUsername(payload, callback)
   }
 };
+
+//TODO - Check wherever we are implementing pagination and keep that code and remove from elsewhere
 
 const createUser = async (payload, callback) => {
   const { displayName, email, password } = payload;
@@ -100,7 +104,6 @@ const login = async (payload, callback) => {
 };
 
 const getUserProfile = async (payload, callback) => {
-  console.log(payload.params);
   const userId = payload.params.userId;
   const user = await User.findOne({
     where: { id: userId },
@@ -123,11 +126,7 @@ const getUserProfile = async (payload, callback) => {
     } else {
       goldBadges.push(badge);
     }
-    if (
-      bronzeBadges.length >= 3 &&
-      silverBadges.length >= 3 &&
-      goldBadges.length >= 3
-    ) {
+    if (bronzeBadges.length >= 3 && silverBadges.length >= 3 && goldBadges.length >= 3) {
       break;
     }
   }
@@ -185,16 +184,7 @@ const getUserProfileTopPosts = async (payload, callback) => {
     where: whereStatement,
     include: {
       model: Post,
-      attributes: [
-        "id",
-        "tags",
-        "title",
-        "type",
-        "score",
-        "answers_count",
-        "accepted_answer_id",
-        "owner_id",
-      ],
+      attributes: ["id", "tags", "title", "type", "score", "answers_count", "accepted_answer_id", "owner_id"],
       as: "question",
     },
     order: orderBy,
@@ -206,6 +196,11 @@ const getUserProfileTopPosts = async (payload, callback) => {
 const getUserAnswers = async (payload, callback) => {
   const userId = payload.params.userId;
 
+  let offset = 0;
+  if (payload.query.offset) {
+    offset = payload.query.offset
+  }
+
   const userAnswers = await Post.findAll({
     where: {
       owner_id: userId,
@@ -213,19 +208,12 @@ const getUserAnswers = async (payload, callback) => {
     },
     include: {
       model: Post,
-      attributes: [
-        "id",
-        "tags",
-        "title",
-        "type",
-        "score",
-        "answers_count",
-        "accepted_answer_id",
-        "owner_id",
-      ],
+      attributes: ["id", "tags", "title", "type", "score", "answers_count", "accepted_answer_id", "owner_id"],
       as: "question",
     },
     order: [["score", "DESC"]],
+    offset: parseInt(offset),
+    limit: 10
   });
   return callback(null, userAnswers);
 };
@@ -233,19 +221,30 @@ const getUserAnswers = async (payload, callback) => {
 const getUserQuestions = async (payload, callback) => {
   const userId = payload.params.userId;
 
+  let offset = 0;
+  if (payload.query.offset) {
+    offset = payload.query.offset
+  }
+
   const userQuestions = await Post.findAll({
     where: {
       owner_id: userId,
       type: "QUESTION",
     },
     order: [["score", "DESC"]],
-    limit:10
+    offset: parseInt(offset),
+    limit: 10
   });
   return callback(null, userQuestions);
 };
 
 const getUserBookmarks = async (payload, callback) => {
   const userId = payload.params.userId;
+
+  let offset = 0;
+  if (payload.query.offset) {
+    offset = payload.query.offset
+  }
 
   const userBookmarks = await Bookmark.findAll({
     where: {
@@ -256,6 +255,8 @@ const getUserBookmarks = async (payload, callback) => {
       required: true,
     },
     order: [["created_on", "DESC"]],
+    offset: parseInt(offset),
+    limit: 10
   });
   return callback(null, userBookmarks);
 };
@@ -289,7 +290,6 @@ const getUser = async (payload, callback) => {
       }
       return callback(null, {});
     }
-    console.log(res);
     return callback(null, res);
   });
 };
@@ -320,7 +320,6 @@ const editProfile = async (payload, callback) => {
   const about = payload.about;
   const location = payload.location;
   const username = payload.username;
-  console.log("These are the params", payload.params);
   let sqlQuery =
     "update user set photo = :photo, about =:about, location =:location, username=:username where id = :user_id";
   await sequelize.query(sqlQuery, {
@@ -336,3 +335,14 @@ const editProfile = async (payload, callback) => {
 
   return callback(null, "User profile edited successfully");
 };
+
+
+const filterByUsername = async (payload, callback) => {
+  const name = payload.params.username;
+  const users = await User.findAll();
+  if (users) {
+    const filteredUsers = users.filter((user) => user.username.includes(name) == true);
+    return callback(null, filteredUsers);
+  }
+  return callback(null, []);
+}
