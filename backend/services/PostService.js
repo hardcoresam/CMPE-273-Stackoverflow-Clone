@@ -257,12 +257,18 @@ const addComment = async (payload, callback) => {
     return callback(null, newComment);
 }
 
-//TODO - @Sai Krishna - Code to write to reputation history table is pending
 const votePost = async (payload, callback) => {
     const loggedInUserId = payload.USER_ID;
     const postId = payload.params.postId;
     const voteType = payload.type;
-    const post = await Post.findOne({ where: { id: postId } });
+    const post = await Post.findOne({
+        where: { id: postId },
+        include: {
+            model: Post,
+            attributes: ["id", "title"],
+            as: "question"
+        }
+    });
     if (post.owner_id === loggedInUserId) {
         return callback({ errors: { vote: { msg: 'You cannot vote on your own posts.' } } }, null);
     }
@@ -273,7 +279,7 @@ const votePost = async (payload, callback) => {
         }
     });
 
-    let repuationToModify;
+    let reputationToModify;
     let postScoreToModify;
     if (previousVote !== null) {
         //User already has a vote for this post. So, there can be 2 cases here.
@@ -282,18 +288,18 @@ const votePost = async (payload, callback) => {
         if (previousVote.type === voteType) {
             if (voteType === "UPVOTE") {
                 postScoreToModify = -1;
-                repuationToModify = post.type === "QUESTION" ? -10 : -5;
+                reputationToModify = post.type === "QUESTION" ? -10 : -5;
             } else {
                 postScoreToModify = 1;
-                repuationToModify = post.type === "QUESTION" ? 10 : 5;
+                reputationToModify = post.type === "QUESTION" ? 10 : 5;
             }
         } else {
             if (voteType === "UPVOTE") {
                 postScoreToModify = 2;
-                repuationToModify = post.type === "QUESTION" ? 20 : 10;
+                reputationToModify = post.type === "QUESTION" ? 20 : 10;
             } else {
                 postScoreToModify = -2;
-                repuationToModify = post.type === "QUESTION" ? -20 : -10;
+                reputationToModify = post.type === "QUESTION" ? -20 : -10;
             }
             await new Vote({ type: voteType, post_id: postId, user_id: loggedInUserId }).save();
         }
@@ -302,22 +308,53 @@ const votePost = async (payload, callback) => {
         //User is voting for the first time for this post. So, create a record directly
         if (voteType === "UPVOTE") {
             postScoreToModify = 1;
-            repuationToModify = post.type === "QUESTION" ? 10 : 5;
+            reputationToModify = post.type === "QUESTION" ? 10 : 5;
         } else {
             postScoreToModify = -1;
-            repuationToModify = post.type === "QUESTION" ? -10 : -5;
+            reputationToModify = post.type === "QUESTION" ? -10 : -5;
         }
         await new Vote({ type: voteType, post_id: postId, user_id: loggedInUserId }).save();
     }
     await Post.increment({ score: postScoreToModify }, { where: { id: post.id } });
-    await User.increment({ reputation: repuationToModify }, { where: { id: post.owner_id } });
+    await User.increment({ reputation: reputationToModify }, { where: { id: post.owner_id } });
 
     if (voteType === "UPVOTE") {
         BadgeService.pushIntoBadgeTopic({ action: "UPVOTE", postId: postId, upvotedUserId: loggedInUserId });
     } else {
         BadgeService.pushIntoBadgeTopic({ action: "DOWNVOTE", downvotedUserId: loggedInUserId });
     }
+
+    addReputationHistory(post, loggedInUserId, voteType);
     return callback(null, { message: "Voted successfully" });
+}
+
+const addReputationHistory = async (post, user_id, voteType) => {
+    const reputationHistory = await ReputationHistory.findOne({
+        post_id: post.id,
+        user_id: user_id,
+        type: { "$in": ['UPVOTE', 'DOWNVOTE'] }
+    });
+    let reputationToModify;
+    if (voteType === "UPVOTE") {
+        reputationToModify = post.type === "QUESTION" ? 10 : 5;
+    } else {
+        reputationToModify = post.type === "QUESTION" ? -10 : -5;
+    }
+    if (reputationHistory === null) {
+        await new ReputationHistory({
+            owner_id: post.owner_id, post_id: post.id, user_id,
+            post_title: post.type === "ANSWER" ? post.question.title : post.title,
+            reputation: reputationToModify, type: voteType
+        }).save();
+    } else {
+        if (reputationHistory.type === voteType) {
+            await ReputationHistory.findByIdAndDelete(reputationHistory.id);
+        } else {
+            reputationHistory.reputation = reputationToModify;
+            reputationHistory.type = voteType;
+            await reputationHistory.save();
+        }
+    }
 }
 
 const postActivity = async (payload, callback) => {

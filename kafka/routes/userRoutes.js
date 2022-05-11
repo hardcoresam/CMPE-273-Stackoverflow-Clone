@@ -5,11 +5,7 @@ const Validation = require("../validations/Validation");
 const UserController = require("../controllers/UserController");
 const checkAuth = passport.authenticate("jwt", { session: false });
 
-router.post(
-  "/register",
-  Validation.registrationValidation(),
-  UserController.createUser
-);
+router.post("/register", Validation.registrationValidation(), UserController.createUser);
 router.post("/login", UserController.login);
 router.post("/:userId/editProfile", UserController.editProfile);
 router.get("/:userId/profile", UserController.getUserProfile);
@@ -22,6 +18,6 @@ router.get("/:userId/activity/tags", UserController.getUserTags);
 router.get("/:username", UserController.getUser);
 router.get("/profile/getProfile", UserController.getProfile);
 router.get("/", UserController.getAllUsers);
-router.get("/filter/:username",UserController.filterByUsername)
+router.get("/filter/:username", UserController.filterByUsername)
 
 module.exports = router;
