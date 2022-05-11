@@ -12,6 +12,7 @@ const TagOverview = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const show_user_posts = searchParams.get('show_user_posts')
     const filterBy = searchParams.get('filterBy')
+    const userid = searchParams.get('userid');
     // var description = "swdasd"
     const [description, setdescription] = useState("");
     const [questions, setQuestions] = useState([])
@@ -20,7 +21,7 @@ const TagOverview = () => {
 
     useEffect(() => {
         async function getQuestionforTags() {
-            const res1 = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?show_user_posts=${show_user_posts}&filterBy=${filterBy}`, { withCredentials: true })
+            const res1 = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?show_user_posts=${show_user_posts}&filterBy=${filterBy}&userid=${userid}`, { withCredentials: true })
             // const res1 = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?filterBy=interesting`)
             setQuestions(res1.data.Posts)
             setdescription(res1.data.description);
@@ -28,24 +29,24 @@ const TagOverview = () => {
         getQuestionforTags();
     }, [tagname])
     const openInteresting = async()=>{
-        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?filterBy=interesting`);
+        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?show_user_posts=${show_user_posts}&filterBy=interesting&userid=${userid}`);
         setQuestions(res.data.Posts)
          settitle("Interesting")
       }
       const openHot = async()=>{
-        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?filterBy=hot`);
+        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?show_user_posts=${show_user_posts}&filterBy=hot&userid=${userid}`);
         console.log(res)
         setQuestions(res.data.Posts)
         settitle("Hot")    
       }
       const openScore = async()=>{
-        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?filterBy=score`);
+        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?show_user_posts=${show_user_posts}&filterBy=score&userid=${userid}`);
         setQuestions(res.data.Posts)
         settitle("Score")
        
       }
       const openUnanswered = async()=>{
-        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?filterBy=unanswered`);
+        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?show_user_posts=${show_user_posts}&filterBy=unanswered&userid=${userid}`);
         setQuestions(res.data.Posts)
         settitle("Unanswered")
      
