@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const reputationHistorySchema = new mongoose.Schema({
+    owner_id: {
+        type: Number,
+        required: true
+    },
     post_id: {
         type: Number,
         required: true
@@ -13,9 +17,13 @@ const reputationHistorySchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    reputation: {
+        type: Number,
+        required: true
+    },
     type: {
         type: String,
-        enum: ['UPVOTED', 'UPVOTE_REMOVED', 'DOWNVOTED', 'DOWNVOTE_REMOVED', 'ACCEPTED_ANSWER', 'UNACCEPTED_ANSWER']
+        enum: ['UPVOTE', 'DOWNVOTE', 'ACCEPT']
     },
     created_on: {
         type: Date,

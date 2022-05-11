@@ -85,10 +85,10 @@ const login = async (payload, callback) => {
   const { email, password } = payload;
   const member = await User.findOne({ where: { email: email.toLowerCase() } });
   if (member === null) {
-    return callback({ errors: { email: { msg: `Email ${email} is not registed with us` } } }, null);
+    return callback({ errors: { email: { msg: `Email ${email} is not registered with us` } } }, null);
   }
   if (!bcrypt.compareSync(password, member.password)) {
-    return callback({ errors: { password: { msg: "Incorrect password. Please try again!" } } }, null);
+    return callback({ errors: { email: { msg: "Incorrect password. Please try again!" } } }, null);
   }
 
   const jwtPayload = { user: { id: member.id } };
