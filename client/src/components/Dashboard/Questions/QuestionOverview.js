@@ -112,8 +112,11 @@ const QuestionOverview = () => {
     window.location.reload()
   }
 
+  const openActivity = ()=>{
+    navigate(`/questions/${params.qid}/activity`)
+  }
   const openTag = (tag) => {
-    navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=${false}`);
+    navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=interesting`);
   }
 
   const voteQuestion = async (voteType) => {
@@ -171,7 +174,7 @@ const QuestionOverview = () => {
                   <div>&nbsp;&nbsp;{question.score}</div>
                   {question.score === -1 ? <div className='downtriangleonclick' onClick={() => voteQuestion("DOWNVOTE")}></div> : <div className='downtriangle' onClick={() => voteQuestion("DOWNVOTE")}></div>}
                   <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" onClick={() => bookMarkQuestion()} style={{ color: isQuestionBookMarked ? "#fce303" : "#c2d6d6" }}></i></div>
-                  <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" style={{ color: "#c2d6d6" }}></i></div>
+                  <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" onClick={openActivity} style={{ color: "#c2d6d6" }}></i></div>
                 </Col>
                 <Col sm={7}>
                   <Card style={{ width: "40rem", height: "auto", backgroundColor: "hsl(0deg 0% 97%)" }}>

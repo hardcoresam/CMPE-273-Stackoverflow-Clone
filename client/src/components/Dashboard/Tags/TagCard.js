@@ -53,7 +53,7 @@ const TagCard = () => {
   }
 
   const openTag = (tag) => {
-    navigate(`/tags/${tag.name}/?show_user_posts=${false}&filterBy=${false}`);
+    navigate(`/tags/${tag.name}/?show_user_posts=${false}&filterBy=interesting`);
   }
   return (
     <div>
