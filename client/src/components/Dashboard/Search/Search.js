@@ -7,6 +7,8 @@ import moment from 'moment'
 import { useNavigate } from 'react-router'
 import { useLocation } from 'react-router'
 import parse from 'html-react-parser'
+import emptyimage from '../../images/emptyimage.png'
+
 const Search = () => {
     const location = useLocation();
     const navigate = useNavigate()
@@ -156,7 +158,7 @@ const Search = () => {
 
                                         </Row>
                                         <Row>
-                                            <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
+                                            <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo ?question.User.photo : emptyimage}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
                                         </Row>
                                         <Row>
                                             <Col><hr style={{ marginTop: "1rem", marginLeft: "-218px" }}></hr></Col>

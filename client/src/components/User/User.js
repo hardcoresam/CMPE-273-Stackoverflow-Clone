@@ -9,6 +9,7 @@ import Constants from '../util/Constants.json'
 import './styles.css'
 import moment from 'moment';
 import save from '../util/Util.js'
+import emptyimageurl from '../util/DefaultImage.js'
 // import Constants from "../util/Constants.json"
 import { useParams } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux';
@@ -94,7 +95,7 @@ const User = () => {
         </Col>
         <Col sm={8}>
           <Row style={{ marginTop: "28px", marginLeft: "-30px" }}>
-            <Col sm={2}><img style={{ height: "8rem",width:"9rem", borderRadius: "8px" }} src={obj.value.photo}></img></Col>
+            <Col sm={2}><img style={{ height: "8rem",width:"9rem", borderRadius: "8px" }} src={obj.value.photo ? obj.value.photo : emptyuserimage}></img></Col>
             <Col style={{ marginTop: "2rem", marginLeft: "1rem" }}>
               <Row>
                 <text style={{ fontSize: "30px", fontFamily:"sans-serif" }}>{obj.value.username}</text>

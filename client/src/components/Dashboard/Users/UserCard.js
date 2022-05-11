@@ -3,6 +3,7 @@ import { Row, Col, Card, InputGroup, FormControl } from 'react-bootstrap'
 import pic1 from '../../images/santhoshProfPic.jpg'
 import { useNavigate } from 'react-router'
 import axios from 'axios'
+import emptyuserimage from '../../images/emptyimage.png'
 import Constants from '../../util/Constants.json'
 const UserCard = () => {
   const navigate = useNavigate();
@@ -75,7 +76,7 @@ const UserCard = () => {
           <Row>
             {x.map((i) => (<Card style={{ border: "0", width: "16rem", marginBottom: "2rem" }}>
               <Row>
-                <Col style={{ marginRight: "10px" }} sm={3}><img src={i.photo} style={{ width: "50px", height: "50px", borderRadius: "5px" }}></img></Col>
+                <Col style={{ marginRight: "10px" }} sm={3}><img src={i.photo ? i.photo : emptyuserimage} style={{ width: "50px", height: "50px", borderRadius: "5px" }}></img></Col>
                 <Col style={{ marginTop: "-10px" }}>
                   <Row><text onClick={(e) => openuserProfile(i)} style={{ cursor: "pointer", marginLeft: "-9px" }}>{i.username}</text></Row>
                   <Row style={{ marginTop: "-5px" }}>{i.location}</Row>

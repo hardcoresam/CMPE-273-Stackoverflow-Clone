@@ -6,7 +6,7 @@ import axios from 'axios'
 import moment from 'moment'
 import parse from 'html-react-parser'
 import { useNavigate } from 'react-router'
-
+import emptyimage from '../../images/emptyimage.png'
 const TagOverview = () => {
     const { tagname } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -105,7 +105,7 @@ const TagOverview = () => {
 
                                 </Row>
                                 <Row>
-                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
+                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo?question.User.photo :emptyimage}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
                                 </Row>
                                 <Row>
                                     <Col><hr style={{ marginTop: "1rem", marginLeft: "-143px" }}></hr></Col>

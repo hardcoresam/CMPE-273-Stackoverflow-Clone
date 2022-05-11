@@ -16,7 +16,7 @@ import AskQ from './AskQ.js'
 import { useNavigate } from 'react-router'
 import { useSelector } from 'react-redux'
 import Login from './../../Login/Login'
-
+import emptyimage from '../../images/emptyimage.png'
 toast.configure()
 
 
@@ -192,7 +192,7 @@ const QuestionOverview = () => {
                   <Card style={{ backgroundColor: "hsl(206deg 96% 90%)" }}>
                     <Card.Title><span style={{ fontSize: 12, padding: 10, color:"hsl(210deg 8% 45%)" }} className='text-muted'>asked on {question.created_date.split('T')[0]}</span></Card.Title>
                     <Row>
-                      <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={question.User.photo}></img></Col>
+                      <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={question.User.photo ?question.User.photo :emptyimage}></img></Col>
                       <Col>
                         <Row><Link to={`/User/${question.User.id}`} style={{ textDecoration: 'none', fontSize: 13, color:"hsl(206deg 100% 40%)" }}>{question.User.username}</Link></Row>
                         <Row>
@@ -285,7 +285,7 @@ const QuestionOverview = () => {
                   <Card style={{padding:"3px"}}>
                           <Card.Title><span style={{ fontSize: 12 }}>Answered {moment(answer.modified_date.split(',')[0]).format("MMM Do YY")}</span></Card.Title>
                           <Row>
-                            <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={answer.User.photo}></img></Col>
+                            <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={answer.User.photo ?answer.User.photo :emptyimage }></img></Col>
                             <Col>
                               <Row>{answer.User && (<text>{answer.User.username}</text>)}</Row>
                               <Row>

@@ -11,7 +11,7 @@ import parse from 'html-react-parser'
 import { clickReducer } from '../../../features/DashboardTopSlice';
 import { postReducer,countReducer } from '../../../features/PostSlice'
 import { useSelector } from 'react-redux'
-
+import emptyimage from '../../images/emptyimage.png'
 const MainCard = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -117,7 +117,7 @@ const MainCard = () => {
 
                                 </Row>
                                 <Row>
-                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo}></img>{question.User.username}</Link> asked,  {moment(question.created_date).format("MMM Do")} at {moment(question.created_date).format("ha")} </span>
+                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo ?question.User.photo :emptyimage}></img>{question.User.username}</Link> asked,  {moment(question.created_date).format("MMM Do")} at {moment(question.created_date).format("ha")} </span>
                                 </Row>
                                 <Row>
                                     <Col><hr style={{ marginTop: "1rem", marginLeft: "-182px", marginRight:"-50px" }}></hr></Col>
