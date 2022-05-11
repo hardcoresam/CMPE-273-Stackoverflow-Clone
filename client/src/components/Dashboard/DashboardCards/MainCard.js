@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router'
 import './styles.css'
 import parse from 'html-react-parser'
 import { clickReducer } from '../../../features/DashboardTopSlice';
-import { postReducer } from '../../../features/PostSlice'
+import { postReducer,countReducer } from '../../../features/PostSlice'
 import { useSelector } from 'react-redux'
 
 const MainCard = () => {
@@ -31,6 +31,7 @@ const MainCard = () => {
         async function getQuests() {
             const res = await axios.get(`${Constants.uri}/api/post/dashboard`)
             dispatch(postReducer(res.data.questionsForDashboard))
+            dispatch(countReducer(res.data.questionsCount))
             setTotalPages(res.data.questionsCount/10)
         }
         getQuests()
@@ -91,7 +92,14 @@ const MainCard = () => {
                         <Row style={{marginTop:"-30px"}}>
                             <Col sm={2} style={{ marginRight: "-3rem" }}>
                                 <Row style={{ marginLeft: "50px" }}>{question.score} votes</Row>
-                                {}<Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>
+                                { question.answers_count > 0 ?
+                                    question.accepted_answer_id ? 
+                                        (<Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>) 
+                                        : 
+                                        (<Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} > {question.answers_count} answers</button></Row>)
+                                    :
+                                    (<Row><button style={{ backgroundColor: "#898989", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} > 0 answers</button></Row>)
+                                }
                                 <Row><span style={{ marginLeft: "50px", color: "hsl(27,90%,55%)" }}>{question.views_count} views</span></Row>
                             </Col>
                             <Col sm={1}></Col>

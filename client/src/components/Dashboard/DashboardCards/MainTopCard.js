@@ -9,8 +9,13 @@ import axios from 'axios'
 const MainTopCard = () => {
   const dispatch = useDispatch();
   const obj = useSelector(state => state.DashboardTopSlice)
-  const { Title, questionCount } = obj.value
+  const obj1 = useSelector(state=> state.PostSlice)
+
+  const { Title } = obj.value
   const [title, settitle] = useState("Interesting")
+
+  const {questionsCount} = obj1.value
+
   var navigate = useNavigate();
   const askquestion = () => {
     navigate('/askQuestion')
@@ -46,7 +51,7 @@ const MainTopCard = () => {
       <div style={{ marginTop: "1rem", marginLeft: "-15px" }}>
         <Row>
           <Col sm={9}>
-            <text style={{ fontSize: "1.9rem", PaddingBottom: "1rem" }}>{Title}</text>
+            <text style={{ fontSize: "1.9rem", PaddingBottom: "1rem" }}>All Questions</text>
           </Col>
           <Col>
             <Button style={{backgroundColor:"hsl(206deg 100% 52%)"}} onClick={askquestion}>Ask Question</Button>
@@ -54,7 +59,7 @@ const MainTopCard = () => {
         </Row>
         <Row style={{ marginTop: "2rem" }}>
           <Col sm={3}>
-            <text>{questionCount} Questions</text>
+            <text><span style={{fontWeight:'bold'}}>{questionsCount}</span> Questions</text>
           </Col>
           <Col style={{marginRight:"48px"}} sm={2}></Col>
           <Col sm={7} style={{ marginLeft: "-3rem", marginTop: "7px" }}>
