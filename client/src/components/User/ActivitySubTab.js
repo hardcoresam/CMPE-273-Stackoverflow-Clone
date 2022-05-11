@@ -60,12 +60,12 @@ const ActivitySubTab = () => {
             <Row style={{ marginTop: "1rem" }}>
                 <Col sm={3}>
                     <div style={{ display: "flex", flexDirection: "column", height: "12rem", justifyContent: "space-between", cursor: "pointer" }}>
-                        <text style={status == "Answers" ? { borderRadius: "5px", backgroundColor: "green", width: "5rem", color: "white" } : { border: "0" }} onClick={showAnswers}>Answers</text>
-                        <text style={status == "Questions" ? { borderRadius: "5px", backgroundColor: "green", width: "5rem", color: "white" } : { border: "0" }} onClick={showQuestions}>Questions</text>
-                        <text style={status == "Tags" ? { borderRadius: "5px", backgroundColor: "green", width: "5rem", color: "white" } : { border: "0" }} onClick={showTags}>Tags</text>
-                        <text style={status == "Badges" ? { borderRadius: "5px", backgroundColor: "green", width: "5rem", color: "white" } : { border: "0" }} onClick={showBadges}>Badges</text>
-                        <text style={status == "Bookmarks" ? { borderRadius: "5px", backgroundColor: "green", width: "5rem", color: "white" } : { border: "0" }} onClick={showBookmarks}>Bookmarks</text>
-                        <text style={status == "Reputation" ? { borderRadius: "5px", backgroundColor: "green", width: "5rem", color: "white" } : { border: "0" }} onClick={showReputation}>Reputation</text>
+                        <text style={status == "Answers" ? { borderRadius: "5px", backgroundColor: "hsl(210deg 8% 95%)", width: "8rem", color: "black",padding:"6px" } : { border: "0",padding:"6px" }} onClick={showAnswers}>Answers</text>
+                        <text style={status == "Questions" ? { borderRadius: "5px", backgroundColor: "hsl(210deg 8% 95%)", width: "8rem", color: "black",padding:"6px" } : { border: "0",padding:"6px" }} onClick={showQuestions}>Questions</text>
+                        <text style={status == "Tags" ? { borderRadius: "5px", backgroundColor: "hsl(210deg 8% 95%)", width: "8rem", color: "black",padding:"6px" } : { border: "0",padding:"6px" }} onClick={showTags}>Tags</text>
+                        <text style={status == "Badges" ? { borderRadius: "5px", backgroundColor: "hsl(210deg 8% 95%)", width: "8rem", color: "black",padding:"6px" } : { border: "0",padding:"6px" }} onClick={showBadges}>Badges</text>
+                        <text style={status == "Bookmarks" ? { borderRadius: "5px", backgroundColor: "hsl(210deg 8% 95%)", width: "8rem", color: "black",padding:"6px" } : { border: "0",padding:"6px" }} onClick={showBookmarks}>Bookmarks</text>
+                        <text style={status == "Reputation" ? { borderRadius: "5px", backgroundColor: "hsl(210deg 8% 95%)", width: "8rem", color: "black",padding:"6px" } : { border: "0",padding:"6px" }} onClick={showReputation}>Reputation</text>
                     </div>
                 </Col>
                 <Col>

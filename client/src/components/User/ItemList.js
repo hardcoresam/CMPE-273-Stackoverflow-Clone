@@ -79,27 +79,23 @@ const ItemList = (props) => {
                     <Card>
                         <div style={{ margin: "1rem" }}>
                             <Row>
-                                <Col sm={2}><text>{i.score} votes</text></Col>
-                                {i.accepted_answer_id && <Col><Button style={{ backgroundColor: "green", color: "white", marginTop: "-10px" }}>✔{props.text}</Button></Col>}
-                                <Col sm={2}><text>{i.views_count} views</text></Col>
+                                <Col sm={2}><text style={{fontSize:"15px"}}>{i.score} votes</text></Col>
+                                {i.accepted_answer_id && <Col sm={3}><Button style={{marginLeft:"-30px", backgroundColor: "hsl(140deg 40% 47%)", color: "white", marginTop: "-10px", border: "0" , fontSize:"12px"}}><i style={{ color: "white" }} class="fa-solid fa-check"></i> Accepted</Button></Col>}
+                                <Col sm={2}><text style={{fontSize: 13, color: "hsl(205deg 47% 42%)", marginLeft:"-90px"}}>{i.views_count} views</text></Col>
                             </Row>
                             <Row className='textLimit3'><text style={{ color: "hsl(206deg 100% 40%)", fontSize: "14px", cursor:"pointer" }} onClick={() => openQuestion(i.id)}>{parse(i.body)}</text></Row>
-                            <Row>
 
-                                {
-                                    <Row>
-                                        <Col sm={6}>{i.tags.map((obj) => (
-                                            <button onClick={() => openTag(obj)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>
-                                                <text style={{ fontSize: "13px", cursor: "pointer" }}>{obj}</text>
-                                            </button>
-                                        ))
-                                        }</Col>
-                                        <Col sm={1}></Col>
-                                        <Col>asked {moment(i.created_date).fromNow()}</Col>
-                                    </Row>
+                            <Row style={{marginLeft:"-18px"}}>
+                                <Col sm={7}>
+                                    {i.tags.map((obj) => (
+                                        <button onClick={() => openTag(obj)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>
+                                            <text style={{ fontSize: "13px", cursor: "pointer" }}>{obj}</text>
+                                        </button>
+                                    ))}
+                                </Col>
 
-                                }
-
+                                <Col sm={1}></Col>
+                                <Col style={{fontSize:"14px", color:"hsl(210deg 8% 45%)"}}>asked {moment(i.created_date).format("MMM Do")} at {moment(i.created_date).format("ha")}</Col>
                             </Row>
                         </div>
                     </Card>
