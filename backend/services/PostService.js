@@ -175,7 +175,7 @@ const getQuestion = async (payload, callback) => {
                 as: "answers",
                 include: [{
                     model: User,
-                    attrbutes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
+                    attributes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
                 }, {
                     model: Comment
                 }]
@@ -411,14 +411,17 @@ const updateQuestion = async (payload, callback) => {
     const { title, body } = payload
     let data = await Post.findOne({ where: { id: payload.params.questionId } })
     data = data.dataValues
+    console.log(data)
     if (data.owner_id == payload.USER_ID) {
-        let updateddata = await Post.update(
-            { title: title, body: body },
-            { where: { id: data.id } }
-        );
+        sqlQuery = "update post set title = :title, body = :body where id = :questionId"
+        const updateddata = await sequelize.query(sqlQuery, {
+            replacements: { title: title, body: body, questionId: payload.params.questionId },
+            type: Sequelize.QueryTypes.UPDATE
+        });
+        console.log(updateddata)
         const loggedInUser = await User.findOne({
             where: { id: payload.USER_ID },
-            attrbutes: ['username']
+            attributes: ['username']
         });
         await new PostHistory({
             post_id: payload.params.questionId,

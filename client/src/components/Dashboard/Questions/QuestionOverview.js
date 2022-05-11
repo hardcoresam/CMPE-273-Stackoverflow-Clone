@@ -79,6 +79,7 @@ const QuestionOverview = () => {
         setIsQuestionBookMarked(true)
       }
     }
+    console.log(Cookies.get('ID'))
     getQuestion()
   }, [flag,acceptanswer])
 
@@ -290,6 +291,9 @@ const QuestionOverview = () => {
                             </Col>
                           </Row>
                       </Card>
+                      {
+                        Cookies.get("ID")==question.User.id && <Button variant='outline-success' onClick={() => acceptAnswer(answer)} style={{ width: 'auto', height: 'auto', marginTop:'5px' }}>Accept answer</Button>
+                      }
                   </Col>
                 </Row>
               </Col>
