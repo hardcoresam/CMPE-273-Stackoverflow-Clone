@@ -15,10 +15,19 @@ const Chat = () => {
     const obj = useSelector(state => state.UserSlice)
     const { username } = obj.value
 
+    const [recipient,setRecipient] = useState("")
+
     useEffect(() => {
         const room_id = params.roomId
         async function getMessages() {
             const res = await axios.post(`${Constants.uri}/api/chat/getAllMessages`, { room_id }, { withCredentials: true })
+            if(res.data[0]){
+                if(res.data[0].from == username){
+                    setRecipient(res.data[0].to)
+                }else{
+                    setRecipient(res.data[0].from)
+                }
+            }
             setMessages(res.data)
         }
         getMessages()
@@ -31,11 +40,8 @@ const Chat = () => {
                 <Col>
                     <Row>
                         <Col sm={1}><img style={{ width: "3rem", height: "3rem", borderRadius: "3rem" }} src={img}></img></Col>
-                        {messages && messages[0] && messages[0].from === username ?
-                            (<Col sm={3}><h2>{messages[0].to}</h2></Col>)
-                            :
-                            (<Col sm={3}><h2>{messages[0].from}</h2></Col>)
-                        }
+                        <Col sm={3}><h2>{recipient}</h2></Col>
+                        
 
                     </Row>
                     <Row style={{ marginTop: "2rem" }}>
