@@ -21,7 +21,7 @@ const TagList = (props) => {
     const arr =[1]
     const navigate = useNavigate();
     const openTag = (tag)=>{
-        navigate(`/tags/${tag}/?show_user_posts=${true}&filterBy=interesting`);
+        navigate(`/tags/${tag}/?show_user_posts=${true}&filterBy=interesting&userid=${userid}`);
     }
 
     return (

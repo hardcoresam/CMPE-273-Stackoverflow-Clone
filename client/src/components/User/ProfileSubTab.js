@@ -101,7 +101,7 @@ const ProfileSubTab = (props) => {
         navigate(`/questions/${id}`);
     }
     const openTag = (tag) => {
-        navigate(`/tags/${tag}/?show_user_posts=${true}&filterBy=interesting`);
+        navigate(`/tags/${tag}/?show_user_posts=${true}&filterBy=interesting&userid=${userid}`);
       }
     return (
         <div>

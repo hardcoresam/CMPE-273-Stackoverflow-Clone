@@ -16,6 +16,7 @@ import Search from '../Dashboard/Search/Search'
 import Messages from '../Messages/Messages'
 import Chat from '../Messages/Chat'
 import EditQuestion from '../Dashboard/Questions/EditQuestion'
+import Postactivity from '../Dashboard/Questions/Postactivity'
 const Main = () => {
     return (
         <div>
@@ -33,6 +34,7 @@ const Main = () => {
                         <Route path="/Messages" element={<Messages />} />
                         <Route path="/messages/chat/:roomId" element={<Chat />} />
                         <Route path="/questions/:qid" element={<QuestionOverview />} />
+                        <Route path="/questions/:qid/activity" element={<Postactivity />} />
                         <Route path="/tags/:tagname" element={<TagOverview />} />
                     {// </Route>
                     }
