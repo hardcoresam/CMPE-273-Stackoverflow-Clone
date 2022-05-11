@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const actions = require("../../util/kafkaActions.json");
 const { cacheGet, cacheAdd } = require("./../config/RedisClient");
+const ReputationHistory = require("../models/mongodb/ReputationHistory");
 
 exports.handle_request = (payload, callback) => {
   const { action } = payload;
@@ -284,8 +285,55 @@ const getUserTags = async (payload, callback) => {
 
 const getUserReputationHistory = async (payload, callback) => {
   const userId = payload.params.userId;
+  let reputationHistoryList = await ReputationHistory.find({ owner_id: userId }).sort('-created_on');
+  let response = [];
 
-
+  for (let reputationHistory of reputationHistoryList) {
+    let existingValue = response.find(value => value.date === reputationHistory.created_on.substring(0, 10));
+    if (existingValue) {
+      let existingHistoryObject = existingValue.history.find(h => h.postId === reputationHistory.post_id);
+      if (existingHistoryObject) {
+        existingHistoryObject.postHistoryGrouping.push({
+          type: reputationHistory.type,
+          score: reputationHistory.reputation
+        });
+        existingHistoryObject.postHistoryGroupingScore = existingHistoryObject.postHistoryGroupingScore +
+          reputationHistory.reputation;
+      } else {
+        existingValue.history.push({
+          postId: reputationHistory.post_id,
+          postTitle: reputationHistory.post_title,
+          postHistoryGrouping: [
+            {
+              type: reputationHistory.type,
+              score: reputationHistory.reputation
+            }
+          ],
+          postHistoryGroupingScore: reputationHistory.reputation
+        });
+      }
+      existingValue.totalReputation = existingValue.totalReputation + reputationHistory.reputation;
+    } else {
+      response.push({
+        date: reputationHistory.created_on.substring(0, 10),
+        totalReputation: reputationHistory.reputation,
+        history: [
+          {
+            postId: reputationHistory.post_id,
+            postTitle: reputationHistory.post_title,
+            postHistoryGrouping: [
+              {
+                type: reputationHistory.type,
+                score: reputationHistory.reputation
+              }
+            ],
+            postHistoryGroupingScore: reputationHistory.reputation
+          }
+        ]
+      });
+    }
+  }
+  return callback(null, response);
 };
 
 const getUser = async (payload, callback) => {
