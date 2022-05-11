@@ -16,6 +16,9 @@ exports.handle_request = (payload, callback) => {
         case actions.GET_ALL_MESSAGES:
             getMessages(payload,callback);
             break;
+        case actions.GET_CHAT_LIST:
+            getChatList(payload,callback)
+            break
     }
 };
 
@@ -77,27 +80,28 @@ const sendMessage = async (payload, callback) => {
 
 const getMessages = async (payload, callback) => {
     console.log("recieved payload- ",payload)
-    const {from,to,content} = payload;
+    const {room_id} = payload;
 
-    const participants1 = from+","+to
-    const participants2 = to+","+from
+    const chatRoom = await MessageRoom.findOne({ room_id });
 
-    const existingchatroom1 = await MessageRoom.findOne({ participants:participants1 });
-    const existingchatroom2 = await MessageRoom.findOne({participants:participants2})
     
-    if (existingchatroom1 == null && existingchatroom2 == null) {
+    if (chatRoom == null) {
         return callback({ errors: { msg : "Chat Room does not exist"} }, null);
     }
 
-    let RoomId = ""
-    if(existingchatroom1){
-        RoomId = existingchatroom1.room_id
-    }else{
-        RoomId = existingchatroom2.room_id
-    }
-
-    const messages = await Message.find({room_id:RoomId})
+    const messages = await Message.find({room_id})
     
     return callback(null,messages)
 
+}
+
+
+const getChatList = async (payload, callback) => {
+    const {username} = payload
+
+    const chats = await MessageRoom.find()
+
+    const filteredChats = chats.filter(chat=> chat.participants.includes(username))
+
+    return callback(null,filteredChats)
 }
