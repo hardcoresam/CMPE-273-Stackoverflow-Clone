@@ -76,6 +76,7 @@ const QuestionOverview = () => {
         setIsQuestionBookMarked(true)
       }
     }
+    console.log(Cookies.get('ID'))
     getQuestion()
   }, [flag])
 
@@ -249,16 +250,6 @@ const QuestionOverview = () => {
                         {parse(answer.body)}
                       </text>
                     </Card>
-                    <Row>
-                      <Col sm={9}>
-                      </Col>
-                      <Col>
-                      {
-                        Cookies.get("ID")===question.User.id && <Button className='btn btn-success rounded-pill' onClick={() => acceptAnswer(answer)} style={{ width: 'auto', height: 'auto', textAlign: 'left' }}>Accept answer</Button>
-                      }
-                      </Col>
-                      
-                    </Row>
                   </Col>
                   <Col>
                   <Card style={{padding:"3px"}}>
@@ -277,6 +268,9 @@ const QuestionOverview = () => {
                             </Col>
                           </Row>
                       </Card>
+                      {
+                        Cookies.get("ID")==question.User.id && <Button variant='outline-success' onClick={() => acceptAnswer(answer)} style={{ width: 'auto', height: 'auto', marginTop:'5px' }}>Accept answer</Button>
+                      }
                   </Col>
                 </Row>
               </Col>
