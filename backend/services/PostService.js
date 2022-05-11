@@ -366,81 +366,73 @@ const postActivity = async (payload, callback) => {
 const acceptAnswer = async (payload, callback) => {
     const { answerId } = payload
     const answer = await Post.findOne({
-        where:
-        {
-            id: answerId
+        where: { id: answerId },
+        include: {
+            model: Post,
+            attributes: ["id", "title"],
+            as: "question"
         }
     })
-    if (answer) {
-        try {
-            const question = await Post.findOne({ where: { id: answer.parent_id } })
-
-            //accept only loggedin users question
-            if (question.owner_id == payload.USER_ID) {
-
-                //Check for previous accepted answers and decrement repuation score -15
-                if (question.accepted_answer_id) {
-                    const previous_accepted_answer = await Post.findOne({ where: { id: question.accepted_answer_id } })
-                    const previous_user = await User.findOne({ where: { id: previous_accepted_answer.owner_id } })
-                    const decrementReputaionQuery = 'update user set reputation = :oldReputation where id = :userId'
-                    var new_rep = previous_user.reputation - 15
-                    if (previous_user.reputation < 15) {
-                        new_rep = 0
-                    }
-                    const data = await sequelize.query(decrementReputaionQuery, {
-                        replacements: { oldReputation: new_rep, userId: previous_user.id },
-                        type: Sequelize.QueryTypes.UPDATE
-                    });
-                }
-
-                //update accepeted answer id
-                let sqlQuery = "update post set accepted_answer_id = :answerId where id = :questionId"
-                const data = await sequelize.query(sqlQuery, {
-                    replacements: { answerId: answerId, questionId: answer.parent_id },
-                    type: Sequelize.QueryTypes.UPDATE
-                });
-
-                //+15 to reputation score
-                const user = await User.findOne({ where: { id: answer.owner_id } })
-                let userQuery = "update user set reputation = :newReputation where id = :userId"
-                const data1 = await sequelize.query(userQuery, {
-                    replacements: { newReputation: user.reputation + 15, userId: user.id },
-                    type: Sequelize.QueryTypes.UPDATE
-                });
-
-                console.log("rechin here-----------------------")
-
-                //log repuation data
-                const reputationdata = new ReputationHistory({
-                    post_id: answer.parent_id,
-                    post_title: answer.title,
-                    user_id: answer.owner_id,
-                    type: "ACCEPTED_ANSWER"
-                })
-                await reputationdata.save((err, res) => {
-                    if (err) throw err
-                    if (res) {
-                        BadgeService.pushIntoBadgeTopic({
-                            action: "ACCEPTED_ANSWER",
-                            userId: user.id, newReputation: user.reputation + 15
-                        });
-                        return callback(null, "Accepted answer")
-                    }
-                })
-
-            }
-
-            else {
-                return callback({ errors: { name: { msg: "You are not the owner of the question!" } } }, null)
-
-            }
-
-
-        } catch (error) {
-            return callback({ errors: { name: { msg: "Failed to accept the answer, try again!" } } }, null)
-        }
-    } else {
+    if (answer === null) {
         return callback({ errors: { name: { msg: "No such answer found, try again!" } } }, null)
+    }
+
+    try {
+        const question = await Post.findOne({ where: { id: answer.parent_id } })
+        if (question.owner_id !== payload.USER_ID) {
+            return callback({ errors: { name: { msg: "Only owner of the question can accept an answer!" } } }, null)
+        }
+
+        //Check for previous accepted answers and decrement repuation score -15
+        if (question.accepted_answer_id !== null) {
+            const previous_accepted_answer = await Post.findOne({ where: { id: question.accepted_answer_id } })
+            const previous_user = await User.findOne({ where: { id: previous_accepted_answer.owner_id } })
+            const decrementReputationQuery = 'update user set reputation = :oldReputation where id = :userId'
+            var new_rep = previous_user.reputation - 15
+            if (previous_user.reputation < 15) {
+                new_rep = 0
+            }
+            const data = await sequelize.query(decrementReputationQuery, {
+                replacements: { oldReputation: new_rep, userId: previous_user.id },
+                type: Sequelize.QueryTypes.UPDATE
+            });
+
+            await ReputationHistory.deleteOne({
+                post_id: previous_accepted_answer.id,
+                user_id: payload.USER_ID,
+                type: 'ACCEPT'
+            });
+        }
+
+        //update accepted answer id
+        let sqlQuery = "update post set accepted_answer_id = :answerId where id = :questionId"
+        const data = await sequelize.query(sqlQuery, {
+            replacements: { answerId: answerId, questionId: answer.parent_id },
+            type: Sequelize.QueryTypes.UPDATE
+        });
+
+        //+15 to reputation score
+        const user = await User.findOne({ where: { id: answer.owner_id } })
+        let userQuery = "update user set reputation = :newReputation where id = :userId"
+        const data1 = await sequelize.query(userQuery, {
+            replacements: { newReputation: user.reputation + 15, userId: user.id },
+            type: Sequelize.QueryTypes.UPDATE
+        });
+
+        //log repuation history data
+        await new ReputationHistory({
+            owner_id: answer.owner_id, post_id: answer.id, user_id: payload.USER_ID,
+            post_title: answer.question.title,
+            reputation: 15, type: 'ACCEPT'
+        }).save();
+
+        BadgeService.pushIntoBadgeTopic({
+            action: "ACCEPTED_ANSWER",
+            userId: user.id, newReputation: user.reputation + 15
+        });
+        return callback(null, "Accepted answer successfully")
+    } catch (error) {
+        return callback({ errors: { name: { msg: "Failed to accept the answer, try again!" } } }, null)
     }
 }
 
