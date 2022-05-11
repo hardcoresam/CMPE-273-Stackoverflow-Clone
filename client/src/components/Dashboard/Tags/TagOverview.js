@@ -5,6 +5,8 @@ import Constants from '../../util/Constants.json'
 import axios from 'axios'
 import moment from 'moment'
 import parse from 'html-react-parser'
+import { useNavigate } from 'react-router'
+
 const TagOverview = () => {
     const { tagname } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -14,6 +16,8 @@ const TagOverview = () => {
     const [description, setdescription] = useState("");
     const [questions, setQuestions] = useState([])
     const [title, settitle] = useState("")
+    const navigate = useNavigate();
+
     useEffect(() => {
         async function getQuestionforTags() {
             // const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/?show_user_posts=${show_user_posts}&filterBy=${filterBy}`, { withCredentials: true })
@@ -22,32 +26,33 @@ const TagOverview = () => {
             setdescription(res1.data.description);
         }
         getQuestionforTags();
-    }, [])
+    }, [tagname])
     const openInteresting = async()=>{
-        // const res = await axios.get(`${Constants.uri}/api/post/dashboard/?filterBy=interesting`);
-        // dispatch(postReducer(res.data.questionsForDashboard));
-        // dispatch(titleReducer("Interesting"))
-        //  settitle("Interesting")
+        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?filterBy=interesting`);
+        setQuestions(res.data.Posts)
+         settitle("Interesting")
       }
       const openHot = async()=>{
-        // const res = await axios.get(`${Constants.uri}/api/post/dashboard/?filterBy=hot`);
-        // dispatch(postReducer(res.data.questionsForDashboard));
-        // dispatch(titleReducer("Hot"))
-        // settitle("Hot")    
+        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?filterBy=hot`);
+        console.log(res)
+        setQuestions(res.data.Posts)
+        settitle("Hot")    
       }
       const openScore = async()=>{
-        // const res = await axios.get(`${Constants.uri}/api/post/dashboard/?filterBy=score`);
-        // dispatch(postReducer(res.data.questionsForDashboard));
-        // dispatch(titleReducer("Score"))
-        // settitle("Score")
+        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?filterBy=score`);
+        setQuestions(res.data.Posts)
+        settitle("Score")
        
       }
       const openUnanswered = async()=>{
-        // const res = await axios.get(`${Constants.uri}/api/post/dashboard/?filterBy=unanswered`);
-        // dispatch(postReducer(res.data.questionsForDashboard));
-        // dispatch(titleReducer("Unanswered"))
-        // settitle("Unanswered")
+        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?filterBy=unanswered`);
+        setQuestions(res.data.Posts)
+        settitle("Unanswered")
      
+      }
+
+      const openTag = (tag) => {
+        navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=${false}`);
       }
 
     return (
@@ -58,7 +63,7 @@ const TagOverview = () => {
 
                     <Row style={{ marginBottom: "1rem", marginTop: "17px" }}><h3>Questions tagged [{tagname}]</h3></Row>
                     <Row style={{ marginBottom: "2rem" }}><text>{description}</text></Row>
-                    <Row style={{ marginBottom: "1rem" }}><Col sm={5}><h5>{questions.length} questions</h5></Col>
+                    <Row style={{ marginBottom: "1rem" }}>{questions && (<Col sm={5}><h5>{questions.length} questions</h5></Col>)}
                         <Col sm={7} style={{ marginLeft: "-3rem", marginTop: "7px" }}>
                             <button style={title == "Interesting" ? { backgroundColor: "#D0D0D0", marginRight: "1px", borderWidth: "1px" } : { backgroundColor: "white", marginRight: "1px", color: "hsl(210deg 8% 45%)", borderWidth: "1px" }} onClick={openInteresting}>Interesting</button>
                             <button style={title == "Hot" ? { backgroundColor: "#D0D0D0", marginRight: "1px", borderWidth: "1px" } : { backgroundColor: "white", color: "hsl(210deg 8% 45%)", marginRight: "1px", borderWidth: "1px" }} onClick={openHot}>Hot</button>
@@ -72,7 +77,17 @@ const TagOverview = () => {
                         <Row>
                             <Col sm={2} style={{ marginRight: "-3rem" }}>
                                 <Row style={{ marginLeft: "50px" }}>{question.score} votes</Row>
-                                <Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>
+                                <Row>
+                                    {   question.answers_count > 0 ? 
+                                            question.accepted_answer_id ? 
+                                                (<button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button>)
+                                                :
+                                                (<button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} > {question.answers_count} answers</button>)
+                                            :
+                                            <button style={{ backgroundColor: "#898989", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} > 0 answers</button>
+                                    }
+                                    
+                                </Row>
                                 <Row><span style={{ marginLeft: "50px", color: "hsl(27,90%,55%)" }}>{question.views_count} views</span></Row>
                             </Col>
                             <Col sm={1}></Col>
@@ -86,7 +101,7 @@ const TagOverview = () => {
                                     <text style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
                                 </Row>
                                 <Row>
-                                    <Col sm={6}>{question.tags.map(tag => (<Button style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
+                                    <Col sm={6}>{question.tags.map(tag => (<Button onClick={() => openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
 
                                 </Row>
                                 <Row>
