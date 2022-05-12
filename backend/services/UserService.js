@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const actions = require("../../util/kafkaActions.json");
 const { cacheGet, cacheAdd } = require("./../config/RedisClient");
+const ReputationHistory = require("../models/mongodb/ReputationHistory");
 
 exports.handle_request = (payload, callback) => {
   const { action } = payload;
@@ -35,6 +36,9 @@ exports.handle_request = (payload, callback) => {
       break;
     case actions.GET_USER_TAGS:
       getUserTags(payload, callback);
+      break;
+    case actions.GET_USER_REPUTATION_HISTORY:
+      getUserReputationHistory(payload, callback);
       break;
     case actions.GET_USER:
       getUser(payload, callback);
@@ -85,10 +89,10 @@ const login = async (payload, callback) => {
   const { email, password } = payload;
   const member = await User.findOne({ where: { email: email.toLowerCase() } });
   if (member === null) {
-    return callback({ errors: { email: { msg: `Email ${email} is not registed with us` } } }, null);
+    return callback({ errors: { email: { msg: `Email ${email} is not registered with us` } } }, null);
   }
   if (!bcrypt.compareSync(password, member.password)) {
-    return callback({ errors: { password: { msg: "Incorrect password. Please try again!" } } }, null);
+    return callback({ errors: { email: { msg: "Incorrect password. Please try again!" } } }, null);
   }
 
   const jwtPayload = { user: { id: member.id } };
@@ -126,9 +130,6 @@ const getUserProfile = async (payload, callback) => {
     } else {
       goldBadges.push(badge);
     }
-    if (bronzeBadges.length >= 3 && silverBadges.length >= 3 && goldBadges.length >= 3) {
-      break;
-    }
   }
 
   const answersCount = await Post.count({
@@ -156,9 +157,9 @@ const getUserProfile = async (payload, callback) => {
   user.setDataValue("answersCount", answersCount);
   user.setDataValue("questionsCount", questionsCount);
   user.setDataValue("userReach", userReach === null ? 0 : userReach);
-  user.setDataValue("bronzeBadges", bronzeBadges);
-  user.setDataValue("silverBadges", silverBadges);
-  user.setDataValue("goldBadges", goldBadges);
+  user.setDataValue("bronzeBadges", bronzeBadges.slice(0, 3));
+  user.setDataValue("silverBadges", silverBadges.slice(0, 3));
+  user.setDataValue("goldBadges", goldBadges.slice(0, 3));
   return callback(null, user);
 };
 
@@ -215,7 +216,13 @@ const getUserAnswers = async (payload, callback) => {
     offset: parseInt(offset),
     limit: 10
   });
-  return callback(null, userAnswers);
+  const answersCount = await Post.count({
+    where: {
+      owner_id: userId,
+      type: "ANSWER",
+    }
+  });
+  return callback(null, { userAnswers, answersCount });
 };
 
 const getUserQuestions = async (payload, callback) => {
@@ -235,17 +242,18 @@ const getUserQuestions = async (payload, callback) => {
     offset: parseInt(offset),
     limit: 10
   });
-  return callback(null, userQuestions);
+
+  const questionsCount = await Post.count({
+    where: {
+      owner_id: userId,
+      type: "QUESTION",
+    }
+  });
+  return callback(null, { userQuestions, questionsCount });
 };
 
 const getUserBookmarks = async (payload, callback) => {
   const userId = payload.params.userId;
-
-  let offset = 0;
-  if (payload.query.offset) {
-    offset = payload.query.offset
-  }
-
   const userBookmarks = await Bookmark.findAll({
     where: {
       user_id: userId,
@@ -254,9 +262,7 @@ const getUserBookmarks = async (payload, callback) => {
       model: Post,
       required: true,
     },
-    order: [["created_on", "DESC"]],
-    offset: parseInt(offset),
-    limit: 10
+    order: [["created_on", "DESC"]]
   });
   return callback(null, userBookmarks);
 };
@@ -277,6 +283,59 @@ const getUserTags = async (payload, callback) => {
   const userId = payload.params.userId;
   let userTags = await TagService.getUserActivityTags(userId, false);
   return callback(null, userTags);
+};
+
+const getUserReputationHistory = async (payload, callback) => {
+  const userId = payload.params.userId;
+  let reputationHistoryList = await ReputationHistory.find({ owner_id: userId }).sort('-created_on');
+  let response = [];
+
+  for (let reputationHistory of reputationHistoryList) {
+    let existingValue = response.find(value => value.date === reputationHistory.created_on.substring(0, 10));
+    if (existingValue) {
+      let existingHistoryObject = existingValue.history.find(h => h.postId === reputationHistory.post_id);
+      if (existingHistoryObject) {
+        existingHistoryObject.postHistoryGrouping.push({
+          type: reputationHistory.type,
+          score: reputationHistory.reputation
+        });
+        existingHistoryObject.postHistoryGroupingScore = existingHistoryObject.postHistoryGroupingScore +
+          reputationHistory.reputation;
+      } else {
+        existingValue.history.push({
+          postId: reputationHistory.post_id,
+          postTitle: reputationHistory.post_title,
+          postHistoryGrouping: [
+            {
+              type: reputationHistory.type,
+              score: reputationHistory.reputation
+            }
+          ],
+          postHistoryGroupingScore: reputationHistory.reputation
+        });
+      }
+      existingValue.totalReputation = existingValue.totalReputation + reputationHistory.reputation;
+    } else {
+      response.push({
+        date: reputationHistory.created_on.substring(0, 10),
+        totalReputation: reputationHistory.reputation,
+        history: [
+          {
+            postId: reputationHistory.post_id,
+            postTitle: reputationHistory.post_title,
+            postHistoryGrouping: [
+              {
+                type: reputationHistory.type,
+                score: reputationHistory.reputation
+              }
+            ],
+            postHistoryGroupingScore: reputationHistory.reputation
+          }
+        ]
+      });
+    }
+  }
+  return callback(null, response);
 };
 
 const getUser = async (payload, callback) => {

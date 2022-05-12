@@ -53,7 +53,7 @@ const TagCard = () => {
   }
 
   const openTag = (tag) => {
-    navigate(`/tags/${tag.name}/?show_user_posts=${false}&filterBy=${false}`);
+    navigate(`/tags/${tag.name}/?show_user_posts=${false}&filterBy=interesting`);
   }
   return (
     <div>
@@ -76,11 +76,11 @@ const TagCard = () => {
 
             <Card style={{ width: "16rem", height: "13rem", marginRight: "9px" , marginBottom:"9px"}}>
               <Card.Body style={{ fontSize: "13px" }}>
-                <Row><Col sm={3}><button className='tagButton'  onClick={() => openTag(tag)}>{tag.name}</button></Col></Row>
+                <Row><Col sm={6}><button className='tagButton'  onClick={() => openTag(tag)}>{tag.name}</button></Col></Row>
                 <Row style={{ marginTop: "1rem" }}><text className='textLimitt'>{tag.description}</text></Row>
                 <Row style={{ marginTop: "1rem" }}>
                   <Col sm={5}>{tag.no_of_questions} questions</Col>
-                  <Col>{tag.no_of_questions_asked_today} asked today {tag.no_of_questions_asked_this_week} asked this week</Col>
+                  <Col>{tag.no_of_questions_asked_today} asked today, {tag.no_of_questions_asked_this_week} this week</Col>
                 </Row>
               </Card.Body>
             </Card>

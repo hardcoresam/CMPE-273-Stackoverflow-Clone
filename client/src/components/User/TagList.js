@@ -20,8 +20,8 @@ const TagList = (props) => {
     },[])
     const arr =[1]
     const navigate = useNavigate();
-    const openTag = ()=>{
-        navigate(`/tags/${"javascript"}/?show_user_posts=${true}&filterBy=${true}`);
+    const openTag = (tag)=>{
+        navigate(`/tags/${tag}/?show_user_posts=${true}&filterBy=interesting&userid=${userid}`);
     }
 
     return (
@@ -29,20 +29,23 @@ const TagList = (props) => {
             <Row>
                 <h5>{state.length} {props.text}</h5>
             </Row>
+            <div style={{marginBottom:"2rem"}}>
             {
                 state.map((i)=>(
                     <Card>
                 <div style={{ margin: "1rem" }}>
                     <Row>
-                        <Col sm={2}><text style={{cursor:"pointer"}} onClick={openTag}>{i.name}</text></Col>
-                        <Col></Col>
+                        <Col sm={2}><button style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px",cursor:"pointer", paddingBottom: "4px", paddingLeft: "6px", paddingRight: "6px" }} onClick={() => openTag(i.name)}>{i.name}</button></Col>
+                        <Col sm={6}></Col>
                         <Col sm={2}>{i.score} Score</Col>
-                        <Col sm={2}>{i.totalPosts} Posts</Col>
+                        <Col>{i.totalPosts} Posts</Col>
                     </Row>
                 </div>
             </Card>
                 ))
             }
+            </div>
+            
             
         </div>
     )

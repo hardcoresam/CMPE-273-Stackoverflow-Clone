@@ -75,7 +75,7 @@ exports.getUserProfileTopPosts = async (req, res) => {
 exports.getUserAnswers = async (req, res) => {
   kafka.sendKafkaRequest(
     kafkaTopics.USERS_TOPIC,
-    { ...req.body,query: req.query, params: req.params, action: actions.GET_USER_ANSWERS },
+    { ...req.body, query: req.query, params: req.params, action: actions.GET_USER_ANSWERS },
     (err, data) => {
       if (err) return res.status(400).json({ message: err });
       return res.json(data);
@@ -86,7 +86,7 @@ exports.getUserAnswers = async (req, res) => {
 exports.getUserQuestions = async (req, res) => {
   kafka.sendKafkaRequest(
     kafkaTopics.USERS_TOPIC,
-    { ...req.body,query: req.query, params: req.params, action: actions.GET_USER_QUESTIONS },
+    { ...req.body, query: req.query, params: req.params, action: actions.GET_USER_QUESTIONS },
     (err, data) => {
       if (err) return res.status(400).json({ message: err });
       return res.json(data);
@@ -120,6 +120,17 @@ exports.getUserTags = async (req, res) => {
   kafka.sendKafkaRequest(
     kafkaTopics.USERS_TOPIC,
     { ...req.body, params: req.params, action: actions.GET_USER_TAGS },
+    (err, data) => {
+      if (err) return res.status(400).json({ message: err });
+      return res.json(data);
+    }
+  );
+};
+
+exports.getReputationHistory = async (req, res) => {
+  kafka.sendKafkaRequest(
+    kafkaTopics.USERS_TOPIC,
+    { ...req.body, query: req.query, params: req.params, action: actions.GET_USER_REPUTATION_HISTORY },
     (err, data) => {
       if (err) return res.status(400).json({ message: err });
       return res.json(data);
@@ -171,7 +182,7 @@ exports.editProfile = async (req, res) => {
   );
 };
 
-exports.filterByUsername = async (req,res) => {
+exports.filterByUsername = async (req, res) => {
   kafka.sendKafkaRequest(
     kafkaTopics.USERS_TOPIC,
     { ...req.body, params: req.params, action: actions.FILTER_BY_USERNAME },

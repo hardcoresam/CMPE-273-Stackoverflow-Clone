@@ -1,6 +1,6 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Col, Row } from 'react-bootstrap'
+import { Button, Card, Col, Row, Toast } from 'react-bootstrap'
 import questionlogo from '../../images/questionlogo1.PNG'
 import Constants from '../../util/Constants.json'
 import RichTextEditor,{ stateToHTML } from 'react-rte'
@@ -8,8 +8,12 @@ import AskQ from './AskQ.js'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router'
 import EditQ from './EditQ'
+import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router'
+
 // import { updatingbody } from '../../../features/QuestionBodySlice'
 const EditQuestion = () => {
+    const navigate= useNavigate();
     const obj = useSelector(state => state.QuestionBodySlice);
 
     const [questionForm,setQuestionFormData] = useState({
@@ -42,8 +46,13 @@ const EditQuestion = () => {
     const updateQuestion = async (e) => {
         e.preventDefault()
         console.log(questionForm)
-        // const res = await axios.post(`${Constants.uri}/api/post/question`,questionForm,{withCredentials:true})
-        // console.log(res)
+        const res = await axios.put(`${Constants.uri}/api/post/question/${params.questionId}`,
+        questionForm
+        ,{withCredentials:true})
+        if(res){
+            toast.success("Updated Question")
+            navigate(`/questions/${params.questionId}`)
+        }
     }
 
     const onChange = (value)=>{
@@ -78,12 +87,12 @@ const EditQuestion = () => {
                             <text>Include all the information someone would need to answer your question</text>
                             {//<RichTextEditor value={state} onChange={onChange} />
                             }
-                            <EditQ onChangeData={onChangeData} body={body} onChange={onChange}/>
+                            {body && (<EditQ onChangeData={onChangeData} body={body} onChange={onChange}/>)}
                             <Card.Title>
                                 Tags
                             </Card.Title>
                             <text>Add up to 5 tags to describe what your question is about</text>
-                            <input name="tags" value={tags} onChange={(e)=>onChangeData(e)}></input>
+                            <input disabled={true} name="tags" value={tags} ></input>
                         </div>
                     </Card>
                     <Button style={{marginTop :"20px"}} onClick={(e)=>updateQuestion(e)}>Update question</Button>

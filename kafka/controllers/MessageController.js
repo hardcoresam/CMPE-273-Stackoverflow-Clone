@@ -22,3 +22,10 @@ exports.getMessages = async (req, res) => {
         return res.json(data)
     })
 }
+
+exports.getChatList = async (req, res) => {
+    kafka.sendKafkaRequest(kafkaTopics.MESSAGES_TOPIC, { ...req.body, action: actions.GET_CHAT_LIST }, (err, data) => {
+        if (err) return res.status(400).json({ message: err })
+        return res.json(data)
+    })
+}

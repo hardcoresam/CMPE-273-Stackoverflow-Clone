@@ -11,7 +11,7 @@ class EditQ extends Component {
     };
     // dispatch = new Dispatch()
     onChange = value => {
-      this.setState({value});
+      this.setState({value})
 
       if (this.props.onChange) {
         // Send the changes up to the parent component as an HTML string.

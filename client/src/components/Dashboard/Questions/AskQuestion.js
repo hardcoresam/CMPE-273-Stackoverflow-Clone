@@ -1,5 +1,5 @@
 import axios from 'axios'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Card, Col, Row } from 'react-bootstrap'
 import questionlogo from '../../images/questionlogo1.PNG'
 import Constants from './../../util/Constants.json'
@@ -8,7 +8,9 @@ import AskQ from './AskQ.js'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router'
-// import { updatingbody } from '../../../features/QuestionBodySlice'
+import Login from './../../Login/Login'
+import Cookies from 'js-cookie'
+
 const AskQuestion = () => {
     const obj = useSelector(state => state.QuestionBodySlice);
     const [questionForm,setQuestionFormData] = useState({
@@ -20,8 +22,16 @@ const AskQuestion = () => {
     })
 
     const {title,body,tags} = questionForm
+    const [modalShow,setModalShow] = useState(false)
 
     const navigate = useNavigate()
+
+    useEffect(()=>{
+        if(!Cookies.get('ID')){
+            setModalShow(true)
+            toast('Please Login to ask a question')
+          }
+    },[])
 
     const onChangeData = async (e) => {
         e.preventDefault()
@@ -33,11 +43,24 @@ const AskQuestion = () => {
         e.preventDefault()
         // console.log(questionForm)
         console.log("posting quesrion")
-        const res = await axios.post(`${Constants.uri}/api/post/question`,questionForm,{withCredentials:true})
-        if(res){
-            toast.success("Posted new Question")
-            navigate("/Dashboard")
-        }
+
+            axios.defaults.withCredentials = true
+            const res = await axios.post(`${Constants.uri}/api/post/question`,questionForm,{
+                validateStatus: status => status < 500
+            })
+            if(res.status === 200){
+                toast.success('Posted new question successfully!', { position: "top-center" });
+                navigate("/Dashboard")
+            }else{
+                if(res.data.message.error){
+                    toast.error(`${res.data.message.error}`, { position: "top-center" });
+                }else{
+                    toast.error('Server Error',{ position: "top-center" })
+                }
+
+            }
+
+       
     }
 
     const onChange = (value)=>{
@@ -73,16 +96,22 @@ const AskQuestion = () => {
                             {//<RichTextEditor value={state} onChange={onChange} />
                             }
                             <AskQ onChangeData={onChangeData} onChange={onChange}/>
+                            <br/>
                             <Card.Title>
                                 Tags
                             </Card.Title>
                             <text>Add up to 5 tags to describe what your question is about</text>
-                            <input name="tags" value={tags} onChange={(e)=>onChangeData(e)}></input>
+                            <input name="tags" value={tags} placeholder="Eg: java,android,oop" onChange={(e)=>onChangeData(e)}></input>
                         </div>
                     </Card>
                     <Button style={{marginTop :"20px"}} onClick={(e)=>askQuestion(e)}>Post your question</Button>
                 </Col>
             </Row>
+            <Login
+                show={modalShow}
+                setModalShow={setModalShow}
+                onHide={() => setModalShow(false)}
+            />
         </div>
     )
 }

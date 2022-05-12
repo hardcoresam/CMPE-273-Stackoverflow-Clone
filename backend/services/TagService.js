@@ -50,11 +50,21 @@ exports.getUserActivityTags = async (userId, shouldLimit) => {
 
 const getQuestionsForTag = async (payload, callback) => {
   const tagName = payload.params.tagName;
+  const tagFromDb = await Tag.findOne({ where: { name: tagName } });
+  if (tagFromDb === null) {
+    return callback({ error: "Invalid tag name specified" }, null);
+  }
+  let offset = 0;
+  if (payload.query.offset) {
+    offset = payload.query.offset;
+  }
+
   const filterBy = payload.query.filterBy;
-  const show_user_posts = payload.query.show_user_posts;
+  const show_user_posts = payload.query.show_user_posts === 'true';
+  const userid = payload.query.userid;
   let whereCondition = {};
-  if (show_user_posts && payload.USER_ID) {
-    whereCondition.id = payload.USER_ID;
+  if (show_user_posts && userid) {
+    whereCondition.id = userid;
   }
   let whereStatement = {};
   if (filterBy === "unanswered") {
@@ -69,24 +79,32 @@ const getQuestionsForTag = async (payload, callback) => {
     orderBy = "modified_date";
   }
 
-  const tagQuestions = await Tag.findOne({
-    where: { name: tagName },
-    include: {
-      model: Post,
-      where: whereStatement,
-      include: [
-        {
-          model: User,
-          where: whereCondition,
-          attributes: ["id", "username", "photo", "reputation"],
-          required: true,
-        },
-      ],
-      required: true,
-    },
-    order: [[Post, orderBy, "DESC"]],
+  const tag = await Tag.findOne({
+    where: { name: tagName }
   });
-  return callback(null, tagQuestions);
+  const tagPosts = await tag.getPosts({
+    where: whereStatement,
+    include: [{
+      model: User,
+      where: whereCondition,
+      attributes: ["id", "username", "photo", "reputation"],
+      required: true
+    }],
+    offset: parseInt(offset),
+    limit: 10,
+    order: [[orderBy, "DESC"]]
+  });
+  const postsCount = await tag.countPosts({where:whereCondition})
+  let response = {
+    id: tag.id,
+    name: tag.name,
+    description: tag.description,
+    created_date: tag.created_date,
+    admin_id: tag.admin_id,
+    Posts: tagPosts !== null ? tagPosts : [],
+    postsCount: postsCount
+  };
+  return callback(null, response);
 };
 
 const createNewTag = async (payload, callback) => {

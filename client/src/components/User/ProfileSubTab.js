@@ -8,8 +8,10 @@ import Axios from 'axios'
 import { useParams } from 'react-router'
 import moment from 'moment'
 import Constants from '../util/Constants.json'
+import { useNavigate } from 'react-router'
 import { statusReducer } from '../../features/UserActivitySlice'
 const ProfileSubTab = (props) => {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const obj = useSelector(state => state.UserSlice)
     const { gold_badges_count, about, silver_badges_count, bronzeBadges, silverBadges, goldBadges, bronze_badges_count, reputation, userReach, answersCount, questionsCount } = obj.value
@@ -94,6 +96,13 @@ const ProfileSubTab = (props) => {
         props.settabflag(false)
  
     }
+
+    const openPost = (id)=>{
+        navigate(`/questions/${id}`);
+    }
+    const openTag = (tag) => {
+        navigate(`/tags/${tag}/?show_user_posts=${true}&filterBy=interesting&userid=${userid}`);
+      }
     return (
         <div>
             <Row style={{ marginTop: "1rem" }}>
@@ -127,7 +136,7 @@ const ProfileSubTab = (props) => {
                 <Col sm={2}></Col>
                 <Col sm={3} style={{ marginLeft: "-5rem" }}>
                     <h3>About</h3>
-                    <Card style={{ width: "47rem", height: "7rem", backgroundColor: "MintCream" }}>
+                    <Card style={{ width: "47rem", height: "7rem", backgroundColor: "hsl(210deg 8% 98%)" }}>
                         <Card.Body>
                             {
                                 !about ? <Row>
@@ -160,7 +169,7 @@ const ProfileSubTab = (props) => {
                                                 <Col sm={6}><img style={{ width: "5rem", height: "5rem" }} src={goldbadge}></img></Col>
 
                                                 <Col>
-                                                    <Row><text>{gold_badges_count}</text></Row>
+                                                    <Row><text style={{fontWeight:"bold"}}>{gold_badges_count}</text></Row>
                                                     <Row><text>gold badges</text></Row>
                                                 </Col>
 
@@ -168,7 +177,7 @@ const ProfileSubTab = (props) => {
                                             {
                                                 goldBadges.map((i) => (
                                                     <Row>
-                                                        <Col sm={7} style={{ fontSize: "14px" }}><text style={{ color: "gold" }}><i class="fa-solid fa-circle" style={{ fontSize: "10px" }}></i></text>{i.name}</Col>
+                                                        <Col sm={8} style={{ fontSize: "14px" }}><text style={{ color: "gold", marginLeft:"6px" }}><i class="fa-solid fa-circle" style={{ fontSize: "10px" }}></i></text> {i.name}</Col>
 
                                                         <Col style={{ fontSize: "10px" }}>{moment(i.awarded_on).fromNow()}</Col>
                                                     </Row>
@@ -180,7 +189,7 @@ const ProfileSubTab = (props) => {
                                                 <Col><img style={{ width: "5rem", height: "5rem" }} src={silverbadge}></img></Col>
 
                                                 <Col>
-                                                    <Row><text>{silver_badges_count}</text></Row>
+                                                    <Row><text style={{fontWeight:"bold"}}>{silver_badges_count}</text></Row>
                                                     <Row><text>silver badges</text></Row>
                                                 </Col>
 
@@ -188,7 +197,7 @@ const ProfileSubTab = (props) => {
                                             {
                                                 silverBadges.map((i) => (
                                                     <Row>
-                                                        <Col sm={7} style={{ fontSize: "14px" }}><text style={{ color: "silver" }}><i class="fa-solid fa-circle" style={{ fontSize: "10px" }}></i></text>{i.name}</Col>
+                                                        <Col sm={7} style={{ fontSize: "14px" }}><text style={{ color: "silver", marginLeft:"6px" }}><i class="fa-solid fa-circle" style={{ fontSize: "10px" }}></i></text> {i.name}</Col>
                                                         <Col style={{ fontSize: "10px" }}>{moment(i.awarded_on).fromNow()}</Col>
                                                     </Row>
                                                 ))
@@ -199,7 +208,7 @@ const ProfileSubTab = (props) => {
                                                 <Col sm={5}><img style={{ width: "5rem", height: "5rem" }} src={bronzebadge}></img></Col>
 
                                                 <Col>
-                                                    <Row><text>{bronze_badges_count}</text></Row>
+                                                    <Row><text style={{fontWeight:"bold"}}>{bronze_badges_count}</text></Row>
                                                     <Row><text>bronze badges</text></Row>
                                                 </Col>
 
@@ -207,7 +216,7 @@ const ProfileSubTab = (props) => {
                                             {
                                                 bronzeBadges.map((i) => (
                                                     <Row>
-                                                        <Col sm={7} style={{ fontSize: "14px" }}><text style={{ color: "bronze" }}><i class="fa-solid fa-circle" style={{ fontSize: "10px" }}></i></text>{i.name}</Col>
+                                                        <Col sm={7} style={{ fontSize: "14px" }}><text style={{ color: "bronze", marginLeft:"6px" }}> <i class="fa-solid fa-circle" style={{ fontSize: "10px" }}></i></text> {i.name}</Col>
                                                         <Col style={{ fontSize: "10px" }}>{moment(i.awarded_on).format("MMM Do YY")}</Col>
                                                     </Row>
                                                 ))
@@ -218,7 +227,7 @@ const ProfileSubTab = (props) => {
                                 </Card>
                             </div>
                             :
-                            <Card style={{ width: "47rem", height: "7rem", backgroundColor: "MintCream" }}>
+                            <Card style={{ width: "47rem", height: "7rem", backgroundColor: "hsl(210deg 8% 98%)" }}>
                                 <Card.Body>
                                     <Row>
                                         <text>You have not earned any badges.</text>
@@ -237,16 +246,16 @@ const ProfileSubTab = (props) => {
                 </Col>
                 <Col sm={2}></Col>
                 <Col sm={7} style={{ marginLeft: "-5rem", marginTop: "3rem" }}>
-                    <Row><Col sm={3}><h3>Tags</h3></Col><Col style={{ marginTop: "6px", cursor: "pointer" }}><text onClick={viewAllTags}>view all Tags</text></Col> </Row>
+                    <Row><Col sm={4}><h3>Top tags</h3></Col><Col style={{ marginTop: "6px", cursor: "pointer" }}><text onClick={viewAllTags}>view all Tags</text></Col> </Row>
 
                     {
                         toptags.map((i) => (
                             <Card style={{ width: "47rem", height: "3rem" }}>
                                 <Card.Body>
                                     <Row>
-                                        <Col>{i.name}</Col>
-                                        <Col sm={2}></Col>
-                                        <Col>{i.score} score {i.totalPosts} posts 84 posts %</Col>
+                                        <Col onClick={() => openTag(i.name)}><button style={{ padding: 0,width:"auto", fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px", cursor:"pointer"}}>{i.name}</button></Col>
+                                        <Col sm={6}></Col>
+                                        <Col>{i.score} score {i.totalPosts} posts </Col>
                                     </Row>
                                 </Card.Body>
                             </Card>
@@ -266,16 +275,16 @@ const ProfileSubTab = (props) => {
                     <Row style={{ width: "47rem" }}>
                         <Col sm={5}><h3>{newtitle} {newtitle.length != 0 ? <text></text> : <text>Top</text>}  {title}</h3></Col>
                         <Col sm={7} style={{ marginLeft: "-3rem", marginTop: "7px" }}>
-                            <button style={title == "posts" ? { border: "0", backgroundColor: "green" } : { border: "0" }} onClick={allAction}>All</button>
-                            <button style={title == "Questions" ? { border: "0", backgroundColor: "green" } : { border: "0" }} onClick={questionsAction}>Questions</button>
-                            <button style={title == "Answers" ? { border: "0", marginRight: "1rem", backgroundColor: "green" } : { border: "0", marginRight: "1rem" }} onClick={answersAction}>Answers</button>
-                            <button style={!newtitle.includes("Newest") ? { border: "0", backgroundColor: "green" } : { border: "0" }} onClick={scoreAction}>Score</button>
-                            <button style={newtitle.includes("Newest") ? { border: "0", backgroundColor: "green" } : { border: "0" }} onClick={newestAction}>Newest</button>
+                            <button style={title == "posts" ? { border: "0", backgroundColor: "rgb(239, 239, 239)" } : { border: "0" ,backgroundColor: "white"}} onClick={allAction}>All</button>
+                            <button style={title == "Questions" ? { border: "0", backgroundColor: "rgb(239, 239, 239)" } : { border: "0" ,backgroundColor: "white"}} onClick={questionsAction}>Questions</button>
+                            <button style={title == "Answers" ? { border: "0", marginRight: "1rem", backgroundColor: "rgb(239, 239, 239)" } : { border: "0", marginRight: "1rem",backgroundColor: "white" }} onClick={answersAction}>Answers</button>
+                            <button style={!newtitle.includes("Newest") ? { border: "0", backgroundColor: "rgb(239, 239, 239)" } : { border: "0" ,backgroundColor: "white"}} onClick={scoreAction}>Score</button>
+                            <button style={newtitle.includes("Newest") ? { border: "0", backgroundColor: "rgb(239, 239, 239)" } : { border: "0" ,backgroundColor: "white"}} onClick={newestAction}>Newest</button>
 
                         </Col>
 
                     </Row>
-
+                    <div style={{ marginBottom:"1rem"}}>
                     {
                         topposts.length>0 ?
                         topposts.map((i) => (
@@ -286,16 +295,18 @@ const ProfileSubTab = (props) => {
                                             <Row>
                                             {
                                                 i.type==="QUESTION" ? ( i.accepted_answer_id===null ? <Col sm={3}><i class="fa fa-question-circle" aria-hidden="true"></i></Col> :<Col sm={3}><i class="fa fa-question-circle" aria-hidden="true" style={{color:"green"}}></i></Col>) :
-                                                (i.accepted_answer_id===null ? <Col sm={3}><i class="fa-brands fa-adn"></i></Col> : <Col sm={3}><i class="fa-brands fa-adn" style={{color:"green"}}></i></Col>)
+                                                (i.id!==i.question.accepted_answer_id ? <Col sm={3}><i class="fa-brands fa-adn"></i></Col> : <Col sm={3}><i class="fa-brands fa-adn" style={{color:"green"}}></i></Col>)
                                             }
                                             {
-                                                i.accepted_answer_id===null ?<Col sm={6}><Button style={{backgroundColor:"white", color:"black", borderColor:"black"}}>{i.score}</Button></Col>:<Col sm={6}><Button variant='success'>{i.score}</Button></Col>
+                                                i.type==="QUESTION" ? ( i.accepted_answer_id===null ? <Col sm={6}><Button style={{backgroundColor:"white", color:"black", borderColor:"black"}}>{i.score}</Button></Col> :<Col sm={6}><Button variant='success'>{i.score}</Button></Col>) :
+                                                (i.id!==i.question.accepted_answer_id ? <Col sm={6}><Button style={{backgroundColor:"white", color:"black", borderColor:"black"}}>{i.score}</Button></Col> : <Col sm={6}><Button variant='success'>{i.score}</Button></Col>)
+                                                // i.accepted_answer_id===null ?<Col sm={6}><Button style={{backgroundColor:"white", color:"black", borderColor:"black"}}>{i.score}</Button></Col>:<Col sm={6}><Button variant='success'>{i.score}</Button></Col>
                                             }
                                                 
                                             </Row>
                                         </Col>
-                                        <Col sm={7}>{i.title}</Col>
-                                        <Col>{i.modified_date}</Col>
+                                        <Col style={{cursor:"pointer"}} onClick={() =>openPost(i.id)} sm={7}>{i.title}</Col>
+                                        <Col>{moment(i.modified_date).fromNow()}</Col>
                                     </Row>
                                 </Card.Body>
                             </Card>
@@ -309,7 +320,7 @@ const ProfileSubTab = (props) => {
                                 </Card.Body>
                             </Card>
                     }
-
+                    </div>
                 </Col>
             </Row>
             }

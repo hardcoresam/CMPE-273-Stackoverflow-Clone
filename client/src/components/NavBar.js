@@ -22,7 +22,7 @@ const NavBar = () => {
     const dispatch = useDispatch();
     var navigate = useNavigate();
     const userobject = useSelector(state => state.UserSlice)
-    const {photo} = userobject.value;
+    const [photo,setPhoto] = useState("");
     const obj = useSelector(state => state.login)
 
     const location = useLocation()
@@ -38,7 +38,7 @@ const NavBar = () => {
                 await axios.get(`${Constants.uri}/api/users/${Cookies.get("ID")}/profile`, {
                     withCredentials: true
                 }).then((r) => {
-                    dispatch(userReducer(r.data))
+                    setPhoto(r.data.photo)
                 })
             }
             getProfpic();

@@ -9,9 +9,9 @@ import { useNavigate } from 'react-router'
 import './styles.css'
 import parse from 'html-react-parser'
 import { clickReducer } from '../../../features/DashboardTopSlice';
-import { postReducer } from '../../../features/PostSlice'
+import { postReducer,countReducer } from '../../../features/PostSlice'
 import { useSelector } from 'react-redux'
-
+import emptyimage from '../../images/emptyimage.png'
 const MainCard = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -31,6 +31,7 @@ const MainCard = () => {
         async function getQuests() {
             const res = await axios.get(`${Constants.uri}/api/post/dashboard`)
             dispatch(postReducer(res.data.questionsForDashboard))
+            dispatch(countReducer(res.data.questionsCount))
             setTotalPages(res.data.questionsCount/10)
         }
         getQuests()
@@ -43,7 +44,7 @@ const MainCard = () => {
     }, [])
 
     const openTag = (tag) => {
-        navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=${false}`);
+        navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=interesting`);
     }
     const nextPageSet = () => {
         var list = []
@@ -91,7 +92,14 @@ const MainCard = () => {
                         <Row style={{marginTop:"-30px"}}>
                             <Col sm={2} style={{ marginRight: "-3rem" }}>
                                 <Row style={{ marginLeft: "50px" }}>{question.score} votes</Row>
-                                <Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>
+                                { question.answers_count > 0 ?
+                                    question.accepted_answer_id ? 
+                                        (<Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>) 
+                                        : 
+                                        (<Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} > {question.answers_count} answers</button></Row>)
+                                    :
+                                    (<Row><button style={{ backgroundColor: "#898989", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} > 0 answers</button></Row>)
+                                }
                                 <Row><span style={{ marginLeft: "50px", color: "hsl(27,90%,55%)" }}>{question.views_count} views</span></Row>
                             </Col>
                             <Col sm={1}></Col>
@@ -109,7 +117,7 @@ const MainCard = () => {
 
                                 </Row>
                                 <Row>
-                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
+                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo ?question.User.photo :emptyimage}></img>{question.User.username}</Link> asked,  {moment(question.created_date).format("MMM Do")} at {moment(question.created_date).format("ha")} </span>
                                 </Row>
                                 <Row>
                                     <Col><hr style={{ marginTop: "1rem", marginLeft: "-182px", marginRight:"-50px" }}></hr></Col>

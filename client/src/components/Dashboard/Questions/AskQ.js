@@ -12,7 +12,7 @@ class AskQ extends Component {
     // dispatch = new Dispatch()
     onChange = value => {
       this.setState({value});
-
+      console.log(value)
       if (this.props.onChange) {
         // Send the changes up to the parent component as an HTML string.
         // This is here to demonstrate using `.toString()` but in a real app it
@@ -29,7 +29,7 @@ class AskQ extends Component {
         <div>
           <RichTextEditor value={this.state.value} onChange={this.onChange} height={3400} />
           
-          {//this.state.value.toString("html")
+          {this.state.value.toString("html")
           }
           {
             // this.props.dispatch(updatingbody({
