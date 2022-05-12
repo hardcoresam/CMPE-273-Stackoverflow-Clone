@@ -216,7 +216,13 @@ const getUserAnswers = async (payload, callback) => {
     offset: parseInt(offset),
     limit: 10
   });
-  return callback(null, userAnswers);
+  const answersCount = await Post.count({
+    where: {
+      owner_id: userId,
+      type: "ANSWER",
+    }
+  });
+  return callback(null, { userAnswers, answersCount });
 };
 
 const getUserQuestions = async (payload, callback) => {
@@ -236,17 +242,18 @@ const getUserQuestions = async (payload, callback) => {
     offset: parseInt(offset),
     limit: 10
   });
-  return callback(null, userQuestions);
+
+  const questionsCount = await Post.count({
+    where: {
+      owner_id: userId,
+      type: "QUESTION",
+    }
+  });
+  return callback(null, { userQuestions, questionsCount });
 };
 
 const getUserBookmarks = async (payload, callback) => {
   const userId = payload.params.userId;
-
-  let offset = 0;
-  if (payload.query.offset) {
-    offset = payload.query.offset
-  }
-
   const userBookmarks = await Bookmark.findAll({
     where: {
       user_id: userId,
@@ -255,9 +262,7 @@ const getUserBookmarks = async (payload, callback) => {
       model: Post,
       required: true,
     },
-    order: [["created_on", "DESC"]],
-    offset: parseInt(offset),
-    limit: 10
+    order: [["created_on", "DESC"]]
   });
   return callback(null, userBookmarks);
 };

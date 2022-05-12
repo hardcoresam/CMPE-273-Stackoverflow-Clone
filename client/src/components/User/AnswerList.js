@@ -10,25 +10,47 @@ const AnswerList = (props) => {
     const { userid } = useParams();
     const navigate = useNavigate();
     const [state, setstate] = useState([]);
+
+    const [totalAnswers,setTotalAnswers] = useState(0)
+    const [totalPages,setTotalPages] = useState(0)
+    const [pageCount, setPageCount] = useState([])
+    const [startOffset, setStartOffset] = useState(1)
+    const [endOffset, setEndOffset] = useState(5)
+
     useEffect(() => {
         async function getAnswers() {
             await Axios.get(`${Constants.uri}/api/users/${userid}/activity/answers`, {
                 withCredentials: true
             }).then((r) => {
-                setstate(r.data)
+                setTotalAnswers(r.data.answersCount)
+                setTotalPages(r.data.answersCount/10)
+                setstate(r.data.userAnswers)
+
+                var list = []
+                if((r.data.answersCount/10) < 10){
+                    let end
+                    if(r.data.answersCount % 10 == 0){
+                       end = r.data.answersCount / 10 
+                    }else{
+                        end = r.data.answersCount /10 + 1;
+                    }
+                    setEndOffset(end)
+                    for (var i = startOffset; i <= end; i++) {
+                        list.push(i)
+                    }
+                }else{
+                    setEndOffset(10)
+                    for (var i = startOffset; i <= 10; i++) {
+                        list.push(i)
+                    }
+                }
+                setPageCount(list)
             })
         }
         getAnswers()
-        var list = []
-        for (var i = startOffset; i <= endOffset; i++) {
-            list.push(i)
-        }
-        setPageCount(list)
     }, [])
 
-    const [pageCount, setPageCount] = useState([])
-    const [startOffset, setStartOffset] = useState(1)
-    const [endOffset, setEndOffset] = useState(5)
+
 
     const openQuestion = (id) => {
         navigate(`/questions/${id}`);
@@ -43,36 +65,44 @@ const AnswerList = (props) => {
 
     const nextPageSet = () => {
         var list = []
-        for (var i = startOffset + 15; i <= endOffset + 15; i++) {
-            list.push(i)
-        }
-        setPageCount(list)
-        setStartOffset(startOffset + 15)
-        setEndOffset(endOffset + 15)
-    }
-
-    const previousPageSet = () => {
-        if (startOffset >= 15) {
-            var list = []
-            for (var i = startOffset - 15; i <= endOffset - 15; i++) {
+        if(endOffset + 10 <= totalPages){
+            for (var i = startOffset+10; i <= endOffset+10; i++) {
                 list.push(i)
             }
             setPageCount(list)
-            setStartOffset(startOffset - 15)
-            setEndOffset(endOffset - 15)
+            setStartOffset(startOffset+10)
+            setEndOffset(endOffset+10)
+        }else if(endOffset+10 > totalPages && endOffset < totalPages){
+            for (var i = startOffset+10; i <= totalPages; i++) {
+                list.push(i)
+            }
+            setPageCount(list)
+            setStartOffset(startOffset+10)
+            setEndOffset(totalPages)
+        }
+    }
+
+    const previousPageSet = () => {
+        if (startOffset >= 10) {
+            var list = []
+            for (var i = startOffset - 10; i <= endOffset - 10; i++) {
+                list.push(i)
+            }
+            setPageCount(list)
+            setStartOffset(startOffset - 10)
+            setEndOffset(endOffset - 10)
         }
     }
     const handlePage = async (index) => {
 
         const res = await Axios.get(`${Constants.uri}/api/users/${userid}/activity/answers?offset=${10 * (index - 1)}`)
-        // dispatch(postReducer(res.data.questionsForDashboard))
-        setstate(res.data);
+        setstate(res.data.userAnswers);
     }
 
     return (
         <div>
             <Row>
-                <h5>{state.length} {props.text}</h5>
+                <h5>{totalAnswers} {props.text}</h5>
             </Row>
             {
                 state.map((i) => (

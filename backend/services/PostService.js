@@ -58,9 +58,15 @@ exports.handle_request = (payload, callback) => {
 };
 
 const createQuestion = async (payload, callback) => {
-
-    let tags = payload.tags
-    var tagArr = tags.split(',');
+    let tags = payload.tags;
+    var tagArr = tags.split(',').map(item => item.trim());
+    payload.tags = tagArr.join(',');
+    for (let tag of tagArr) {
+        const tagFromDb = await Tag.findOne({ where: { name: tag } });
+        if (tagFromDb === null) {
+            return callback({ error: `Invalid tag name ${tag} specified` }, null);
+        }
+    }
 
     let status = (payload.isImage) ? "PENDING" : "ACTIVE"
     const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
@@ -89,11 +95,12 @@ const createQuestion = async (payload, callback) => {
 }
 
 const createAnswer = async (payload, callback) => {
-
+    const question_answers_count = payload.answers_count;
+    payload.answers_count = 0;
     const newAnswer = await new Post({ ...payload, owner_id: payload.USER_ID }).save();
     let sqlQuery = "update post set answers_count = :answerCount where id = :questionId"
     await sequelize.query(sqlQuery, {
-        replacements: { answerCount: payload.answers_count + 1, questionId: payload.parent_id },
+        replacements: { answerCount: question_answers_count + 1, questionId: payload.parent_id },
         type: Sequelize.QueryTypes.UPDATE
     });
 
@@ -359,7 +366,7 @@ const addReputationHistory = async (post, user_id, voteType) => {
 
 const postActivity = async (payload, callback) => {
     const postId = payload.params.postId
-    const postHistory = await PostHistory.find({ post_id: postId }).exec()
+    const postHistory = await PostHistory.find({ post_id: postId }).sort('-created_on')
     return callback(null, postHistory)
 }
 

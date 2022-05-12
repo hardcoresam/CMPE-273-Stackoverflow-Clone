@@ -68,10 +68,23 @@ const AdminDashboard = () => {
 
   const addTag = async (e) => {
     e.preventDefault()
-    const res = await axios.post(`${Constants.uri}/api/admin/new-tag`, tagForm, { withCredentials: true })
-    if (res) {
+    axios.defaults.withCredentials = true
+    const res = await axios.post(`${Constants.uri}/api/admin/new-tag`, tagForm,
+      {
+        validateStatus: status => status < 500
+      })
+
+
+    if (res.status === 200) {
       setmodal(false)
-      toast.success(`Created new tag, ${name}`)
+      toast.success(`Created new tag, ${name}`, { position: "top-center" })
+    } else {
+      if (res.data.message.error) {
+        toast.error(`${res.data.message.error}`, { position: "top-center" });
+      } else {
+        toast.error('Server Error', { position: "top-center" })
+      }
+
     }
   }
 
@@ -272,8 +285,8 @@ const AdminDashboard = () => {
 
     }
 
-    async function getPendingApprovalQuestions(){
-      const res = await axios.get(`${Constants.uri}/api/admin/pending-approval`,{withCredentials:true})
+    async function getPendingApprovalQuestions() {
+      const res = await axios.get(`${Constants.uri}/api/admin/pending-approval`, { withCredentials: true })
       setPendingApprovals(res.data)
     }
 
@@ -281,13 +294,13 @@ const AdminDashboard = () => {
     getPendingApprovalQuestions()
   }, [])
 
-  const approveQuestion = async (id,approve) => {
-    const res = await axios.post(`${Constants.uri}/api/admin/approve`,{id,approve},{withCredentials:true})
-    if(res && approve){
+  const approveQuestion = async (id, approve) => {
+    const res = await axios.post(`${Constants.uri}/api/admin/approve`, { id, approve }, { withCredentials: true })
+    if (res && approve) {
       toast.success('Aprroved the question')
       window.location.reload()
     }
-    if(res && !approve){
+    if (res && !approve) {
       toast.success("Question Rejected, Status: closed")
       window.location.reload()
     }
@@ -367,11 +380,11 @@ const AdminDashboard = () => {
 
         </div> :
           <div>
-            <br/>
-            <Row style={{marginLeft:'20%',marginRight:"20%"}}>
+            <br />
+            <Row style={{ marginLeft: '20%', marginRight: "20%" }}>
               <Col>
-                <h4 style={{textAlign:'center'}}>Pending Approvals</h4>
-                <br/>
+                <h4 style={{ textAlign: 'center' }}>Pending Approvals</h4>
+                <br />
                 {pendingApprovals ? (
                   <>
                     {pendingApprovals.map(pending => (
@@ -379,8 +392,8 @@ const AdminDashboard = () => {
                         <Row>
                           <Col sm={6}>{pending.title}</Col>
                           <Col sm={2}>Posted {moment(pending.created_date).fromNow()}</Col>
-                          <Col sm={2}><Button className='btn btn-success rounded-pill' onClick={()=>approveQuestion(pending.id,true)}>Approve</Button></Col>
-                          <Col sm={2}><Button className='btn btn-danger rounded-pill'  onClick={()=>approveQuestion(pending.id,false)}>Reject</Button></Col>
+                          <Col sm={2}><Button className='btn btn-success rounded-pill' onClick={() => approveQuestion(pending.id, true)}>Approve</Button></Col>
+                          <Col sm={2}><Button className='btn btn-danger rounded-pill' onClick={() => approveQuestion(pending.id, false)}>Reject</Button></Col>
                         </Row>
                         <hr />
                       </>
