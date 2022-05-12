@@ -20,15 +20,7 @@ const BookmarkList = (props) => {
           })
           }
          getBookmarks()  
-         var list = []
-        for (var i = startOffset; i <= endOffset; i++) {
-            list.push(i)
-        }
-        setPageCount(list)
     },[])
-    const [pageCount, setPageCount] = useState([])
-    const [startOffset, setStartOffset] = useState(1)
-    const [endOffset, setEndOffset] = useState(5)
 
     const openQuestion = (id) => {
         navigate(`/questions/${id}`);
@@ -37,33 +29,6 @@ const BookmarkList = (props) => {
         navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=interesting`);
     }
 
-    const nextPageSet = () => {
-        var list = []
-        for (var i = startOffset+15; i <= endOffset+15; i++) {
-            list.push(i)
-        }
-        setPageCount(list)
-        setStartOffset(startOffset+15)
-        setEndOffset(endOffset+15)
-    }
-
-    const previousPageSet = () => {
-        if(startOffset >= 15){
-            var list = []
-            for (var i = startOffset-15; i <= endOffset-15; i++) {
-                list.push(i)
-            }
-            setPageCount(list)
-            setStartOffset(startOffset-15)
-            setEndOffset(endOffset-15)
-        }
-    }
-    const handlePage = async (index) => {
-        
-        const res = await Axios.get(`${Constants.uri}/api/users/${userid}/activity/bookmarks?offset=${10*(index-1)}`)
-        // dispatch(postReducer(res.data.questionsForDashboard))
-        setstate(res.data);
-    }
     return (
         <div>
             <Row>
@@ -95,16 +60,6 @@ const BookmarkList = (props) => {
                     </Card>
                 ))
             }
-
-            <Pagination style={{marginLeft:"24rem"}}>
-                <Pagination.First onClick={() => previousPageSet()} />
-
-                {pageCount.map(item => (
-                   <Pagination.Item onClick={() => handlePage(item)}>{item}</Pagination.Item>
-                ))
-            }
-                <Pagination.Last onClick={() => nextPageSet()} />
-            </Pagination>
 
         </div>
     )

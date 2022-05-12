@@ -43,11 +43,24 @@ const AskQuestion = () => {
         e.preventDefault()
         // console.log(questionForm)
         console.log("posting quesrion")
-        const res = await axios.post(`${Constants.uri}/api/post/question`,questionForm,{withCredentials:true})
-        if(res){
-            toast.success("Posted new Question")
-            navigate("/Dashboard")
-        }
+
+            axios.defaults.withCredentials = true
+            const res = await axios.post(`${Constants.uri}/api/post/question`,questionForm,{
+                validateStatus: status => status < 500
+            })
+            if(res.status === 200){
+                toast.success('Posted new question successfully!', { position: "top-center" });
+                navigate("/Dashboard")
+            }else{
+                if(res.data.message.error){
+                    toast.error(`${res.data.message.error}`, { position: "top-center" });
+                }else{
+                    toast.error('Server Error',{ position: "top-center" })
+                }
+
+            }
+
+       
     }
 
     const onChange = (value)=>{

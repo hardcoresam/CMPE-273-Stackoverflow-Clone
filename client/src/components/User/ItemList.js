@@ -15,22 +15,42 @@ const ItemList = (props) => {
     const [startOffset, setStartOffset] = useState(1)
     const [endOffset, setEndOffset] = useState(5)
     const [state, setstate] = useState([]);
+    const [totalQuestions, setTotalQuestions] = useState(0)
+    const [totalPages, setTotalPages] = useState(0)
 
     useEffect(() => {
         async function getBookmarks() {
             await Axios.get(`${Constants.uri}/api/users/${userid}/activity/questions`, {
                 withCredentials: true
             }).then((r) => {
-                console.log(r)
-                setstate(r.data)
+                setTotalQuestions(r.data.questionsCount)
+
+                setTotalPages(r.data.questionsCount / 10)
+
+
+                setstate(r.data.userQuestions)
+                var list = []
+                if ((r.data.questionsCount / 10) < 10) {
+                    let end
+                    if(r.data.questionsCount % 10 == 0){
+                       end = r.data.questionsCount / 10 
+                    }else{
+                        end = r.data.questionsCount /10 + 1;
+                    }
+                    setEndOffset(end)
+                    for (var i = startOffset; i <= end; i++) {
+                        list.push(i)
+                    }
+                } else {
+                    setEndOffset(10)
+                    for (var i = startOffset; i <= 10; i++) {
+                        list.push(i)
+                    }
+                }
+                setPageCount(list)
             })
         }
         getBookmarks()
-        var list = []
-        for (var i = startOffset; i <= endOffset; i++) {
-            list.push(i)
-        }
-        setPageCount(list)
     }, [])
     const navigate = useNavigate();
     const openQuestion = (id) => {
@@ -43,36 +63,45 @@ const ItemList = (props) => {
 
     const nextPageSet = () => {
         var list = []
-        for (var i = startOffset + 15; i <= endOffset + 15; i++) {
-            list.push(i)
-        }
-        setPageCount(list)
-        setStartOffset(startOffset + 15)
-        setEndOffset(endOffset + 15)
-    }
-
-    const previousPageSet = () => {
-        if (startOffset >= 15) {
-            var list = []
-            for (var i = startOffset - 15; i <= endOffset - 15; i++) {
+        if (endOffset + 10 <= totalPages) {
+            for (var i = startOffset + 10; i <= endOffset + 10; i++) {
                 list.push(i)
             }
             setPageCount(list)
-            setStartOffset(startOffset - 15)
-            setEndOffset(endOffset - 15)
+            setStartOffset(startOffset + 10)
+            setEndOffset(endOffset + 10)
+        } else if (endOffset + 10 > totalPages && endOffset < totalPages) {
+            for (var i = startOffset + 10; i <= totalPages; i++) {
+                list.push(i)
+            }
+            setPageCount(list)
+            setStartOffset(startOffset + 10)
+            setEndOffset(totalPages)
+        }
+    }
+
+    const previousPageSet = () => {
+        if (startOffset >= 10) {
+            var list = []
+            for (var i = startOffset - 10; i <= endOffset - 10; i++) {
+                list.push(i)
+            }
+            setPageCount(list)
+            setStartOffset(startOffset - 10)
+            setEndOffset(endOffset - 10)
         }
     }
     const handlePage = async (index) => {
 
         const res = await Axios.get(`${Constants.uri}/api/users/${userid}/activity/questions?offset=${10 * (index - 1)}`)
         // dispatch(postReducer(res.data.questionsForDashboard))
-        setstate(res.data);
+        setstate(res.data.userQuestions);
     }
 
     return (
         <div>
             <Row>
-                <h5>{state.length} {props.text}</h5>
+                <h5>{totalQuestions} {props.text}</h5>
             </Row>
             {
                 state.map((i) => (
@@ -101,7 +130,7 @@ const ItemList = (props) => {
                     </Card>
                 ))
             }
-            <Pagination style={{ marginLeft: "24rem" }}>
+            <Pagination>
                 <Pagination.First onClick={() => previousPageSet()} />
 
                 {pageCount.map(item => (
