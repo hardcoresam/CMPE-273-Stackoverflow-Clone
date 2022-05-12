@@ -30,3 +30,5 @@ app.use("/api/tags", require("./routes/tagRoutes"));
 app.listen(PORT, (req, res) => {
   console.log("Kafka middleare ");
 });
+
+module.exports = app
