@@ -21,6 +21,10 @@ exports.createUser = async (req, res) => {
         maxAge: 9000000,
         httpOnly: false,
       });
+      res.cookie("Username", data.newMember.username, {
+        maxAge: 9000000,
+        httpOnly: false,
+      });
       return res.json(data);
     }
   );
@@ -37,6 +41,10 @@ exports.login = async (req, res) => {
         httpOnly: false,
       });
       res.cookie("ID", data.member.id, {
+        maxAge: 9000000,
+        httpOnly: false,
+      });
+      res.cookie("Username", data.member.username, {
         maxAge: 9000000,
         httpOnly: false,
       });

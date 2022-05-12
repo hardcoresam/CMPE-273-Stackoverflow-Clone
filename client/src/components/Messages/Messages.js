@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router'
 import { useSelector } from 'react-redux'
 import axios from 'axios'
 import Constants from './../util/Constants.json'
-
+import Cookies from 'js-cookie'
 
 const Messages = () => {
 
@@ -16,8 +16,8 @@ const Messages = () => {
 
     const [usersList,setUsersList] = useState([])
 
-    const obj = useSelector(state => state.UserSlice)
-    const { username } = obj.value
+    const  username  = Cookies.get("Username")
+    
     useEffect(() => {
         async function getChatList() {
             const res = await axios.post(`${Constants.uri}/api/chat/getChatList`, { username }, { withCredentials: true })
