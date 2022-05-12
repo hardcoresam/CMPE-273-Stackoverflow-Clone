@@ -54,6 +54,11 @@ const getQuestionsForTag = async (payload, callback) => {
   if (tagFromDb === null) {
     return callback({ error: "Invalid tag name specified" }, null);
   }
+  let offset = 0;
+  if (payload.query.offset) {
+    offset = payload.query.offset;
+  }
+
   const filterBy = payload.query.filterBy;
   const show_user_posts = payload.query.show_user_posts === 'true';
   const userid = payload.query.userid;
