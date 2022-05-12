@@ -94,13 +94,15 @@ const getQuestionsForTag = async (payload, callback) => {
     limit: 10,
     order: [[orderBy, "DESC"]]
   });
+  const postsCount = await tag.countPosts({where:whereCondition})
   let response = {
     id: tag.id,
     name: tag.name,
     description: tag.description,
     created_date: tag.created_date,
     admin_id: tag.admin_id,
-    Posts: tagPosts !== null ? tagPosts : []
+    Posts: tagPosts !== null ? tagPosts : [],
+    postsCount: postsCount
   };
   return callback(null, response);
 };
