@@ -46,6 +46,7 @@ const QuestionOverview = () => {
   const [flag, setFlag] = useState(true)
   const [approveanswer, setpproveAnswer] = useState(false)
   const [acceptanswer, setacceptAnswer] = useState(false)
+  const [answerCommentForm, setAnswerCommentForm] = useState("")
   const { title, body } = answerForm
 
   const [modalShow, setModalShow] = useState(false)
@@ -110,6 +111,35 @@ const QuestionOverview = () => {
 
   const addComment = async () => {
     const res = await axios.post(`${Constants.uri}/api/post/${question.id}/comment`, { content: commentForm }, { withCredentials: true })
+    window.location.reload()
+  }
+
+  const enableAnswerComment = async (answer) => {
+    let anslist = []
+    answers.map(ans => {
+      if (ans == answer) {
+        ans.enableAnswerComment = true
+        ans.commentValue = ""
+      }
+      anslist.push(ans)
+    })
+    setAnswers(anslist)
+  }
+
+  const onChangeAnswerComment = (e, ans) => {
+    e.preventDefault()
+    let answerscopy = [...answers]
+    let requiredAnswer = { ...answerscopy[answerscopy.indexOf(ans)] }
+    requiredAnswer.commentValue = e.target.value
+    answerscopy[answerscopy.indexOf(ans)] = requiredAnswer
+    setAnswers(answerscopy)
+  }
+
+  const addAnswerComment = async (answer) => {
+    const res = await axios.post(`${Constants.uri}/api/post/${answer.id}/comment`, { content: answer.commentValue }, { withCredentials: true })
+    if (res) {
+      toast.success("Added your comment", { position: "top-center" })
+    }
     window.location.reload()
   }
 
@@ -222,7 +252,7 @@ const QuestionOverview = () => {
                           <span className='text-muted' style={{ fontSize: 13 }}>{comment.content}</span>
                         </Col>
                         <Col sm={1}><Link to={`/User/${comment.user_id}`} style={{ textDecoration: "none", fontSize: 11 }}>{comment.user_display_name}</Link></Col>
-                        <Col><span style={{ textDecoration: "none", fontSize: 11 }}>{comment.posted_on}</span></Col>
+                        <Col><span style={{ textDecoration: "none", fontSize: 11 }}>{comment.posted_on.split('T')[0]}</span></Col>
                         <hr />
                       </>
                     ))}
@@ -265,21 +295,35 @@ const QuestionOverview = () => {
                         {parse(answer.body)}
                       </text>
                     </Card>
-                    <Row>
+                    <br/>
+                    <Row style={{marginLeft:60,marginRight:5}}>
+                      {answer.Comments && answer.Comments.length > 0 && answer.Comments.map(comment => (
+                        <>
+                          <Col sm={8}>
+                            <span className='text-muted' style={{ fontSize: 13 }}>{comment.content}</span>
+                          </Col>
+                          <Col sm={2}><Link to={`/User/${comment.user_id}`} style={{ textDecoration: "none", fontSize: 11 }}>{comment.user_display_name}</Link></Col>
+                          <Col><span style={{ textDecoration: "none", fontSize: 11 }}>{comment.posted_on.split('T')[0]}</span></Col>
+                          <hr />
+                        </>
+                      ))}
+                    </Row>
+                    <Row style={{marginLeft:60}}>
                       <Col sm={9}>
                         <Row>
-                          <span className='text-muted' style={{ fontSize: 12, cursor: 'pointer' }} onClick={() => setEnableComment(true)}>Add a comment</span>
-                          {enableComment && (
+                          <span className='text-muted' style={{ fontSize: 12, cursor: 'pointer' }} onClick={() => enableAnswerComment(answer)}>Add your comment</span>
+                          {answer.enableAnswerComment ? (
                             <>
-                              <span><textarea name="comment" value={commentForm} onChange={(e) => setCommentForm(e.target.value)} /></span>
-                              <span><Button className='btn btn-secondary' onClick={() => addComment()} style={{ padding: 0 }}>Post</Button></span>
+                              <span><textarea value={answer.commentValue} onChange={(e) => onChangeAnswerComment(e, answer)} /></span>
+                              <span><Button className='btn btn-secondary' onClick={() => addAnswerComment(answer)} style={{ padding: 0 }}>Post</Button></span>
                             </>
-                          )}
+                          ) : <></>}
                         </Row>
                       </Col>
-                     
+
 
                     </Row>
+                    <br/>
                   </Col>
                   <Col>
                     <Card style={{ padding: "3px" }}>
@@ -306,7 +350,7 @@ const QuestionOverview = () => {
               </Col>
               <hr style={{ marginLeft: "14rem", width: "60rem", marginTop: "8px", marginBottom: "1rem" }} />
             </Row>
-
+            
           ))
         }
 
