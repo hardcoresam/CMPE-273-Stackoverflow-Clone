@@ -18,6 +18,7 @@ const Search = () => {
     const orderBy = searchParams.get("orderBy");
     const [data, setData] = useState({})
     const [questions, setQuestions] = useState([])
+    const [searchOptionsString,setSearchOptionsString] = useState("")
 
     const [pageCount, setPageCount] = useState([])
     const [startOffset, setStartOffset] = useState(1)
@@ -32,6 +33,7 @@ const Search = () => {
             setData(res1.data)
             setQuestions(res1.data.posts)
             setTotalPages(res1.data.postsCount / 10)
+            setSearchOptionsString(res1.data.searchOptionsString)
 
             var list = []
             if((res1.data.postsCount/10) < 15){
@@ -126,8 +128,8 @@ const Search = () => {
                                 <span><span style={{ fontWeight: 'bold' }}>{data.postsCount}</span> Results Found</span>
                             </Col>
                             <Col style={{ marginRight: "48px" }} sm={5}><span>{data.resultString}</span></Col>
-                            <Col sm={4} style={{ marginLeft: "-3rem", marginTop: "7px", textAlign: 'right' }}>
-
+                            <Col sm={4} style={{ marginLeft: "-3rem", marginTop: "7px", fontSize:12, textAlign: 'right' }}>
+                                <span>{searchOptionsString}</span>
                             </Col>
                         </Row>
                     </div>
