@@ -162,6 +162,18 @@ const QuestionOverview = () => {
     }
   }
 
+  const voteAnswer = async (answer,voteType) => {
+    const res = await axios.post(`${Constants.uri}/api/post/${answer.id}/vote`, { type: voteType }, { withCredentials: true })
+    console.log(res.data)
+    if (res.data) {
+      setFlag(!flag)
+      if (voteType == "UPVOTE")
+        toast.success("Up voted the answer")
+      else
+        toast.success("Down voted the answer")
+    }
+  }
+
   const acceptAnswer = async (answer) => {
     const res = await axios.post(`${Constants.uri}/api/post/acceptAnswer`, { answerId: answer.id }, { withCredentials: true })
     console.log(res)
@@ -282,9 +294,9 @@ const QuestionOverview = () => {
 
                 <Row style={{ marginTop: "1rem" }}>
                   <Col sm={1}>
-                    <div className='uptriangle'></div>
+                    <div className='uptriangle' onClick={()=>voteAnswer(answer,"UPVOTE")}></div>
                     <div style={{ marginLeft: "10px" }}>{answer.score}</div>
-                    <div className='downtriangle'></div>
+                    <div className='downtriangle' onClick={()=>voteAnswer(answer,"DOWNVOTE")}></div>
                     {question.accepted_answer_id == answer.id && (
                       <div style={{ color: 'green', fontSize: 30 }}><i class="fa fa-check" aria-hidden="true"></i></div>
                     )}
