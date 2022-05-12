@@ -31,14 +31,29 @@ const createChatRoom = async (payload, callback) => {
     if (existingchatroom !== null) {
         return callback({ errors: { msg : "Chat Room exists"} }, null);
     }
+
+    const RoomId = uuid()
+
     const room = new MessageRoom({
-        room_id:uuid(),
+        room_id:RoomId,
         participants
     })
 
     room.save((err,data) => {
         if(err) return callback({errors: {msg: "Error crearing new Chat room"}},null)
-        return callback(null,data)
+        const message= new Message({
+            room_id:RoomId,
+            from: user1,
+            to: user2,
+            message:"Started a new Chat",
+            timestamp:Date.now()
+        })
+        console.log("new msg saved")
+        message.save((err,data) => {
+            if(err) return callback({errors: {msg: "Error sending a Message!!"}},null)
+            console.log("--new message sent---")
+            return callback(null,data)
+        })
     })
   
 }

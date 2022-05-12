@@ -56,9 +56,10 @@ const getQuestionsForTag = async (payload, callback) => {
   }
   const filterBy = payload.query.filterBy;
   const show_user_posts = payload.query.show_user_posts === 'true';
+  const userid = payload.query.userid;
   let whereCondition = {};
-  if (show_user_posts && payload.USER_ID) {
-    whereCondition.id = payload.USER_ID;
+  if (show_user_posts && userid) {
+    whereCondition.id = userid;
   }
   let whereStatement = {};
   if (filterBy === "unanswered") {
