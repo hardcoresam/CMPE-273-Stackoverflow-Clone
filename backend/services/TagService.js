@@ -79,24 +79,30 @@ const getQuestionsForTag = async (payload, callback) => {
     orderBy = "modified_date";
   }
 
-  const tagQuestions = await Tag.findOne({
-    where: { name: tagName },
-    include: {
-      model: Post,
-      where: whereStatement,
-      include: [
-        {
-          model: User,
-          where: whereCondition,
-          attributes: ["id", "username", "photo", "reputation"],
-          required: true
-        }
-      ],
-      required: true
-    },
-    order: [[Post, orderBy, "DESC"]]
+  const tag = await Tag.findOne({
+    where: { name: tagName }
   });
-  return callback(null, tagQuestions !== null ? tagQuestions : []);
+  const tagPosts = await tag.getPosts({
+    where: whereStatement,
+    include: [{
+      model: User,
+      where: whereCondition,
+      attributes: ["id", "username", "photo", "reputation"],
+      required: true
+    }],
+    offset: parseInt(offset),
+    limit: 10,
+    order: [[orderBy, "DESC"]]
+  });
+  let response = {
+    id: tag.id,
+    name: tag.name,
+    description: tag.description,
+    created_date: tag.created_date,
+    admin_id: tag.admin_id,
+    Posts: tagPosts !== null ? tagPosts : []
+  };
+  return callback(null, response);
 };
 
 const createNewTag = async (payload, callback) => {
