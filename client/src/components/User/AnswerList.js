@@ -80,9 +80,9 @@ const AnswerList = (props) => {
                         <div style={{ margin: "1rem" }}>
                             <Row>
                                 <Col sm={2}><text>{i.score} votes</text></Col>
-                                {i.question.accepted_answer_id === i.id && <Col><Button style={{ backgroundColor: "hsl(140deg 40% 47%)", color: "white", marginTop: "-10px", border: "0" , fontSize:"12px"}}><i style={{ color: "white" }} class="fa-solid fa-check"></i> Accepted</Button></Col>}
+                                {i.question.accepted_answer_id === i.id && <Col><Button style={{ backgroundColor: "hsl(140deg 40% 47%)", color: "white",cursor:"default", marginTop: "-10px", border: "0" , fontSize:"12px"}}><i style={{ color: "white" }} class="fa-solid fa-check"></i> Accepted</Button></Col>}
                             </Row>
-                            <Row><text style={{ color: "hsl(206deg 100% 40%)", fontSize: "14px" }} onClick={() => openQuestion(i.question.id)}>{i.question.title}</text></Row>
+                            <Row><text style={{ color: "hsl(206deg 100% 40%)", fontSize: "14px", cursor:"pointer" }} onClick={() => openQuestion(i.question.id)}>{i.question.title}</text></Row>
                             <Row style={{marginLeft:"-22px"}}>
                                 <Col sm={7}>
                                     {i.question.tags.map((obj) => (

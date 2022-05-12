@@ -1,4 +1,4 @@
-import React,{useState,useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import { Row, Col, Card, Button, Pagination } from 'react-bootstrap'
 import { useNavigate } from 'react-router'
 import moment from 'moment'
@@ -14,24 +14,24 @@ const ItemList = (props) => {
     const [pageCount, setPageCount] = useState([])
     const [startOffset, setStartOffset] = useState(1)
     const [endOffset, setEndOffset] = useState(5)
-    const [state,setstate] = useState([]);
+    const [state, setstate] = useState([]);
 
-    useEffect(()=>{
-        async function getBookmarks(){
+    useEffect(() => {
+        async function getBookmarks() {
             await Axios.get(`${Constants.uri}/api/users/${userid}/activity/questions`, {
-              withCredentials: true
-          }).then((r) => {
-              console.log(r)
-              setstate(r.data)
-          })
-          }
-         getBookmarks()  
-         var list = []
+                withCredentials: true
+            }).then((r) => {
+                console.log(r)
+                setstate(r.data)
+            })
+        }
+        getBookmarks()
+        var list = []
         for (var i = startOffset; i <= endOffset; i++) {
             list.push(i)
         }
         setPageCount(list)
-    },[])
+    }, [])
     const navigate = useNavigate();
     const openQuestion = (id) => {
         // console.log(id)
@@ -43,28 +43,28 @@ const ItemList = (props) => {
 
     const nextPageSet = () => {
         var list = []
-        for (var i = startOffset+15; i <= endOffset+15; i++) {
+        for (var i = startOffset + 15; i <= endOffset + 15; i++) {
             list.push(i)
         }
         setPageCount(list)
-        setStartOffset(startOffset+15)
-        setEndOffset(endOffset+15)
+        setStartOffset(startOffset + 15)
+        setEndOffset(endOffset + 15)
     }
 
     const previousPageSet = () => {
-        if(startOffset >= 15){
+        if (startOffset >= 15) {
             var list = []
-            for (var i = startOffset-15; i <= endOffset-15; i++) {
+            for (var i = startOffset - 15; i <= endOffset - 15; i++) {
                 list.push(i)
             }
             setPageCount(list)
-            setStartOffset(startOffset-15)
-            setEndOffset(endOffset-15)
+            setStartOffset(startOffset - 15)
+            setEndOffset(endOffset - 15)
         }
     }
     const handlePage = async (index) => {
-        
-        const res = await Axios.get(`${Constants.uri}/api/users/${userid}/activity/questions?offset=${10*(index-1)}`)
+
+        const res = await Axios.get(`${Constants.uri}/api/users/${userid}/activity/questions?offset=${10 * (index - 1)}`)
         // dispatch(postReducer(res.data.questionsForDashboard))
         setstate(res.data);
     }
@@ -79,13 +79,13 @@ const ItemList = (props) => {
                     <Card>
                         <div style={{ margin: "1rem" }}>
                             <Row>
-                                <Col sm={2}><text style={{fontSize:"15px"}}>{i.score} votes</text></Col>
-                                {i.accepted_answer_id && <Col sm={3}><Button style={{marginLeft:"-30px", backgroundColor: "hsl(140deg 40% 47%)", color: "white", marginTop: "-10px", border: "0" , fontSize:"12px"}}><i style={{ color: "white" }} class="fa-solid fa-check"></i> Accepted</Button></Col>}
-                                <Col sm={2}><text style={{fontSize: 13, color: "hsl(205deg 47% 42%)", marginLeft:"-90px"}}>{i.views_count} views</text></Col>
+                                {i.accepted_answer_id ? <Col sm={3}><Button style={{ backgroundColor: "hsl(140deg 40% 47%)", cursor: "default", color: "white", marginTop: "-10px", border: "0", fontSize: "12px" }}><i style={{ color: "white" }} class="fa-solid fa-check"></i> {i.answers_count} Answers</Button></Col> : <Col sm={3}><Button style={{ backgroundColor: "white", cursor: "default", color: "hsl(140deg 40% 47%)", borderColor: "hsl(140deg 40% 47%)", marginTop: "-10px", fontSize: "12px" }}> {i.answers_count} Answers</Button></Col>}
+                                <Col sm={3} style={{ marginLeft: "-50px" }}><text style={{ fontSize: "15px" }}>{i.score} votes</text></Col>
+                                <Col sm={2}><text style={{ fontSize: 13, color: "hsl(27deg 90% 55%)", marginLeft: "-90px" }}>{i.views_count} views</text></Col>
                             </Row>
-                            <Row className='textLimit3'><text style={{ color: "hsl(206deg 100% 40%)", fontSize: "14px", cursor:"pointer" }} onClick={() => openQuestion(i.id)}>{parse(i.body)}</text></Row>
+                            <Row className='textLimit3'><text style={{ color: "hsl(206deg 100% 40%)", fontSize: "14px", cursor: "pointer" }} onClick={() => openQuestion(i.id)}>{parse(i.body)}</text></Row>
 
-                            <Row style={{marginLeft:"-18px"}}>
+                            <Row style={{ marginLeft: "-18px" }}>
                                 <Col sm={7}>
                                     {i.tags.map((obj) => (
                                         <button onClick={() => openTag(obj)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>
@@ -95,21 +95,21 @@ const ItemList = (props) => {
                                 </Col>
 
                                 <Col sm={1}></Col>
-                                <Col style={{fontSize:"14px", color:"hsl(210deg 8% 45%)"}}>asked {moment(i.created_date).format("MMM Do")} at {moment(i.created_date).format("ha")}</Col>
+                                <Col style={{ fontSize: "14px", color: "hsl(210deg 8% 45%)" }}>asked {moment(i.created_date).format("MMM Do")} at {moment(i.created_date).format("ha")}</Col>
                             </Row>
                         </div>
                     </Card>
                 ))
             }
             <Pagination style={{ marginLeft: "24rem" }}>
-            <Pagination.First onClick={() => previousPageSet()} />
+                <Pagination.First onClick={() => previousPageSet()} />
 
-            {pageCount.map(item => (
-                <Pagination.Item onClick={() => handlePage(item)}>{item}</Pagination.Item>
-            ))
-            }
-            <Pagination.Last onClick={() => nextPageSet()} />
-        </Pagination>
+                {pageCount.map(item => (
+                    <Pagination.Item onClick={() => handlePage(item)}>{item}</Pagination.Item>
+                ))
+                }
+                <Pagination.Last onClick={() => nextPageSet()} />
+            </Pagination>
         </div>
     )
 }

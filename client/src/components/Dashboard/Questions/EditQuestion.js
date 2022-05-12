@@ -9,9 +9,11 @@ import { useSelector } from 'react-redux'
 import { useParams } from 'react-router'
 import EditQ from './EditQ'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router'
 
 // import { updatingbody } from '../../../features/QuestionBodySlice'
 const EditQuestion = () => {
+    const navigate= useNavigate();
     const obj = useSelector(state => state.QuestionBodySlice);
 
     const [questionForm,setQuestionFormData] = useState({
@@ -49,6 +51,7 @@ const EditQuestion = () => {
         ,{withCredentials:true})
         if(res){
             toast.success("Updated Question")
+            navigate(`/questions/${params.questionId}`)
         }
     }
 
@@ -89,7 +92,7 @@ const EditQuestion = () => {
                                 Tags
                             </Card.Title>
                             <text>Add up to 5 tags to describe what your question is about</text>
-                            <input name="tags" value={tags} ></input>
+                            <input disabled={true} name="tags" value={tags} ></input>
                         </div>
                     </Card>
                     <Button style={{marginTop :"20px"}} onClick={(e)=>updateQuestion(e)}>Update question</Button>
