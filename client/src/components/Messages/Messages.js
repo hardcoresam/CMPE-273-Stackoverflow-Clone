@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux'
 import axios from 'axios'
 import Constants from './../util/Constants.json'
 
+
 const Messages = () => {
 
     const navigate = useNavigate();
@@ -18,11 +19,11 @@ const Messages = () => {
     const obj = useSelector(state => state.UserSlice)
     const { username } = obj.value
     useEffect(() => {
-        console.log(username)
         async function getChatList() {
             const res = await axios.post(`${Constants.uri}/api/chat/getChatList`, { username }, { withCredentials: true })
             setChatList(res.data)
         }
+        console.log(usersList.length)
         getChatList()
     }, [])
 
@@ -42,19 +43,25 @@ const Messages = () => {
 
     const selectUser = async (user) => {
         console.log(user)
-        const res = await axios.post(`${Constants.uri}/api/chat/createChatRoom`,{user1:username,user2:user.username},{withCredentials:true})
-        console.log(res)
+        try {
+            const res = await axios.post(`${Constants.uri}/api/chat/createChatRoom`,{user1:username,user2:user.username},{withCredentials:true})
+            if(res){
+                navigate(`/messages/chat/${res.data.room_id}`)
+            }
+        } catch (error) {
+            setUsersList(0)
+        }
     }
 
 
 
     return (
         <div>
-            <Row>
+            <Row style={{marginTop:'15px', marginLeft:'15%',marginRight:'15%'}}>
                 <Col sm={2}></Col>
-                <Col>
-                    <Row>
-                        <Col><h5>Messages</h5></Col>
+                <Col sm={8}>
+                    <Row >
+                        <Col><h5>Inbox</h5></Col>
                         <Col>
                             <InputGroup className="mb-3">
                                 <InputGroup.Text id="basic-addon1"><i class="fa fa-search" aria-hidden="true"></i></InputGroup.Text>
@@ -81,8 +88,8 @@ const Messages = () => {
                     </Card>))}
 
                 </Col>
-                <Col sm={6}>
-                    <img style={{ width: "38rem", height: "auto" }} src={messageimg}></img>
+                <Col >
+                    {/* <img style={{ width: "38rem", height: "auto" }} src={messageimg}></img> */}
                 </Col>
             </Row>
         </div>

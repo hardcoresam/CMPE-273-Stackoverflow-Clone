@@ -29,6 +29,7 @@ const Chat = () => {
     const sendMessage = async () => {
         let from = username
         let to=""
+        console.log("Sending from: ", username)
         if(messages[0].from == username){
             to = messages[0].to
         }else{
@@ -57,12 +58,12 @@ const Chat = () => {
 
     return (
         <div>
-            <Row>git 
+            <Row style={{marginTop:'15px', marginLeft:'15%',marginRight:'15%'}}>
                 <Col sm={2}></Col>
                 <Col>
                     <Row>
                         <Col sm={1}><img style={{ width: "3rem", height: "3rem", borderRadius: "3rem" }} src={img}></img></Col>
-                        <Col sm={3}><h2>{recipient}</h2></Col>
+                        <Col sm={3}><h4>{recipient}</h4></Col>
                         
 
                     </Row>
@@ -79,7 +80,7 @@ const Chat = () => {
                                 ))}
                             </Row>
                             <Row>
-                                <Col sm={11}><input style={{ width: "34rem" }} name="newMessage" value={newMessage} onChange={(e)=>onChangeMessageData(e)}></input>
+                                <Col sm={11}><input style={{ width: "34rem", height:"3rem" }} placeholder="Type a new message..." name="newMessage" value={newMessage} onChange={(e)=>onChangeMessageData(e)}></input>
                                 </Col>
                                 <Col><i style={{ cursor: "pointer" }} class="fa fa-paper-plane" aria-hidden="true" onClick={()=>sendMessage()}></i></Col>
                             </Row>

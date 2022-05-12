@@ -52,7 +52,7 @@ const createChatRoom = async (payload, callback) => {
         message.save((err,data) => {
             if(err) return callback({errors: {msg: "Error sending a Message!!"}},null)
             console.log("--new message sent---")
-            return callback(null,data)
+            return callback(null,message)
         })
     })
   
@@ -116,7 +116,11 @@ const getChatList = async (payload, callback) => {
 
     const chats = await MessageRoom.find()
 
+    console.log("USERNAME:",username)
+
     const filteredChats = chats.filter(chat=> chat.participants.includes(username))
+
+    console.log("FILTERED CHATS:",filteredChats)
 
     return callback(null,filteredChats)
 }
