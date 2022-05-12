@@ -83,11 +83,12 @@ const AskQuestion = () => {
                             {//<RichTextEditor value={state} onChange={onChange} />
                             }
                             <AskQ onChangeData={onChangeData} onChange={onChange}/>
+                            <br/>
                             <Card.Title>
                                 Tags
                             </Card.Title>
                             <text>Add up to 5 tags to describe what your question is about</text>
-                            <input name="tags" value={tags} onChange={(e)=>onChangeData(e)}></input>
+                            <input name="tags" value={tags} placeholder="Eg: java,android,oop" onChange={(e)=>onChangeData(e)}></input>
                         </div>
                     </Card>
                     <Button style={{marginTop :"20px"}} onClick={(e)=>askQuestion(e)}>Post your question</Button>
