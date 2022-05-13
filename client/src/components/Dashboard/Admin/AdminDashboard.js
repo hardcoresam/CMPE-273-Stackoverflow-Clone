@@ -127,6 +127,8 @@ const AdminDashboard = () => {
   const [pendingApprovals, setPendingApprovals] = useState([])
 
   useEffect(() => {
+
+
     async function adminstats() {
       const res = await axios.get(`${Constants.uri}/api/admin/stats`, { withCredentials: true })
       console.log(res)
@@ -296,6 +298,8 @@ const AdminDashboard = () => {
       setPendingApprovals(res.data)
     }
 
+    const userid = Cookies.get("ID")
+    
     adminstats()
     getPendingApprovalQuestions()
   }, [])
