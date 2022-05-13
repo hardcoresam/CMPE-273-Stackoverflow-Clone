@@ -51,7 +51,7 @@ const QuestionOverview = () => {
   const [downvoteaflag, setDownVoteAFlag] = useState(false)
   const [approveanswer, setpproveAnswer] = useState(false)
   const [acceptanswer, setacceptAnswer] = useState(false)
-  const [isAdmin,setIsAdmin] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const [answerCommentForm, setAnswerCommentForm] = useState("")
   const { title, body } = answerForm
@@ -97,24 +97,25 @@ const QuestionOverview = () => {
         setIsQuestionBookMarked(true)
       }
     }
-    async function getUser(){
+    async function getUser() {
       const res = await axios.get(`${Constants.uri}/api/users/${Cookies.get('ID')}/profile`)
-      if(res.data.is_admin){
+      if (res.data.is_admin) {
         setIsAdmin(true)
       }
     }
     console.log(Cookies.get('ID'))
     if (!Cookies.get('ID')) {
       setModalShow(true)
-      toast('Please Login to view Question',{position:'top-center'})
+      toast('Please Login to view Question', { position: 'top-center' })
     }
     getUser()
     getQuestion()
-  }, [upvoteqflag, downvoteqflag, upvoteaflag, downvoteaflag, acceptanswer,isQuestionBookMarked])
+  }, [upvoteqflag, downvoteqflag, upvoteaflag, downvoteaflag, acceptanswer, isQuestionBookMarked])
 
   const bookMarkQuestion = async () => {
     if (!isQuestionBookMarked) {
       const res = await axios.post(`${Constants.uri}/api/post/bookmark/${question.id}`, {}, { withCredentials: true })
+      console.log(res)
       if (res.data) {
         toast.success('Quesition added to Bookmarks')
         setIsQuestionBookMarked(!isQuestionBookMarked)
@@ -172,27 +173,29 @@ const QuestionOverview = () => {
   }
 
   const voteQuestion = async (voteType) => {
-    const res = await axios.post(`${Constants.uri}/api/post/${question.id}/vote`, { type: voteType }, { withCredentials: true })
-    console.log(res.data)
-    if (res.data) {
-      if (voteType === "UPVOTE") {
-        setUpVoteQFlag(!upvoteqflag)
-        if (downvoteqflag) {
-          setDownVoteQFlag(false)
+    try {
+      const res = await axios.post(`${Constants.uri}/api/post/${question.id}/vote`, { type: voteType }, { withCredentials: true })
+      if (res.data) {
+        if (voteType === "UPVOTE") {
+          setUpVoteQFlag(!upvoteqflag)
+          if (downvoteqflag) {
+            setDownVoteQFlag(false)
+          }
+          toast.success(res.data.message)
+        }
+        else {
+          setDownVoteQFlag(!downvoteqflag)
+          if (upvoteqflag) {
+            setUpVoteQFlag(false)
+          }
+          toast.success(res.data.message)
         }
       }
-      else {
-        setDownVoteQFlag(!downvoteqflag)
-        if (upvoteqflag) {
-          setUpVoteQFlag(false)
-        }
-      }
-
-      if (voteType == "UPVOTE")
-        toast.success("Up voted the question")
-      else
-        toast.success("Down voted the question")
+    } catch (e) {
+      console.log(e)
+      toast.success(e.response.data.message.error)
     }
+
   }
 
   const voteAnswer = async (answer, voteType) => {
@@ -229,9 +232,9 @@ const QuestionOverview = () => {
       body: value
     })
   }
-const openUser =(id)=>{
-  navigate(`/User/${id}`)
-}
+  const openUser = (id) => {
+    navigate(`/User/${id}`)
+  }
 
   return (
     <div>
@@ -243,8 +246,8 @@ const openUser =(id)=>{
               <Row><text style={{ fontSize: "2rem" }}>{question.title}</text></Row>
 
               <Row style={{ marginLeft: "1px" }}>Asked  {moment(question.created_date).fromNow()} &nbsp;
-                Modified {moment(question.modified_date).fromNow()} &nbsp; &nbsp; Viewed {question.views_count} times  
-                {Cookies.get("ID") == question.owner_id && <Button style={{ width: 'auto' , marginLeft:"7rem"}} className="btn btn-secondary" onClick={() => editQuestion()}>Edit Question</Button>}
+                Modified {moment(question.modified_date).fromNow()} &nbsp; &nbsp; Viewed {question.views_count} times
+                {Cookies.get("ID") == question.owner_id && <Button style={{ width: 'auto', marginLeft: "7rem" }} className="btn btn-secondary" onClick={() => editQuestion()}>Edit Question</Button>}
               </Row>
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
 
@@ -388,7 +391,7 @@ const openUser =(id)=>{
                           <Row>
                             <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={answer.User.photo ? answer.User.photo : emptyimage}></img></Col>
                             <Col>
-                              <Row>{answer.User && (<text style={{cursor:"pointer",color:"blue"}} onClick={() =>openUser(answer.User.id)}>{answer.User.username}</text>)}</Row>
+                              <Row>{answer.User && (<text style={{ cursor: "pointer", color: "blue" }} onClick={() => openUser(answer.User.id)}>{answer.User.username}</text>)}</Row>
                               <Row>
                                 <Col sm={4}>{answer.User.reputation}</Col>
                                 <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.gold_badges_count}&nbsp;</span>
@@ -431,7 +434,7 @@ const openUser =(id)=>{
       )}
 
       {question && !isAdmin && question.User && question.status != 'ACTIVE' && userid != question.owner_id && (
-        <Row style={{marginLeft:"30%",marginRight:"20%",marginTop:'10%'}}>
+        <Row style={{ marginLeft: "30%", marginRight: "20%", marginTop: '10%' }}>
           <Button variant='outline-danger'> Waiting for Aprroval from Admin. Come back later!</Button>
         </Row>
       )}
