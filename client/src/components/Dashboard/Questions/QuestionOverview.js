@@ -25,6 +25,8 @@ const QuestionOverview = () => {
 
   const user = useSelector(state => state.UserSlice)
 
+  const userid = Cookies.get("ID")
+
   const params = useParams()
   const [question, setQuestion] = useState({})
   const [answers, setAnswers] = useState([])
@@ -49,6 +51,7 @@ const QuestionOverview = () => {
   const [downvoteaflag, setDownVoteAFlag] = useState(false)
   const [approveanswer, setpproveAnswer] = useState(false)
   const [acceptanswer, setacceptAnswer] = useState(false)
+
   const [answerCommentForm, setAnswerCommentForm] = useState("")
   const { title, body } = answerForm
 
@@ -80,10 +83,10 @@ const QuestionOverview = () => {
       if (res.data.User.id == Cookies.get("ID")) {
         setpproveAnswer(true)
       }
-      if(res.data.isUpVote){
+      if (res.data.isUpVote) {
         setUpVoteQFlag(true)
       }
-      else if(res.data.isDownVote){
+      else if (res.data.isDownVote) {
         setDownVoteQFlag(true);
       }
       setQuestion(res.data)
@@ -99,7 +102,7 @@ const QuestionOverview = () => {
       toast('Please Login to view Question')
     }
     getQuestion()
-  }, [upvoteqflag,downvoteqflag, upvoteaflag,downvoteaflag, acceptanswer])
+  }, [upvoteqflag, downvoteqflag, upvoteaflag, downvoteaflag, acceptanswer])
 
   const bookMarkQuestion = async () => {
     if (!isQuestionBookMarked) {
@@ -163,19 +166,19 @@ const QuestionOverview = () => {
     const res = await axios.post(`${Constants.uri}/api/post/${question.id}/vote`, { type: voteType }, { withCredentials: true })
     console.log(res.data)
     if (res.data) {
-      if(voteType==="UPVOTE"){
-          setUpVoteQFlag(!upvoteqflag)   
-          if(downvoteqflag){
-            setDownVoteQFlag(false)
-          }    
+      if (voteType === "UPVOTE") {
+        setUpVoteQFlag(!upvoteqflag)
+        if (downvoteqflag) {
+          setDownVoteQFlag(false)
+        }
       }
-      else{
+      else {
         setDownVoteQFlag(!downvoteqflag)
-        if(upvoteqflag){
+        if (upvoteqflag) {
           setUpVoteQFlag(false)
         }
       }
-      
+
       if (voteType == "UPVOTE")
         toast.success("Up voted the question")
       else
@@ -183,7 +186,7 @@ const QuestionOverview = () => {
     }
   }
 
-  const voteAnswer = async (answer,voteType) => {
+  const voteAnswer = async (answer, voteType) => {
     const res = await axios.post(`${Constants.uri}/api/post/${answer.id}/vote`, { type: voteType }, { withCredentials: true })
     console.log(res.data)
     if (res.data) {
@@ -231,177 +234,195 @@ const QuestionOverview = () => {
                 {Cookies.get("ID") == question.owner_id && <Button style={{ width: 'auto' }} className="btn btn-secondary" onClick={() => editQuestion()}>Edit Question</Button>}
               </Row>
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
-              <Row>
-                <Col sm={1}>
-                  {upvoteqflag ? <div className='uptriangleonclick' onClick={() => voteQuestion("UPVOTE")}></div> : <div className='uptriangle' onClick={() => voteQuestion("UPVOTE")}></div>}
-                  <div>&nbsp;&nbsp;{question.score}</div>
-                  {downvoteqflag ? <div className='downtriangleonclick' onClick={() => voteQuestion("DOWNVOTE")}></div> : <div className='downtriangle' onClick={() => voteQuestion("DOWNVOTE")}></div>}
-                  <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" onClick={() => bookMarkQuestion()} style={{ color: isQuestionBookMarked ? "#fce303" : "#c2d6d6" }}></i></div>
-                  <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" onClick={openActivity} style={{ color: "#c2d6d6" }}></i></div>
-                </Col>
-                <Col sm={7}>
-                  <Card style={{ width: "40rem", height: "auto", backgroundColor: "hsl(0deg 0% 97%)" }}>
-                    <text style={{ padding: "14px" }}>
-                      {parse(question.body)}
-                    </text>
-                  </Card>
-                  <Row style={{ marginTop: "1rem", marginBottom: "1rem" }}>
-                    <Col>
-                      {
-                        question.tags.split(",").map(tag => (<button onClick={() => openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</button>))
-                      }
+
+              {(question.status === 'ACTIVE' || (question.status != 'ACTIVE' && userid == question.owner_id)) && (
+                <>
+                  <Row>
+                    <Col sm={1}>
+                      {upvoteqflag ? <div className='uptriangleonclick' onClick={() => voteQuestion("UPVOTE")}></div> : <div className='uptriangle' onClick={() => voteQuestion("UPVOTE")}></div>}
+                      <div>&nbsp;&nbsp;{question.score}</div>
+                      {downvoteqflag ? <div className='downtriangleonclick' onClick={() => voteQuestion("DOWNVOTE")}></div> : <div className='downtriangle' onClick={() => voteQuestion("DOWNVOTE")}></div>}
+                      <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" onClick={() => bookMarkQuestion()} style={{ color: isQuestionBookMarked ? "#fce303" : "#c2d6d6" }}></i></div>
+                      <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" onClick={openActivity} style={{ color: "#c2d6d6" }}></i></div>
                     </Col>
-                  </Row>
-                </Col>
-                <Col sm={1}></Col>
-                <Col>
-                  <Card style={{ backgroundColor: "hsl(206deg 96% 90%)" }}>
-                    <Card.Title><span style={{ fontSize: 12, padding: 10, color: "hsl(210deg 8% 45%)" }} className='text-muted'>asked on {question.created_date.split('T')[0]}</span></Card.Title>
-                    <Row>
-                      <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={question.User.photo ? question.User.photo : emptyimage}></img></Col>
-                      <Col>
-                        <Row><Link to={`/User/${question.User.id}`} style={{ textDecoration: 'none', fontSize: 13, color: "hsl(206deg 100% 40%)" }}>{question.User.username}</Link></Row>
+                    <Col sm={7}>
+                      <Card style={{ width: "40rem", height: "auto", backgroundColor: "hsl(0deg 0% 97%)" }}>
+                        <text style={{ padding: "14px" }}>
+                          {parse(question.body)}
+                        </text>
+                      </Card>
+                      <Row style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+                        <Col>
+                          {
+                            question.tags.split(",").map(tag => (<button onClick={() => openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</button>))
+                          }
+                        </Col>
+                      </Row>
+                    </Col>
+                    <Col sm={1}></Col>
+                    <Col>
+                      <Card style={{ backgroundColor: "hsl(206deg 96% 90%)" }}>
+                        <Card.Title><span style={{ fontSize: 12, padding: 10, color: "hsl(210deg 8% 45%)" }} className='text-muted'>asked on {question.created_date.split('T')[0]}</span></Card.Title>
                         <Row>
-                          <Col style={{ fontWeight: "bold", color: "hsl(210deg 8% 45%)" }} sm={4}>{question.User.reputation}</Col>
-                          <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
-                            <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.silver_badges_count}&nbsp;</span>
-                            <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.bronze_badges_count}&nbsp;</span>
+                          <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={question.User.photo ? question.User.photo : emptyimage}></img></Col>
+                          <Col>
+                            <Row><Link to={`/User/${question.User.id}`} style={{ textDecoration: 'none', fontSize: 13, color: "hsl(206deg 100% 40%)" }}>{question.User.username}</Link></Row>
+                            <Row>
+                              <Col style={{ fontWeight: "bold", color: "hsl(210deg 8% 45%)" }} sm={4}>{question.User.reputation}</Col>
+                              <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.gold_badges_count}&nbsp;</span>
+                                <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.silver_badges_count}&nbsp;</span>
+                                <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{question.User.bronze_badges_count}&nbsp;</span>
+                              </Col>
+                            </Row>
                           </Col>
                         </Row>
-                      </Col>
-                    </Row>
 
-                  </Card>
-                </Col>
-              </Row>
-              <Row>
-                <Col sm={1}></Col>
-                <Col sm={8}>
-                  <Row>
-                    {comments && comments.length > 0 && comments.map(comment => (
-                      <>
-                        <Col sm={8}>
-                          <span className='text-muted' style={{ fontSize: 13 }}>{comment.content}</span>
-                        </Col>
-                        <Col sm={1}><Link to={`/User/${comment.user_id}`} style={{ textDecoration: "none", fontSize: 11 }}>{comment.user_display_name}</Link></Col>
-                        <Col><span style={{ textDecoration: "none", fontSize: 11 }}>{comment.posted_on.split('T')[0]}</span></Col>
-                        <hr />
-                      </>
-                    ))}
+                      </Card>
+                    </Col>
                   </Row>
                   <Row>
-                    <span className='text-muted' style={{ fontSize: 12, cursor: 'pointer' }} onClick={() => setEnableComment(true)}>Add a comment</span>
-                    {enableComment && (
-                      <>
-                        <span><textarea name="comment" value={commentForm} onChange={(e) => setCommentForm(e.target.value)} /></span>
-                        <span><Button className='btn btn-secondary' onClick={() => addComment()} style={{ padding: 0 }}>Post</Button></span>
-                      </>
-                    )}
+                    <Col sm={1}></Col>
+                    <Col sm={8}>
+                      <Row>
+                        {comments && comments.length > 0 && comments.map(comment => (
+                          <>
+                            <Col sm={8}>
+                              <span className='text-muted' style={{ fontSize: 13 }}>{comment.content}</span>
+                            </Col>
+                            <Col sm={1}><Link to={`/User/${comment.user_id}`} style={{ textDecoration: "none", fontSize: 11 }}>{comment.user_display_name}</Link></Col>
+                            <Col><span style={{ textDecoration: "none", fontSize: 11 }}>{comment.posted_on.split('T')[0]}</span></Col>
+                            <hr />
+                          </>
+                        ))}
+                      </Row>
+                      <Row>
+                        <span className='text-muted' style={{ fontSize: 12, cursor: 'pointer' }} onClick={() => setEnableComment(true)}>Add a comment</span>
+                        {enableComment && (
+                          <>
+                            <span><textarea name="comment" value={commentForm} onChange={(e) => setCommentForm(e.target.value)} /></span>
+                            <span><Button className='btn btn-secondary' onClick={() => addComment()} style={{ padding: 0 }}>Post</Button></span>
+                          </>
+                        )}
+                      </Row>
+                    </Col>
                   </Row>
-                </Col>
-              </Row>
+                </>
+              )}
+
             </>
           )}
         </Col>
       </Row>
-      <div style={{ marginTop: "5rem" }}>
-        <h5 style={{ marginLeft: "15rem", fontSize: "19px" }}>{question.answers_count === 1 ? <text>{question.answers_count} answer</text> : <text>{question.answers_count} answers</text>}</h5>
-        {
-          answers.map((answer) => (
-            <Row>
-              <Col sm={2}></Col>
-              <Col sm={9}>
 
-                <Row style={{ marginTop: "1rem" }}>
-                  <Col sm={1}>
-                    <div className='uptriangle' onClick={()=>voteAnswer(answer,"UPVOTE")}></div>
-                    <div style={{ marginLeft: "10px" }}>{answer.score}</div>
-                    <div className='downtriangle' onClick={()=>voteAnswer(answer,"DOWNVOTE")}></div>
-                    {question.accepted_answer_id == answer.id && (
-                      <div style={{ color: 'green', fontSize: 30 }}><i class="fa fa-check" aria-hidden="true"></i></div>
-                    )}
-                  </Col>
-                  <Col>
-                    <Card style={{ width: "40rem", height: "auto", backgroundColor: "hsl(0deg 0% 97%)" }}>
-                      <text style={{ padding: "14px" }}>
-                        {parse(answer.body)}
-                      </text>
-                    </Card>
-                    <br/>
-                    <Row style={{marginLeft:60,marginRight:5}}>
-                      {answer.Comments && answer.Comments.length > 0 && answer.Comments.map(comment => (
-                        <>
-                          <Col sm={8}>
-                            <span className='text-muted' style={{ fontSize: 13 }}>{comment.content}</span>
-                          </Col>
-                          <Col sm={2}><Link to={`/User/${comment.user_id}`} style={{ textDecoration: "none", fontSize: 11 }}>{comment.user_display_name}</Link></Col>
-                          <Col><span style={{ textDecoration: "none", fontSize: 11 }}>{comment.posted_on.split('T')[0]}</span></Col>
-                          <hr />
-                        </>
-                      ))}
-                    </Row>
-                    <Row style={{marginLeft:60}}>
-                      <Col sm={9}>
-                        <Row>
-                          <span className='text-muted' style={{ fontSize: 12, cursor: 'pointer' }} onClick={() => enableAnswerComment(answer)}>Add your comment</span>
-                          {answer.enableAnswerComment ? (
-                            <>
-                              <span><textarea value={answer.commentValue} onChange={(e) => onChangeAnswerComment(e, answer)} /></span>
-                              <span><Button className='btn btn-secondary' onClick={() => addAnswerComment(answer)} style={{ padding: 0 }}>Post</Button></span>
-                            </>
-                          ) : <></>}
-                        </Row>
+      {(question.status === 'ACTIVE' || (question.status != 'ACTIVE' && userid == question.owner_id)) && (
+        <>
+          <div style={{ marginTop: "5rem" }}>
+            <h5 style={{ marginLeft: "15rem", fontSize: "19px" }}>{question.answers_count === 1 ? <text>{question.answers_count} answer</text> : <text>{question.answers_count} answers</text>}</h5>
+            {
+              answers.map((answer) => (
+                <Row>
+                  <Col sm={2}></Col>
+                  <Col sm={9}>
+
+                    <Row style={{ marginTop: "1rem" }}>
+                      <Col sm={1}>
+                        <div className='uptriangle' onClick={() => voteAnswer(answer, "UPVOTE")}></div>
+                        <div style={{ marginLeft: "10px" }}>{answer.score}</div>
+                        <div className='downtriangle' onClick={() => voteAnswer(answer, "DOWNVOTE")}></div>
+                        {question.accepted_answer_id == answer.id && (
+                          <div style={{ color: 'green', fontSize: 30 }}><i class="fa fa-check" aria-hidden="true"></i></div>
+                        )}
                       </Col>
+                      <Col>
+                        <Card style={{ width: "40rem", height: "auto", backgroundColor: "hsl(0deg 0% 97%)" }}>
+                          <text style={{ padding: "14px" }}>
+                            {parse(answer.body)}
+                          </text>
+                        </Card>
+                        <br />
+                        <Row style={{ marginLeft: 60, marginRight: 5 }}>
+                          {answer.Comments && answer.Comments.length > 0 && answer.Comments.map(comment => (
+                            <>
+                              <Col sm={8}>
+                                <span className='text-muted' style={{ fontSize: 13 }}>{comment.content}</span>
+                              </Col>
+                              <Col sm={2}><Link to={`/User/${comment.user_id}`} style={{ textDecoration: "none", fontSize: 11 }}>{comment.user_display_name}</Link></Col>
+                              <Col><span style={{ textDecoration: "none", fontSize: 11 }}>{comment.posted_on.split('T')[0]}</span></Col>
+                              <hr />
+                            </>
+                          ))}
+                        </Row>
+                        <Row style={{ marginLeft: 60 }}>
+                          <Col sm={9}>
+                            <Row>
+                              <span className='text-muted' style={{ fontSize: 12, cursor: 'pointer' }} onClick={() => enableAnswerComment(answer)}>Add your comment</span>
+                              {answer.enableAnswerComment ? (
+                                <>
+                                  <span><textarea value={answer.commentValue} onChange={(e) => onChangeAnswerComment(e, answer)} /></span>
+                                  <span><Button className='btn btn-secondary' onClick={() => addAnswerComment(answer)} style={{ padding: 0 }}>Post</Button></span>
+                                </>
+                              ) : <></>}
+                            </Row>
+                          </Col>
 
 
-                    </Row>
-                    <br/>
-                  </Col>
-                  <Col>
-                    <Card style={{ padding: "3px" }}>
-                      <Card.Title><span style={{ fontSize: 12 }}>Answered {moment(answer.modified_date.split(',')[0]).format("MMM Do YY")}</span></Card.Title>
-                      <Row>
-                        <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={answer.User.photo ? answer.User.photo : emptyimage}></img></Col>
-                        <Col>
-                          <Row>{answer.User && (<text>{answer.User.username}</text>)}</Row>
+                        </Row>
+                        <br />
+                      </Col>
+                      <Col>
+                        <Card style={{ padding: "3px" }}>
+                          <Card.Title><span style={{ fontSize: 12 }}>Answered {moment(answer.modified_date.split(',')[0]).format("MMM Do YY")}</span></Card.Title>
                           <Row>
-                            <Col sm={4}>{answer.User.reputation}</Col>
-                            <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.gold_badges_count}&nbsp;</span>
-                              <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.silver_badges_count}&nbsp;</span>
-                              <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.bronze_badges_count}&nbsp;</span>
+                            <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={answer.User.photo ? answer.User.photo : emptyimage}></img></Col>
+                            <Col>
+                              <Row>{answer.User && (<text>{answer.User.username}</text>)}</Row>
+                              <Row>
+                                <Col sm={4}>{answer.User.reputation}</Col>
+                                <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.gold_badges_count}&nbsp;</span>
+                                  <span><i class="fa fa-circle" style={{ color: '#C0C0C0', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.silver_badges_count}&nbsp;</span>
+                                  <span><i class="fa fa-circle" style={{ color: '#CD7F32', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.bronze_badges_count}&nbsp;</span>
+                                </Col>
+                              </Row>
                             </Col>
                           </Row>
-                        </Col>
-                      </Row>
-                    </Card>
-                    {
-                      (approveanswer && !(question.accepted_answer_id == answer.id)) && <Button variant='outline-success' onClick={() => acceptAnswer(answer)} style={{ width: 'auto', height: 'auto', marginTop: '5px' }}>Accept answer</Button>
-                    }
+                        </Card>
+                        {
+                          (approveanswer && !(question.accepted_answer_id == answer.id)) && <Button variant='outline-success' onClick={() => acceptAnswer(answer)} style={{ width: 'auto', height: 'auto', marginTop: '5px' }}>Accept answer</Button>
+                        }
+                      </Col>
+                    </Row>
                   </Col>
+                  <hr style={{ marginLeft: "14rem", width: "60rem", marginTop: "8px", marginBottom: "1rem" }} />
                 </Row>
-              </Col>
-              <hr style={{ marginLeft: "14rem", width: "60rem", marginTop: "8px", marginBottom: "1rem" }} />
-            </Row>
-            
-          ))
-        }
 
-      </div>
-      <Row style={{ marginTop: "2rem" }}>
-        <Col sm={2}></Col>
-        <Col style={{ marginLeft: "49px" }}>
-          <Row><Col><h5>Your Answer</h5></Col></Row>
-          <Row>
-            <Col sm={9}><AskQ onChangeData={onChangeAnswerBody} onChange={onChange} />
+              ))
+            }
+
+          </div>
+          <Row style={{ marginTop: "2rem" }}>
+            <Col sm={2}></Col>
+            <Col style={{ marginLeft: "49px" }}>
+              <Row><Col><h5>Your Answer</h5></Col></Row>
+              <Row>
+                <Col sm={9}><AskQ onChangeData={onChangeAnswerBody} onChange={onChange} />
+                </Col>
+              </Row>
+              <Row>
+                <Col sm={3}><Button style={{ marginTop: "1rem" }} onClick={(e) => postAnswer(e)}>Post Your Answer</Button></Col>
+
+              </Row>
+
             </Col>
           </Row>
-          <Row>
-            <Col sm={3}><Button style={{ marginTop: "1rem" }} onClick={(e) => postAnswer(e)}>Post Your Answer</Button></Col>
+        </>
+      )}
 
-          </Row>
+      {question && question.status != 'ACTIVE' && userid != question.owner_id && (
+        <Row style={{marginLeft:"30%",marginRight:"20%",marginTop:'10%'}}>
+          <Button variant='outline-danger'> Waiting for Aprroval from Admin. Come back later!</Button>
+        </Row>
+      )}
 
-        </Col>
-      </Row>
 
       <Login
         show={modalShow}
