@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router'
 import './styles.css'
 import parse from 'html-react-parser'
 import { clickReducer } from '../../../features/DashboardTopSlice';
-import { postReducer,countReducer } from '../../../features/PostSlice'
+import { postReducer, countReducer } from '../../../features/PostSlice'
 import { useSelector } from 'react-redux'
 import emptyimage from '../../images/emptyimage.png'
 const MainCard = () => {
@@ -24,7 +24,7 @@ const MainCard = () => {
     const [startOffset, setStartOffset] = useState(1)
     const [endOffset, setEndOffset] = useState(15)
 
-    const [totalPages,setTotalPages] = useState(0)
+    const [totalPages, setTotalPages] = useState(0)
 
 
     useEffect(() => {
@@ -32,7 +32,7 @@ const MainCard = () => {
             const res = await axios.get(`${Constants.uri}/api/post/dashboard`)
             dispatch(postReducer(res.data.questionsForDashboard))
             dispatch(countReducer(res.data.questionsCount))
-            setTotalPages(res.data.questionsCount/10)
+            setTotalPages(res.data.questionsCount / 10)
         }
         getQuests()
 
@@ -48,19 +48,19 @@ const MainCard = () => {
     }
     const nextPageSet = () => {
         var list = []
-        if(endOffset + 15 <= totalPages){
-            for (var i = startOffset+15; i <= endOffset+15; i++) {
+        if (endOffset + 15 <= totalPages) {
+            for (var i = startOffset + 15; i <= endOffset + 15; i++) {
                 list.push(i)
             }
             setPageCount(list)
-            setStartOffset(startOffset+15)
-            setEndOffset(endOffset+15)
-        }else if(endOffset+15 > totalPages && endOffset < totalPages){
-            for (var i = startOffset+15; i <= totalPages; i++) {
+            setStartOffset(startOffset + 15)
+            setEndOffset(endOffset + 15)
+        } else if (endOffset + 15 > totalPages && endOffset < totalPages) {
+            for (var i = startOffset + 15; i <= totalPages; i++) {
                 list.push(i)
             }
             setPageCount(list)
-            setStartOffset(startOffset+15)
+            setStartOffset(startOffset + 15)
             setEndOffset(totalPages)
         }
 
@@ -79,7 +79,7 @@ const MainCard = () => {
     }
 
     const handlePage = async (index) => {
-        const res = await axios.get(`${Constants.uri}/api/post/dashboard?filterBy=${Title.toLowerCase()}&offset=${10*(index-1)}`)
+        const res = await axios.get(`${Constants.uri}/api/post/dashboard?filterBy=${Title.toLowerCase()}&offset=${10 * (index - 1)}`)
         dispatch(postReducer(res.data.questionsForDashboard))
     }
 
@@ -89,43 +89,43 @@ const MainCard = () => {
             <div style={{ marginTop: "39px" }}>
                 {questions && questions.map(question => (
                     <>
-                        <Row style={{marginTop:"-30px"}}>
+                        <Row style={{ marginTop: "-30px" }}>
                             <Col sm={3} style={{ marginRight: "-3rem" }}>
                                 <Row style={{ marginLeft: "50px" }}>{question.score} votes</Row>
-                                { question.answers_count > 0 ?
-                                    question.accepted_answer_id ? 
-                                        (<Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>) 
-                                        : 
-                                        (<Row><button style={{ backgroundColor: "white", width: "7rem", borderRadius: "3px", color: "hsl(140deg 40% 47%)" , borderWidth:"1px", borderColor:"hsl(140deg 40% 47%)"}} > {question.answers_count} answers</button></Row>)
+                                {question.answers_count > 0 ?
+                                    question.accepted_answer_id ?
+                                        (<Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>)
+                                        :
+                                        (<Row><button style={{ backgroundColor: "white", width: "7rem", borderRadius: "3px", color: "hsl(140deg 40% 47%)", borderWidth: "1px", borderColor: "hsl(140deg 40% 47%)" }} > {question.answers_count} answers</button></Row>)
                                     :
-                                    (<Row><button style={{ backgroundColor: "white", width: "7rem", borderRadius: "3px", color: "hsl(140deg 40% 47%)" , borderWidth:"1px", borderColor:"hsl(140deg 40% 47%)"}} > 0 answers</button></Row>)
+                                    (<Row><button style={{ backgroundColor: "white", width: "7rem", borderRadius: "3px", color: "hsl(140deg 40% 47%)", borderWidth: "1px", borderColor: "hsl(140deg 40% 47%)" }} > 0 answers</button></Row>)
                                 }
                                 <Row>
-                                
-                                <Col sm={8} style={{ color: "hsl(27,90%,55%)", textAlign:"right" }}>
-                                {question.views_count} views
-                                </Col></Row>
+
+                                    <Col sm={8} style={{ color: "hsl(27,90%,55%)", textAlign: "right" }}>
+                                        {question.views_count} views
+                                    </Col></Row>
                             </Col>
-                            
-                            <Col sm={8}>
+
+                            <Col sm={9}>
                                 <Row>
                                     <Col>
                                         <Link to={`/questions/${question.id}`} style={{ textDecoration: "none", fontSize: 20, color: "hsl(206deg 100% 40%)", fontSize: "17px" }}>{question.title}</Link>
                                     </Col>
                                 </Row>
                                 <Row className='textLimit'>
-                                <Col>
-                                <text style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
-                                </Col>
+                                    <Col>
+                                        <text style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
+                                    </Col>
                                 </Row>
                                 <Row>
-                                    <Col sm={12}>{question.tags.map(tag => (<button onClick={() => openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0",marginRight:"5px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</button>))}&nbsp;&nbsp;&nbsp;</Col>
+                                    <Col sm={12}>{question.tags.map(tag => (<button onClick={() => openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginRight: "5px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</button>))}&nbsp;&nbsp;&nbsp;</Col>
                                 </Row>
                                 <Row>
-                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo ?question.User.photo :emptyimage}></img>{question.User.username}</Link> asked,  {moment(question.created_date).format("MMM Do")} at {moment(question.created_date).format("ha")} </span>
+                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo ? question.User.photo : emptyimage}></img>{question.User.username}</Link> asked,  {moment(question.created_date).format("MMM Do")} at {moment(question.created_date).format("ha")} </span>
                                 </Row>
                                 <Row>
-                                    <Col><hr style={{ marginTop: "1rem", marginLeft: "-182px", marginRight:"-50px" }}></hr></Col>
+                                    <Col><hr style={{ marginTop: "1rem", marginLeft: "-182px", marginRight: "-50px" }}></hr></Col>
 
                                 </Row>
                             </Col>

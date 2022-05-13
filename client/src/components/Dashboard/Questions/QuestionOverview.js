@@ -342,9 +342,9 @@ const QuestionOverview = () => {
 
                     <Row style={{ marginTop: "1rem" }}>
                       <Col sm={1}>
-                        <div className='uptriangle' onClick={() => voteAnswer(answer, "UPVOTE")}></div>
+                        {( answer.isUpVote && answer.isUpVote===true) ? <div className='uptriangleonclick' onClick={() => voteAnswer(answer, "UPVOTE")}></div> : <div className='uptriangle' onClick={() => voteAnswer(answer, "UPVOTE")}></div>}
                         <div style={{ marginLeft: "10px" }}>{answer.score}</div>
-                        <div className='downtriangle' onClick={() => voteAnswer(answer, "DOWNVOTE")}></div>
+                        {(answer.isDownVote && answer.isDownVote===true) ? <div className='downtriangleonclick' onClick={() => voteAnswer(answer, "DOWNVOTE")}></div> : <div className='downtriangle' onClick={() => voteAnswer(answer, "DOWNVOTE")}></div>}
                         {question.accepted_answer_id == answer.id && (
                           <div style={{ color: 'green', fontSize: 30 }}><i class="fa fa-check" aria-hidden="true"></i></div>
                         )}

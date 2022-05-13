@@ -24,7 +24,7 @@ const TagOverview = () => {
     const [endOffset, setEndOffset] = useState(15)
 
     const [totalPages, setTotalPages] = useState(0)
-    const [totalQuestions,setTotalQuestions] = useState(0)
+    const [totalQuestions, setTotalQuestions] = useState(0)
 
     useEffect(() => {
         async function getQuestionforTags() {
@@ -33,11 +33,11 @@ const TagOverview = () => {
             setQuestions(res1.data.Posts)
             setdescription(res1.data.description);
             setTotalQuestions(res1.data.postsCount)
-            
-            if(res1.data.postsCount % 10 == 0){
-                setTotalPages(res1.data.postsCount/10)
-            }else{
-                setTotalPages(res1.data.postsCount/10+1)
+
+            if (res1.data.postsCount % 10 == 0) {
+                setTotalPages(res1.data.postsCount / 10)
+            } else {
+                setTotalPages(res1.data.postsCount / 10 + 1)
             }
 
             var list = []
@@ -125,7 +125,7 @@ const TagOverview = () => {
 
     const handlePage = async (index) => {
         console.log(filterBy)
-        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?show_user_posts=${show_user_posts}&filterBy=${title.toLowerCase()}&userid=${userid}&offset=${10*(index-1)}`, { withCredentials: true })
+        const res = await axios.get(`${Constants.uri}/api/tags/${tagname}/questions?show_user_posts=${show_user_posts}&filterBy=${title.toLowerCase()}&userid=${userid}&offset=${10 * (index - 1)}`, { withCredentials: true })
         setQuestions(res.data.Posts)
     }
 
@@ -154,9 +154,9 @@ const TagOverview = () => {
                                 <Row>
                                     {
                                         question.accepted_answer_id ?
-                                            (<Button style={{ cursor:"default",marginLeft:"12px", backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</Button>)
-                                        :
-                                        (<Button style={{backgroundColor: "white",cursor:"default",marginLeft:"12px", color: "hsl(140deg 40% 47%)", borderColor:"hsl(140deg 40% 47%)", width: "7rem", borderRadius: "3px"}}> {question.answers_count} answers</Button>)
+                                            (<Button style={{ cursor: "default", marginLeft: "12px", backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</Button>)
+                                            :
+                                            (<Button style={{ backgroundColor: "white", cursor: "default", marginLeft: "12px", color: "hsl(140deg 40% 47%)", borderColor: "hsl(140deg 40% 47%)", width: "7rem", borderRadius: "3px" }}> {question.answers_count} answers</Button>)
                                     }
 
                                 </Row>
@@ -173,7 +173,7 @@ const TagOverview = () => {
                                     <text style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
                                 </Row>
                                 <Row>
-                                    <Col style={{marginLeft:"-9px"}} sm={6}>{question.tags.map(tag => (<Button onClick={() => openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
+                                    <Col style={{ marginLeft: "-9px" }} sm={6}>{question.tags.map(tag => (<Button onClick={() => openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
                                 </Row>
                                 <Row>
                                     <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo ? question.User.photo : emptyimage}></img>{question.User.username}</Link> asked  {moment(question.created_date).fromNow()}</span>
