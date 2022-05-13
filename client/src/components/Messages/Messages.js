@@ -14,10 +14,10 @@ const Messages = () => {
 
     const [chatList, setChatList] = useState([])
 
-    const [usersList,setUsersList] = useState([])
+    const [usersList, setUsersList] = useState([])
 
-    const  username  = Cookies.get("Username")
-    
+    const username = Cookies.get("Username")
+
     useEffect(() => {
         async function getChatList() {
             const res = await axios.post(`${Constants.uri}/api/chat/getChatList`, { username }, { withCredentials: true })
@@ -34,18 +34,24 @@ const Messages = () => {
     const searchUser = async (e) => {
         e.preventDefault()
         console.log(e.target.value)
-        const res = await axios.get(`${Constants.uri}/api/users/filter/${e.target.value}`)
-        const filteredUsers = res.data
-        if (filteredUsers.length > 0) {
-            setUsersList(filteredUsers)
+        if (e.target.value.length > 0) {
+            const res = await axios.get(`${Constants.uri}/api/users/filter/${e.target.value}`)
+            const filteredUsers = res.data
+            if (filteredUsers.length > 0) {
+                setUsersList(filteredUsers)
+            }
+        }else{
+            console.log("empty")
+            setUsersList([])
         }
+
     }
 
     const selectUser = async (user) => {
         console.log(user)
         try {
-            const res = await axios.post(`${Constants.uri}/api/chat/createChatRoom`,{user1:username,user2:user.username},{withCredentials:true})
-            if(res){
+            const res = await axios.post(`${Constants.uri}/api/chat/createChatRoom`, { user1: username, user2: user.username }, { withCredentials: true })
+            if (res) {
                 navigate(`/messages/chat/${res.data.room_id}`)
             }
         } catch (error) {
@@ -57,7 +63,7 @@ const Messages = () => {
 
     return (
         <div>
-            <Row style={{marginTop:'15px', marginLeft:'15%',marginRight:'15%'}}>
+            <Row style={{ marginTop: '15px', marginLeft: '15%', marginRight: '15%' }}>
                 <Col sm={2}></Col>
                 <Col sm={8}>
                     <Row >
@@ -70,9 +76,9 @@ const Messages = () => {
                                     onChange={(e) => { searchUser(e) }}
                                 />
                             </InputGroup>
-                            {usersList && usersList.length > 0 && 
+                            {usersList && usersList.length > 0 &&
                                 usersList.map(user => (
-                                    <Dropdown.Item eventKey="1" onClick={()=>selectUser(user)}>{user.username}</Dropdown.Item>
+                                    <Dropdown.Item eventKey="1" onClick={() => selectUser(user)}>{user.username}</Dropdown.Item>
                                 ))
                             }
                         </Col>

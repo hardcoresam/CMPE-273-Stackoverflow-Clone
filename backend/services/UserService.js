@@ -406,7 +406,7 @@ const filterByUsername = async (payload, callback) => {
   const name = payload.params.username;
   const users = await User.findAll();
   if (users) {
-    const filteredUsers = users.filter((user) => user.username.includes(name) == true);
+    const filteredUsers = users.filter((user) => user.username.toLowerCase().includes(name.toLowerCase()) == true);
     return callback(null, filteredUsers);
   }
   return callback(null, []);

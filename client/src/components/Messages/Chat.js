@@ -37,6 +37,7 @@ const Chat = () => {
         }
         const res = await axios.post(`${Constants.uri}/api/chat/sendMessage`,{to,from,content:newMessage},{withCredentials:true})
         setSent(!sent)
+        setNewMessage("")
     }
 
 
@@ -69,7 +70,7 @@ const Chat = () => {
                     </Row>
                     <Row style={{ marginTop: "2rem" }}>
                         <Card style={{ height: "25rem", width: "38rem" }}>
-                            <Row style={{ height: "23rem", width: "38rem", backgroundColor: 'black', color: 'white' }}>
+                            <Row style={{ height: "23rem", width: "38rem", backgroundColor: 'black', color: 'white', overflowY:'auto' }}>
                                 {messages && messages.map(message => (
                                     <>
                                         <Row style={{ textAlign: message.from === username ? 'left' : 'right' }}>

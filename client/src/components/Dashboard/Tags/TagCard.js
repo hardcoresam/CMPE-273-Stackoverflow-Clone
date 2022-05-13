@@ -9,11 +9,13 @@ const TagCard = () => {
   const navigate = useNavigate();
 
   const [tags, setTags] = useState([])
+  const [alltags,setAllTags] = useState([])
 
   useEffect(() => {
     async function getTags() {
       const res = await axios.get(`${Constants.uri}/api/tags`)
       setTagsGrid(res.data)
+      setAllTags(res.data)
       console.log(res.data)
     }
     getTags()
@@ -43,13 +45,18 @@ const TagCard = () => {
 
   const onChangeTagInput = async (e) => {
     e.preventDefault()
-    const res = await axios.get(`${Constants.uri}/api/tags/${e.target.value}`)
-    const filteredtags = res.data
-    console.log(filteredtags.length)
-    if (filteredtags.length > 0) {
-      console.log("here--")
-      setTagsGrid(filteredtags)
-    }
+      const res = await axios.get(`${Constants.uri}/api/tags/${e.target.value}`)
+      const filteredtags = res.data
+      console.log(filteredtags.length)
+      if (filteredtags.length > 0) {
+        console.log("here--")
+        setTagsGrid(filteredtags)
+      }
+
+      // console.log(alltags)
+
+      // const ftags = alltags.filter(tag=> tag.name.includes(e.target.value) == true)
+      // console.log(ftags)
   }
 
   const openTag = (tag) => {
@@ -74,9 +81,9 @@ const TagCard = () => {
         <Row>
           {tagRow && tagRow.map(tag => (
 
-            <Card style={{ width: "16rem", height: "13rem", marginRight: "9px" , marginBottom:"9px"}}>
+            <Card style={{ width: "16rem", height: "13rem", marginRight: "9px", marginBottom: "9px" }}>
               <Card.Body style={{ fontSize: "13px" }}>
-                <Row><Col sm={6}><button className='tagButton'  onClick={() => openTag(tag)}>{tag.name}</button></Col></Row>
+                <Row><Col sm={6}><button className='tagButton' onClick={() => openTag(tag)}>{tag.name}</button></Col></Row>
                 <Row style={{ marginTop: "1rem" }}><text className='textLimitt'>{tag.description}</text></Row>
                 <Row style={{ marginTop: "1rem" }}>
                   <Col sm={5}>{tag.no_of_questions} questions</Col>

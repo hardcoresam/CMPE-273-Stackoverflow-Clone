@@ -16,7 +16,7 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import moment from 'moment'
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Cookies from 'js-cookie'
 import { logoutPending, logoutSuccess } from '../../../features/logout';
 
@@ -124,9 +124,13 @@ const AdminDashboard = () => {
   const [leastTenUsers, setLeastTenUsers] = useState({})
   const [optionsLeastTenUsers, setOptionsLeastTenUsers] = useState({})
 
+  const [isAdmin, setIsAdmin] = useState(false)
+
   const [pendingApprovals, setPendingApprovals] = useState([])
 
   useEffect(() => {
+
+
     async function adminstats() {
       const res = await axios.get(`${Constants.uri}/api/admin/stats`, { withCredentials: true })
       console.log(res)
@@ -296,8 +300,22 @@ const AdminDashboard = () => {
       setPendingApprovals(res.data)
     }
 
-    adminstats()
-    getPendingApprovalQuestions()
+    let admin
+    async function getAdmin() {
+      const userid = Cookies.get("ID")
+      admin = await axios.get(`${Constants.uri}/api/users/${userid}/profile`)
+      setIsAdmin(admin.data.is_admin)
+      if (admin.data.is_admin) {
+        adminstats()
+        getPendingApprovalQuestions()
+      }
+      else {
+        toast.error('You are not authorised to this page', { position: 'top-center' })
+      }
+    }
+
+    getAdmin()
+
   }, [])
 
   const approveQuestion = async (id, approve) => {
@@ -321,132 +339,137 @@ const AdminDashboard = () => {
   }
 
   return (
+
     <div style={{ margin: "1rem", backgroundColor: "#e6e6e6", width: "78rem", height: "78rem" }}>
-      <Row style={{ margin: "1rem" }}>
-        <Col sm={3}></Col>
-        <Col style={{ marginTop: "2rem" }}><h1>ADMIN DASHBOARD</h1></Col>
-        <Row>
-          <Col sm={7}><Button onClick={openDashboard} style={{ border: "0" }} className='btn btn-secondary rounded-pill'>Dashboard</Button></Col>
-          <Col ><Button onClick={openTagModal} className='btn btn-secondary rounded-pill'>Create Tag</Button></Col>
-          <Col style={{ marginLeft: "-9rem" }}><Button onClick={openpendings} className='btn btn-secondary rounded-pill'>Pending Approvals</Button></Col>
-          <Col sm={1} style={{ marginLeft: "-9rem" }}><Button onClick={logout} className='btn btn-secondary rounded-pill'>Logout</Button></Col>
-        </Row>
-      </Row>
-      {
-        dashboardflag ? <div>
-          <Row>
-            <Col sm={5}></Col>
-            <Col>
-              <h4>Dashboard</h4>
-            </Col>
-          </Row>
-          <Row>
-            <Col sm={1}></Col>
-            <Col sm={5}>
-              <div>
-                {noOfQuestionsPerDay && noOfQuestionsPerDay.datasets && noOfQuestionsPerDay.datasets[0].data && (
-                  <Bar options={optionsNoOfQuestionsPerDay} data={noOfQuestionsPerDay} />
-                )}
-
-              </div>
-
-            </Col>
-            <Col sm={5}>
-              <div>
-                {topTenViewedQuestions && topTenViewedQuestions.datasets && topTenViewedQuestions.datasets[0].data && (
-                  <Bar options={optionsTopTenViewedQuestions} data={topTenViewedQuestions} />
-                )}
-              </div>
-
-            </Col>
-          </Row>
-          <br />
-          <Row>
-            <Col sm={1}></Col>
-            <Col sm={5}>
-              <div>
-                {topTenTags && topTenTags.datasets && topTenTags.datasets[0].data && (
-                  <Bar options={optionsTopTenTags} data={topTenTags} />
-                )}
-              </div>
-
-            </Col>
-            <Col sm={5}>
-              <div>
-                {topTenUsers && topTenUsers.datasets && topTenUsers.datasets[0].data && (
-                  <Bar options={optionsTopTenUsers} data={topTenUsers} />
-                )}
-              </div>
-
-            </Col>
-          </Row>
-          <Row>
-            <Col sm={4}></Col>
-            <Col sm={5}>
-              <div>
-                {leastTenUsers && leastTenUsers.datasets && leastTenUsers.datasets[0].data && (
-                  <Bar options={optionsLeastTenUsers} data={leastTenUsers} />
-                )}
-              </div>
-
-            </Col>
-
-          </Row>
-
-        </div> :
-          <div>
-            <br />
-            <Row style={{ marginLeft: '20%', marginRight: "20%" }}>
-              <Col>
-                <h4 style={{ textAlign: 'center' }}>Pending Approvals</h4>
-                <br />
-                {pendingApprovals ? (
-                  <>
-                    {pendingApprovals.map(pending => (
-                      <>
-                        <Row>
-                          <Col sm={6}>{pending.title}</Col>
-                          <Col sm={2}>Posted {moment(pending.created_date).fromNow()}</Col>
-                          <Col sm={2}><Button className='btn btn-success rounded-pill' onClick={() => approveQuestion(pending.id, true)}>Approve</Button></Col>
-                          <Col sm={2}><Button className='btn btn-danger rounded-pill' onClick={() => approveQuestion(pending.id, false)}>Reject</Button></Col>
-                        </Row>
-                        <hr />
-                      </>
-                    ))}
-                  </>
-                ) :
-                  (
-                    <h6>No questions for Approvals</h6>
-                  )}
-              </Col>
+      {isAdmin && (
+        <>
+          <Row style={{ margin: "1rem" }}>
+            <Col sm={3}></Col>
+            <Col style={{ marginTop: "2rem" }}><h1>ADMIN DASHBOARD</h1></Col>
+            <Row>
+              <Col sm={7}><Button onClick={openDashboard} style={{ border: "0" }} className='btn btn-secondary rounded-pill'>Dashboard</Button></Col>
+              <Col ><Button onClick={openTagModal} className='btn btn-secondary rounded-pill'>Create Tag</Button></Col>
+              <Col style={{ marginLeft: "-9rem" }}><Button onClick={openpendings} className='btn btn-secondary rounded-pill'>Pending Approvals</Button></Col>
+              <Col sm={1} style={{ marginLeft: "-9rem" }}><Button onClick={logout} className='btn btn-secondary rounded-pill'>Logout</Button></Col>
             </Row>
-          </div>
-      }
-
-
-
-
-      <Modal show={modal} size="md"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered onHide={() => setmodal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Add a tag</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Row style={{ marginBottom: "2rem" }}>
-            <Col sm={4}>Tag Name</Col>
-            <Col sm={6}><input name="name" value={name} onChange={(e) => onChangeTagData(e)}></input></Col>
           </Row>
-          <Row>
-            <Col sm={4}>Tag Description</Col>
-            <Col sm={6}><textarea style={{ width: "15rem", height: "15rem" }} name="description" value={description} onChange={(e) => onChangeTagData(e)}></textarea></Col>
-          </Row>
-          <Row>
-            <Col sm={10}></Col>
-            <Col><Button style={{ backgroundColor: "#008000" }} onClick={(e) => addTag(e)}>Create</Button></Col>
-          </Row>
-        </Modal.Body>
-      </Modal>
+          {
+            dashboardflag ? <div>
+              <Row>
+                <Col sm={5}></Col>
+                <Col>
+                  <h4>Dashboard</h4>
+                </Col>
+              </Row>
+              <Row>
+                <Col sm={1}></Col>
+                <Col sm={5}>
+                  <div>
+                    {noOfQuestionsPerDay && noOfQuestionsPerDay.datasets && noOfQuestionsPerDay.datasets[0].data && (
+                      <Bar options={optionsNoOfQuestionsPerDay} data={noOfQuestionsPerDay} />
+                    )}
+
+                  </div>
+
+                </Col>
+                <Col sm={5}>
+                  <div>
+                    {topTenViewedQuestions && topTenViewedQuestions.datasets && topTenViewedQuestions.datasets[0].data && (
+                      <Bar options={optionsTopTenViewedQuestions} data={topTenViewedQuestions} />
+                    )}
+                  </div>
+
+                </Col>
+              </Row>
+              <br />
+              <Row>
+                <Col sm={1}></Col>
+                <Col sm={5}>
+                  <div>
+                    {topTenTags && topTenTags.datasets && topTenTags.datasets[0].data && (
+                      <Bar options={optionsTopTenTags} data={topTenTags} />
+                    )}
+                  </div>
+
+                </Col>
+                <Col sm={5}>
+                  <div>
+                    {topTenUsers && topTenUsers.datasets && topTenUsers.datasets[0].data && (
+                      <Bar options={optionsTopTenUsers} data={topTenUsers} />
+                    )}
+                  </div>
+
+                </Col>
+              </Row>
+              <Row>
+                <Col sm={4}></Col>
+                <Col sm={5}>
+                  <div>
+                    {leastTenUsers && leastTenUsers.datasets && leastTenUsers.datasets[0].data && (
+                      <Bar options={optionsLeastTenUsers} data={leastTenUsers} />
+                    )}
+                  </div>
+
+                </Col>
+
+              </Row>
+
+            </div> :
+              <div>
+                <br />
+                <Row style={{ marginLeft: '20%', marginRight: "20%" }}>
+                  <Col>
+                    <h4 style={{ textAlign: 'center' }}>Pending Approvals</h4>
+                    <br />
+                    {pendingApprovals ? (
+                      <>
+                        {pendingApprovals.map(pending => (
+                          <>
+                            <Row>
+                              <Col sm={6}><Link to={`/questions/${pending.id}`} style={{ textDecoration: 'none' }}>{pending.title}</Link></Col>
+                              <Col sm={4}>Posted {moment(pending.created_date).fromNow()}</Col>
+                              <Col sm={2}><Button className='btn btn-success rounded-pill' onClick={() => approveQuestion(pending.id, true)}>Approve</Button></Col>
+                            </Row>
+                            <hr />
+                          </>
+                        ))}
+                      </>
+                    ) :
+                      (
+                        <h6>No questions for Approvals</h6>
+                      )}
+                  </Col>
+                </Row>
+              </div>
+          }
+
+
+
+
+          <Modal show={modal} size="md"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered onHide={() => setmodal(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Add a tag</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Row style={{ marginBottom: "2rem" }}>
+                <Col sm={4}>Tag Name</Col>
+                <Col sm={6}><input name="name" value={name} onChange={(e) => onChangeTagData(e)}></input></Col>
+              </Row>
+              <Row>
+                <Col sm={4}>Tag Description</Col>
+                <Col sm={6}><textarea style={{ width: "15rem", height: "15rem" }} name="description" value={description} onChange={(e) => onChangeTagData(e)}></textarea></Col>
+              </Row>
+              <Row>
+                <Col sm={10}></Col>
+                <Col><Button style={{ backgroundColor: "#008000" }} onClick={(e) => addTag(e)}>Create</Button></Col>
+              </Row>
+            </Modal.Body>
+          </Modal>
+        </>
+      )}
+
     </div>
   )
 }

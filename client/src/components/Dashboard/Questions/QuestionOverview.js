@@ -51,6 +51,7 @@ const QuestionOverview = () => {
   const [downvoteaflag, setDownVoteAFlag] = useState(false)
   const [approveanswer, setpproveAnswer] = useState(false)
   const [acceptanswer, setacceptAnswer] = useState(false)
+  const [isAdmin,setIsAdmin] = useState(false)
 
   const [answerCommentForm, setAnswerCommentForm] = useState("")
   const { title, body } = answerForm
@@ -96,11 +97,18 @@ const QuestionOverview = () => {
         setIsQuestionBookMarked(true)
       }
     }
+    async function getUser(){
+      const res = await axios.get(`${Constants.uri}/api/users/${Cookies.get('ID')}/profile`)
+      if(res.data.is_admin){
+        setIsAdmin(true)
+      }
+    }
     console.log(Cookies.get('ID'))
     if (!Cookies.get('ID')) {
       setModalShow(true)
-      toast('Please Login to view Question')
+      toast('Please Login to view Question',{position:'top-center'})
     }
+    getUser()
     getQuestion()
   }, [upvoteqflag, downvoteqflag, upvoteaflag, downvoteaflag, acceptanswer,isQuestionBookMarked])
 
@@ -240,7 +248,7 @@ const openUser =(id)=>{
               </Row>
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
 
-              {(question.status === 'ACTIVE' || (question.status != 'ACTIVE' && userid == question.owner_id)) && (
+              {(question.status === 'ACTIVE' || isAdmin || (question.status != 'ACTIVE' && userid == question.owner_id)) && (
                 <>
                   <Row>
                     <Col sm={1}>
@@ -319,7 +327,7 @@ const openUser =(id)=>{
         </Col>
       </Row>
 
-      {(question.status === 'ACTIVE' || (question.status != 'ACTIVE' && userid == question.owner_id)) && (
+      {(question.status === 'ACTIVE' || isAdmin || (question.status != 'ACTIVE' && userid == question.owner_id)) && (
         <>
           <div style={{ marginTop: "5rem" }}>
             <h5 style={{ marginLeft: "15rem", fontSize: "19px" }}>{question.answers_count === 1 ? <text>{question.answers_count} answer</text> : <text>{question.answers_count} answers</text>}</h5>
@@ -422,7 +430,7 @@ const openUser =(id)=>{
         </>
       )}
 
-      {question && question.status != 'ACTIVE' && userid != question.owner_id && (
+      {question && !isAdmin && question.User && question.status != 'ACTIVE' && userid != question.owner_id && (
         <Row style={{marginLeft:"30%",marginRight:"20%",marginTop:'10%'}}>
           <Button variant='outline-danger'> Waiting for Aprroval from Admin. Come back later!</Button>
         </Row>
