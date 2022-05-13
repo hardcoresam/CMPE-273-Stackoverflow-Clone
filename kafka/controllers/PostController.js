@@ -26,16 +26,8 @@ exports.getQuestionsForDashboard = async (req, res) => {
 
 const jwt = require('jsonwebtoken');
 exports.getQuestion = async (req, res) => {
-    if (req.cookies['access-token']) {
-        try {
-            const decoded = jwt.verify(req.cookies['access-token'], 'mR7vPipenxea02YaVCZloRQyIyZ7zEUc');
-            req.body.USER_ID = decoded.user.id;
-        } catch (error) {
-            console.error(error);
-        }
-    }
 
-    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, params: req.params, action: actions.GET_QUESTION }, (err, data) => {
+    kafka.sendKafkaRequest(kafkaTopics.POSTS_TOPIC, { ...req.body, query: req.query, params: req.params, action: actions.GET_QUESTION }, (err, data) => {
         if (err) return res.status(400).json({ message: err })
         return res.json(data)
     })

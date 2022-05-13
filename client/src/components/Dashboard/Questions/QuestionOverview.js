@@ -52,6 +52,7 @@ const QuestionOverview = () => {
   const [approveanswer, setpproveAnswer] = useState(false)
   const [acceptanswer, setacceptAnswer] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [tempflag, setTempflag] = useState(false)
 
   const [answerCommentForm, setAnswerCommentForm] = useState("")
   const { title, body } = answerForm
@@ -86,7 +87,7 @@ const QuestionOverview = () => {
 
   useEffect(() => {
     async function getQuestion() {
-      const res = await axios.get(`${Constants.uri}/api/post/${params.qid}`)
+      const res = await axios.get(`${Constants.uri}/api/post/${params.qid}?userid=${userid}`)
       console.log(res.data)
       if (res.data.User.id == Cookies.get("ID")) {
         setpproveAnswer(true)
@@ -113,7 +114,7 @@ const QuestionOverview = () => {
 
     getUser()
     getQuestion()
-  }, [upvoteqflag, downvoteqflag, upvoteaflag, downvoteaflag, acceptanswer, isQuestionBookMarked])
+  }, [upvoteqflag, downvoteqflag, upvoteaflag, downvoteaflag, acceptanswer,tempflag, isQuestionBookMarked])
 
   const bookMarkQuestion = async () => {
     if (!Cookies.get('ID')) {
@@ -190,7 +191,12 @@ const QuestionOverview = () => {
   }
 
   const openActivity = () => {
-    navigate(`/questions/${params.qid}/activity`)
+    if (!Cookies.get('ID')) {
+      setModalShow(true)
+      toast('Please Login to bookmark this Question', { position: 'top-center' })
+    }else{
+      navigate(`/questions/${params.qid}/activity`)
+    }
   }
   const openTag = (tag) => {
     navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=interesting`);
@@ -234,10 +240,8 @@ const QuestionOverview = () => {
       toast('Please Login to cast your vote', { position: 'top-center' })
     } else {
       const res = await axios.post(`${Constants.uri}/api/post/${answer.id}/vote`, { type: voteType }, { withCredentials: true })
-      console.log("//////////////////////////")
-      console.log(res)
       if (res.data) {
-        // console.log(res)
+        setTempflag(!tempflag)
         if (voteType == "UPVOTE")
           toast.success("Up voted the answer")
         else

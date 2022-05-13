@@ -10,12 +10,13 @@ import { useParams } from 'react-router'
 import EditQ from './EditQ'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router'
+import Cookies from 'js-cookie'
 
 // import { updatingbody } from '../../../features/QuestionBodySlice'
 const EditQuestion = () => {
     const navigate= useNavigate();
     const obj = useSelector(state => state.QuestionBodySlice);
-
+    const userid = Cookies.get("ID");
     const [questionForm,setQuestionFormData] = useState({
         title:"",
         body:"",
@@ -30,7 +31,7 @@ const EditQuestion = () => {
 
     useEffect(()=>{
         async function getQuestion(){
-            const res = await axios.get(`${Constants.uri}/api/post/${params.questionId}`,{withCredentials:true})
+            const res = await axios.get(`${Constants.uri}/api/post/${params.questionId}?userid=${userid}`,{withCredentials:true})
             console.log(res)
             setQuestionFormData({...setQuestionFormData,title:res.data.title,body:res.data.body,tags:res.data.tags})
         }

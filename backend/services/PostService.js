@@ -162,6 +162,11 @@ const getQuestionsForDashboard = async (payload, callback) => {
 }
 
 const getQuestion = async (payload, callback) => {
+    const userid = payload.query.userid;
+    if (userid) {
+        payload.USER_ID = userid;
+    }
+    
     //Checking for votes for question
     let isUpVote = false;
     let isDownVote = false;
