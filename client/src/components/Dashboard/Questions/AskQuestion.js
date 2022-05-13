@@ -26,6 +26,7 @@ const AskQuestion = () => {
     const [modalShow, setModalShow] = useState(false)
     const [image, setImage] = useState({ preview: "", raw: "" })
     const [imgurl,setimgurl] = useState("");
+
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -41,28 +42,39 @@ const AskQuestion = () => {
         console.log(e)
     }
 
+    const validteData = () => {
+        if (!title)
+            return false
+        if (!body)
+            return false
+        if (!tags)
+            return false
+        return true
+    }
+
     const askQuestion = async (e) => {
         e.preventDefault()
         // console.log(questionForm)
         console.log("posting quesrion")
-
-        axios.defaults.withCredentials = true
-        const res = await axios.post(`${Constants.uri}/api/post/question`, questionForm, {
-            validateStatus: status => status < 500
-        })
-        if (res.status === 200) {
-            toast.success('Posted new question successfully!', { position: "top-center" });
-            navigate("/Dashboard")
-        } else {
-            if (res.data.message.error) {
-                toast.error(`${res.data.message.error}`, { position: "top-center" });
+        if (validteData()) {
+            axios.defaults.withCredentials = true
+            const res = await axios.post(`${Constants.uri}/api/post/question`, questionForm, {
+                validateStatus: status => status < 500
+            })
+            if (res.status === 200) {
+                toast.success('Posted new question successfully!', { position: "top-center" });
+                navigate("/Dashboard")
             } else {
-                toast.error('Server Error', { position: "top-center" })
+                if (res.data.message.error) {
+                    toast.error(`${res.data.message.error}`, { position: "top-center" });
+                } else {
+                    toast.error('Server Error', { position: "top-center" })
+                }
+
             }
-
+        }else{
+            toast.error('Please enter all the fields',{position:"top-center"})
         }
-
-
     }
 
     const onChange = (value) => {

@@ -15,6 +15,10 @@ import { Bar } from 'react-chartjs-2';
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import moment from 'moment'
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from 'react-router-dom'
+import Cookies from 'js-cookie'
+import { logoutPending, logoutSuccess } from '../../../features/logout';
 
 ChartJS.register(
   CategoryScale,
@@ -29,6 +33,8 @@ ChartJS.register(
 
 const AdminDashboard = () => {
 
+  const dispatch = useDispatch();
+  var navigate = useNavigate();
 
   const options = {
     responsive: true,
@@ -306,15 +312,24 @@ const AdminDashboard = () => {
     }
   }
 
+  const logout = () => {
+    dispatch(logoutPending())
+    Cookies.remove('access-token')
+    dispatch(logoutSuccess())
+    Cookies.remove('ID')
+    navigate("/Dashboard")
+  }
+
   return (
     <div style={{ margin: "1rem", backgroundColor: "#e6e6e6", width: "78rem", height: "78rem" }}>
       <Row style={{ margin: "1rem" }}>
         <Col sm={3}></Col>
         <Col style={{ marginTop: "2rem" }}><h1>ADMIN DASHBOARD</h1></Col>
         <Row>
-          <Col sm={8}><Button onClick={openDashboard} style={{ border: "0" }} className='btn btn-secondary rounded-pill'>Dashboard</Button></Col>
+          <Col sm={7}><Button onClick={openDashboard} style={{ border: "0" }} className='btn btn-secondary rounded-pill'>Dashboard</Button></Col>
           <Col ><Button onClick={openTagModal} className='btn btn-secondary rounded-pill'>Create Tag</Button></Col>
           <Col style={{ marginLeft: "-9rem" }}><Button onClick={openpendings} className='btn btn-secondary rounded-pill'>Pending Approvals</Button></Col>
+          <Col sm={1} style={{ marginLeft: "-9rem" }}><Button onClick={logout} className='btn btn-secondary rounded-pill'>Logout</Button></Col>
         </Row>
       </Row>
       {
