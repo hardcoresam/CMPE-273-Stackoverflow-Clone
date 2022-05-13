@@ -101,8 +101,8 @@ const MainCard = () => {
                                     (<Row><button style={{ backgroundColor: "white", width: "7rem", borderRadius: "3px", color: "hsl(140deg 40% 47%)" , borderWidth:"1px", borderColor:"hsl(140deg 40% 47%)"}} > 0 answers</button></Row>)
                                 }
                                 <Row>
-                                <Col sm={3}></Col>
-                                <Col sm={9} style={{ color: "hsl(27,90%,55%)" }}>
+                                
+                                <Col sm={8} style={{ color: "hsl(27,90%,55%)", textAlign:"right" }}>
                                 {question.views_count} views
                                 </Col></Row>
                             </Col>
