@@ -56,43 +56,7 @@ const Messages = () => {
 
 
     return (
-        <div>
-            <Row style={{marginTop:'15px', marginLeft:'15%',marginRight:'15%'}}>
-                <Col sm={2}></Col>
-                <Col sm={8}>
-                    <Row >
-                        <Col><h5>Inbox</h5></Col>
-                        <Col>
-                            <InputGroup className="mb-3">
-                                <InputGroup.Text id="basic-addon1"><i class="fa fa-search" aria-hidden="true"></i></InputGroup.Text>
-                                <FormControl
-                                    placeholder="Search User"
-                                    onChange={(e) => { searchUser(e) }}
-                                />
-                            </InputGroup>
-                            {usersList && usersList.length > 0 && 
-                                usersList.map(user => (
-                                    <Dropdown.Item eventKey="1" onClick={()=>selectUser(user)}>{user.username}</Dropdown.Item>
-                                ))
-                            }
-                        </Col>
-                    </Row>
-                    {chatList.map(chat =>
-                    (<Card style={{ cursor: "pointer" }} onClick={() => openUserMessageBox(chat.room_id)}>
-                        <Card.Body>
-                            <Row>
-                                <Col sm={2}><img style={{ width: "3rem", height: "3rem", borderRadius: "3rem" }} src={img}></img></Col>
-                                <Col><h5>{chat.participants.replace(`${username}`, '').replace(',', '')}</h5></Col>
-                            </Row>
-                        </Card.Body>
-                    </Card>))}
-
-                </Col>
-                <Col >
-                    {/* <img style={{ width: "38rem", height: "auto" }} src={messageimg}></img> */}
-                </Col>
-            </Row>
-        </div>
+       
     )
 }
 
