@@ -20,7 +20,7 @@ const Login = (props) => {
         dispatch(loginPending())
         Axios.post(`${Constants.uri}/api/users/login`,{
             email : email,
-            password : password
+               password : password
           },{
             withCredentials : true,
             validateStatus: status => status<500

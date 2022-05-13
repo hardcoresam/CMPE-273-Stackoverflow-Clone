@@ -43,7 +43,10 @@ const QuestionOverview = () => {
   const [commentForm, setCommentForm] = useState()
   const [isQuestionBookMarked, setIsQuestionBookMarked] = useState(false)
   const [enableComment, setEnableComment] = useState(false)
-  const [flag, setFlag] = useState(true)
+  const [upvoteqflag, setUpVoteQFlag] = useState(false)
+  const [downvoteqflag, setDownVoteQFlag] = useState(false)
+  const [upvoteaflag, setUpVoteAFlag] = useState(false)
+  const [downvoteaflag, setDownVoteAFlag] = useState(false)
   const [approveanswer, setpproveAnswer] = useState(false)
   const [acceptanswer, setacceptAnswer] = useState(false)
   const [answerCommentForm, setAnswerCommentForm] = useState("")
@@ -77,6 +80,12 @@ const QuestionOverview = () => {
       if (res.data.User.id == Cookies.get("ID")) {
         setpproveAnswer(true)
       }
+      if(res.data.isUpVote){
+        setUpVoteQFlag(true)
+      }
+      else if(res.data.isDownVote){
+        setDownVoteQFlag(true);
+      }
       setQuestion(res.data)
       setAnswers(res.data.answers)
       setComments(res.data.Comments)
@@ -90,7 +99,7 @@ const QuestionOverview = () => {
       toast('Please Login to view Question')
     }
     getQuestion()
-  }, [flag, acceptanswer])
+  }, [upvoteqflag,downvoteqflag, upvoteaflag,downvoteaflag, acceptanswer])
 
   const bookMarkQuestion = async () => {
     if (!isQuestionBookMarked) {
@@ -154,7 +163,19 @@ const QuestionOverview = () => {
     const res = await axios.post(`${Constants.uri}/api/post/${question.id}/vote`, { type: voteType }, { withCredentials: true })
     console.log(res.data)
     if (res.data) {
-      setFlag(!flag)
+      if(voteType==="UPVOTE"){
+          setUpVoteQFlag(!upvoteqflag)   
+          if(downvoteqflag){
+            setDownVoteQFlag(false)
+          }    
+      }
+      else{
+        setDownVoteQFlag(!downvoteqflag)
+        if(upvoteqflag){
+          setUpVoteQFlag(false)
+        }
+      }
+      
       if (voteType == "UPVOTE")
         toast.success("Up voted the question")
       else
@@ -166,7 +187,6 @@ const QuestionOverview = () => {
     const res = await axios.post(`${Constants.uri}/api/post/${answer.id}/vote`, { type: voteType }, { withCredentials: true })
     console.log(res.data)
     if (res.data) {
-      setFlag(!flag)
       if (voteType == "UPVOTE")
         toast.success("Up voted the answer")
       else
@@ -213,9 +233,9 @@ const QuestionOverview = () => {
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
               <Row>
                 <Col sm={1}>
-                  {question.score === 1 ? <div className='uptriangleonclick' onClick={() => voteQuestion("UPVOTE")}></div> : <div className='uptriangle' onClick={() => voteQuestion("UPVOTE")}></div>}
+                  {upvoteqflag ? <div className='uptriangleonclick' onClick={() => voteQuestion("UPVOTE")}></div> : <div className='uptriangle' onClick={() => voteQuestion("UPVOTE")}></div>}
                   <div>&nbsp;&nbsp;{question.score}</div>
-                  {question.score === -1 ? <div className='downtriangleonclick' onClick={() => voteQuestion("DOWNVOTE")}></div> : <div className='downtriangle' onClick={() => voteQuestion("DOWNVOTE")}></div>}
+                  {downvoteqflag ? <div className='downtriangleonclick' onClick={() => voteQuestion("DOWNVOTE")}></div> : <div className='downtriangle' onClick={() => voteQuestion("DOWNVOTE")}></div>}
                   <div style={{ margin: "8px", cursor: "pointer" }}><i className="fa-solid fa-bookmark" onClick={() => bookMarkQuestion()} style={{ color: isQuestionBookMarked ? "#fce303" : "#c2d6d6" }}></i></div>
                   <div style={{ margin: "8px", cursor: "pointer" }}><i class="fa-solid fa-clock" onClick={openActivity} style={{ color: "#c2d6d6" }}></i></div>
                 </Col>

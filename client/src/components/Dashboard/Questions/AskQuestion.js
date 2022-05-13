@@ -17,8 +17,7 @@ const AskQuestion = () => {
         title:"",
         body:"",
         tags:"",
-        type:"QUESTION",
-        isImage:false
+        type:"QUESTION"
     })
 
     const {title,body,tags} = questionForm
