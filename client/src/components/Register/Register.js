@@ -54,30 +54,7 @@ const Register = (props) => {
         {//error && <Alert variant="danger">{error}</Alert> 
         }
 
-        <div style={{display:"flex", flexDirection : "column", justifyContent:"space-between", height:"15rem"}}>
-        <Row style={{marginTop:"-5px"}}><label for="Email">Display name</label></Row>
-        <Row style={{ margin: "1px" }}><input onChange={(e) => {
-
-            setDisplayName(e.target.value)
-        }} id="Email" ></input></Row>
-
-        <Row style={{marginTop:"-5px"}}><label for="Email">Email</label></Row>
-        <Row style={{ margin: "1px" }}><input onChange={(e) => {
-
-            setEmail(e.target.value)
-        }} id="Email" ></input></Row>
-
-        <Row><label for="Password">Password</label></Row>
-        <Row style={{ margin: "1px" }}><input type="password" onChange={(e) => {
-            setPassword(e.target.value)
-        }} id="Second Name" ></input></Row>
-
-        <Row style={{ margin: "1px", marginTop:"7px" }}><Button onClick={registerUser} className="signinButton">Sign up</Button></Row>
-        </div>
-        
-
-        {//isLoading && <Spinner variant="primary" animation="border"/>
-        }
+       
 
 
     </Modal.Body>
