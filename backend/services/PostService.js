@@ -449,29 +449,31 @@ const acceptAnswer = async (payload, callback) => {
 
 const updateQuestion = async (payload, callback) => {
     const { title, body } = payload
-    let data = await Post.findOne({ where: { id: payload.params.questionId } })
-    data = data.dataValues
-    console.log(data)
-    if (data.owner_id == payload.USER_ID) {
-        sqlQuery = "update post set title = :title, body = :body where id = :questionId"
-        const updateddata = await sequelize.query(sqlQuery, {
-            replacements: { title: title, body: body, questionId: payload.params.questionId },
-            type: Sequelize.QueryTypes.UPDATE
-        });
-        console.log(updateddata)
-        const loggedInUser = await User.findOne({
-            where: { id: payload.USER_ID },
-            attributes: ['username']
-        });
-        await new PostHistory({
-            post_id: payload.params.questionId,
-            user_id: payload.USER_ID,
-            user_display_name: loggedInUser.username,
-            type: "QUESTION_EDITED"
-        }).save();
-        return callback(null, updateddata);
+    let post = await Post.findOne({ where: { id: payload.params.questionId } });
+    if (post === null) {
+        return callback({ error: "Invalid question id specified" }, null);
     }
-    else return callback({ error: "Only owner can update the question" }, null)
+    if (post.owner_id !== payload.USER_ID) {
+        return callback({ error: "Only owner can update the question" }, null);
+    }
+
+    post.set({
+        title: title,
+        body: body,
+        modified_date: sequelize.fn('NOW')
+    });
+    await post.save();
+    const loggedInUser = await User.findOne({
+        where: { id: payload.USER_ID },
+        attributes: ['username']
+    });
+    await new PostHistory({
+        post_id: payload.params.questionId,
+        user_id: payload.USER_ID,
+        user_display_name: loggedInUser.username,
+        type: "QUESTION_EDITED"
+    }).save();
+    return callback(null, post);
 }
 
 //TODO - Exception handling for bad user input
