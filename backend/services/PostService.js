@@ -353,6 +353,7 @@ const addReputationHistory = async (post, user_id, voteType) => {
     if (reputationHistory === null) {
         await new ReputationHistory({
             owner_id: post.owner_id, post_id: post.id, user_id,
+            post_parent_id: post.type === 'ANSWER' ? post.parent_id : null,
             post_title: post.type === "ANSWER" ? post.question.title : post.title,
             reputation: reputationToModify, type: voteType
         }).save();
@@ -431,8 +432,8 @@ const acceptAnswer = async (payload, callback) => {
 
         //log repuation history data
         await new ReputationHistory({
-            owner_id: answer.owner_id, post_id: answer.id, user_id: payload.USER_ID,
-            post_title: answer.question.title,
+            owner_id: answer.owner_id, post_id: answer.id, post_parent_id: answer.parent_id,
+            user_id: payload.USER_ID, post_title: answer.question.title,
             reputation: 15, type: 'ACCEPT'
         }).save();
 

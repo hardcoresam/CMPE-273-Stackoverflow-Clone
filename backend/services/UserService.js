@@ -228,27 +228,27 @@ const getUserAnswers = async (payload, callback) => {
 const getUserQuestions = async (payload, callback) => {
   const userId = payload.params.userId;
 
+  let whereStatement = {
+    owner_id: userId,
+    type: "QUESTION"
+  };
+  if (payload.query.filterBy) {
+    whereStatement.status = payload.query.filterBy;
+  }
+
   let offset = 0;
   if (payload.query.offset) {
     offset = payload.query.offset
   }
 
   const userQuestions = await Post.findAll({
-    where: {
-      owner_id: userId,
-      type: "QUESTION",
-    },
+    where: whereStatement,
     order: [["score", "DESC"]],
     offset: parseInt(offset),
     limit: 10
   });
 
-  const questionsCount = await Post.count({
-    where: {
-      owner_id: userId,
-      type: "QUESTION",
-    }
-  });
+  const questionsCount = await Post.count({ where: whereStatement });
   return callback(null, { userQuestions, questionsCount });
 };
 
@@ -291,24 +291,27 @@ const getUserReputationHistory = async (payload, callback) => {
   let response = [];
 
   for (let reputationHistory of reputationHistoryList) {
-    let existingValue = response.find(value => value.date === reputationHistory.created_on.substring(0, 10));
+    let existingValue = response.find(value => value.date === reputationHistory.created_on.slice(0, 10));
     if (existingValue) {
       let existingHistoryObject = existingValue.history.find(h => h.postId === reputationHistory.post_id);
       if (existingHistoryObject) {
         existingHistoryObject.postHistoryGrouping.push({
           type: reputationHistory.type,
-          score: reputationHistory.reputation
+          score: reputationHistory.reputation,
+          time: reputationHistory.created_on.slice(12, 17)
         });
         existingHistoryObject.postHistoryGroupingScore = existingHistoryObject.postHistoryGroupingScore +
           reputationHistory.reputation;
       } else {
         existingValue.history.push({
           postId: reputationHistory.post_id,
+          postParentId: reputationHistory.post_parent_id,
           postTitle: reputationHistory.post_title,
           postHistoryGrouping: [
             {
               type: reputationHistory.type,
-              score: reputationHistory.reputation
+              score: reputationHistory.reputation,
+              time: reputationHistory.created_on.slice(12, 17)
             }
           ],
           postHistoryGroupingScore: reputationHistory.reputation
@@ -317,16 +320,18 @@ const getUserReputationHistory = async (payload, callback) => {
       existingValue.totalReputation = existingValue.totalReputation + reputationHistory.reputation;
     } else {
       response.push({
-        date: reputationHistory.created_on.substring(0, 10),
+        date: reputationHistory.created_on.slice(0, 10),
         totalReputation: reputationHistory.reputation,
         history: [
           {
             postId: reputationHistory.post_id,
+            postParentId: reputationHistory.post_parent_id,
             postTitle: reputationHistory.post_title,
             postHistoryGrouping: [
               {
                 type: reputationHistory.type,
-                score: reputationHistory.reputation
+                score: reputationHistory.reputation,
+                time: reputationHistory.created_on.slice(12, 17)
               }
             ],
             postHistoryGroupingScore: reputationHistory.reputation
@@ -335,7 +340,8 @@ const getUserReputationHistory = async (payload, callback) => {
       });
     }
   }
-  return callback(null, response);
+  const userReputation = await User.findOne({ where: { id: userId }, attributes: ["id", "reputation"] });
+  return callback(null, { response, totalReputation: userReputation.reputation });
 };
 
 const getUser = async (payload, callback) => {
