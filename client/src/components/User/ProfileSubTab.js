@@ -305,7 +305,11 @@ const ProfileSubTab = (props) => {
                                                 
                                             </Row>
                                         </Col>
-                                        <Col style={{cursor:"pointer"}} onClick={() =>openPost(i.id)} sm={7}>{i.title}</Col>
+                                        {
+                                            i.type==="QUESTION" ?<Col style={{cursor:"pointer"}} onClick={() =>openPost(i.id)} sm={7}>{i.title}</Col>:
+                                            <Col style={{cursor:"pointer"}} onClick={() =>openPost(i.question.id)} sm={7}>{i.question.title}</Col>
+                                        }
+                                        
                                         <Col>{moment(i.modified_date).fromNow()}</Col>
                                     </Row>
                                 </Card.Body>

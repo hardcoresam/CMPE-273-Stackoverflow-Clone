@@ -43,7 +43,7 @@ const BookmarkList = (props) => {
                                 <Col sm={3} style={{marginLeft:"-50px"}}><text style={{fontSize:"15px"}}>{i.Post.score} votes</text></Col>
                                 <Col sm={2}><text style={{fontSize: 13, color: "hsl(27deg 90% 55%)", marginLeft:"-90px"}}>{i.Post.views_count} views</text></Col>
                             </Row>
-                            <Row className='textLimit3' style={{ color: "hsl(206deg 100% 40%)", fontSize: "14px" , cursor:"pointer"}}><text onClick={() => openQuestion(i.Post.id)}>{parse(i.Post.body)}</text></Row>
+                            <Row className='textLimit3' style={{ color: "hsl(206deg 100% 40%)", fontSize: "14px" , cursor:"pointer"}}><text onClick={() => openQuestion(i.Post.id)}>{parse(i.Post.title)}</text></Row>
                             <Row style={{marginLeft:"-18px"}}>
                                 <Col sm={7}>
                                     {i.Post.tags.map((obj) => (

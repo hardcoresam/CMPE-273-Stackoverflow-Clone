@@ -23,17 +23,17 @@ const User = () => {
   const [modal, setmodal] = useState(false);
   const [profilepicture, setprofilepicture] = useState("")
   const [image, setImage] = useState({ preview: "", raw: "" })
-  const [uname,setuname] = useState("")
-  const [loc,setloc] = useState("")
-  const [about,setabout] = useState("")
+  const [uname, setuname] = useState("")
+  const [loc, setloc] = useState("")
+  const [about, setabout] = useState("")
 
 
 
   const [userProfile, setUserProfile] = useState({});
   var imguser;
   useEffect(() => {
-    async function getUserInfo(){
-      await Axios.get(`${Constants.uri}/api/users/${userid}/profile`,{
+    async function getUserInfo() {
+      await Axios.get(`${Constants.uri}/api/users/${userid}/profile`, {
         withCredentials: true
       }).then((r) => {
         dispatch(userReducer(r.data))
@@ -41,8 +41,8 @@ const User = () => {
     }
     getUserInfo();
 
-  },[userid,modal])
- 
+  }, [userid, modal])
+
 
   const handleChange = (e) => {
     console.log(URL.createObjectURL(e.target.files[0]))
@@ -70,18 +70,18 @@ const User = () => {
   }
 
   const editDetails = async () => {
-    if(image.preview){
-      imguser = await save(image.preview ,image.raw)
+    if (image.preview) {
+      imguser = await save(image.preview, image.raw)
       setprofilepicture(imguser)
     }
-  //  console.log("user "+ imguser)
-    const result = await Axios.post(`${Constants.uri}/api/users/${userid}/editProfile`,{
-      about : about ? about : obj.value.about,
-      photo :  imguser ? imguser : obj.value.photo,
-      location  : loc ? loc : obj.value.location,
-      username : uname ? uname : obj.value.username
+    //  console.log("user "+ imguser)
+    const result = await Axios.post(`${Constants.uri}/api/users/${userid}/editProfile`, {
+      about: about ? about : obj.value.about,
+      photo: imguser ? imguser : obj.value.photo,
+      location: loc ? loc : obj.value.location,
+      username: uname ? uname : obj.value.username
     },
-    { withCredentials: true });
+      { withCredentials: true });
     if (result.status === 200) {
       setmodal(false)
     }
@@ -94,16 +94,16 @@ const User = () => {
         </Col>
         <Col sm={8}>
           <Row style={{ marginTop: "28px", marginLeft: "-30px" }}>
-            <Col sm={2}><img style={{ height: "8rem",width:"9rem", borderRadius: "8px" }} src={obj.value.photo ? obj.value.photo : emptyuserimage}></img></Col>
+            <Col sm={2}><img style={{ height: "8rem", width: "9rem", borderRadius: "8px" }} src={obj.value.photo ? obj.value.photo : emptyuserimage}></img></Col>
             <Col style={{ marginTop: "2rem", marginLeft: "1rem" }}>
               <Row>
-                <text style={{ fontSize: "30px", fontFamily:"sans-serif" }}>{obj.value.username}</text>
+                <text style={{ fontSize: "30px", fontFamily: "sans-serif" }}>{obj.value.username}</text>
               </Row>
               <Row>
-                <text style={{color:"hsl(210deg 8% 45%)"}}><i style={{marginRight:"10px"}} class="fa-solid fa-cake-candles"></i>Member for {moment(obj.value.registered_on).fromNow(true)} <i style={{marginLeft:"10px"}} class="fa-solid fa-clock"></i> Last seen {moment(obj.value.last_login_time).fromNow()}</text>
+                <text style={{ color: "hsl(210deg 8% 45%)" }}><i style={{ marginRight: "10px" }} class="fa-solid fa-cake-candles"></i>Member for {moment(obj.value.registered_on).fromNow(true)} <i style={{ marginLeft: "10px" }} class="fa-solid fa-clock"></i> Last seen {moment(obj.value.last_login_time).fromNow()}</text>
               </Row>
               <Row>
-                <text style={{color:"hsl(210deg 8% 45%)"}}><i class="fa-solid fa-location-pin"></i> {obj.value.location}</text>
+                <text style={{ color: "hsl(210deg 8% 45%)" }}><i class="fa-solid fa-location-pin"></i> {obj.value.location}</text>
               </Row>
             </Col>
           </Row>
@@ -113,14 +113,14 @@ const User = () => {
             <Col sm={1} style={{ marginLeft: "-2rem" }}><Button variant={!tabflag ? "warning" : "light"} className='rounded-pill' onClick={activitySubTab}>Activity</Button></Col>
           </Row>
           <Row>
-            {tabflag ? <ProfileSubTab userid={userid} settabflag ={settabflag}/> : <ActivitySubTab />}
+            {tabflag ? <ProfileSubTab userid={userid} settabflag={settabflag} /> : <ActivitySubTab />}
           </Row>
         </Col>
         <Col sm={2}>
-        {
-          Cookies.get("ID")===userid && <Button onClick={openeditProfile} style={{ marginTop: "28px", color: "Black", borderColor: "black" }} variant='outline-light'>Edit Profile</Button>
-        
-        }
+          {
+            Cookies.get("ID") === userid && <Button onClick={openeditProfile} style={{ marginTop: "28px", color: "Black", borderColor: "black" }} variant='outline-light'>Edit Profile</Button>
+
+          }
         </Col>
       </Row>
       <Modal show={modal} size="md"
@@ -153,9 +153,9 @@ const User = () => {
                 <label htmlFor="upload-button">
 
                   {obj.value.photo ? (
-                      <img className='circleemptyimage' src={obj.value.photo} alt="dummy" />
+                    <img className='circleemptyimage' src={obj.value.photo} alt="dummy" />
                   ) : (
-                    image.preview ? <img className='circleemptyimage' src={image.preview}  alt="dummy" /> :
+                    image.preview ? <img className='circleemptyimage' src={image.preview} alt="dummy" /> :
                       <div>
                         <img className='circleemptyimage' src={emptyuserimage}></img>
                       </div>

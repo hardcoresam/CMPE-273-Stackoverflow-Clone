@@ -17,10 +17,10 @@ const ItemList = (props) => {
     const [state, setstate] = useState([]);
     const [totalQuestions, setTotalQuestions] = useState(0)
     const [totalPages, setTotalPages] = useState(0)
-
+    const [title,setTitle] = useState("Active");
     useEffect(() => {
         async function getBookmarks() {
-            await Axios.get(`${Constants.uri}/api/users/${userid}/activity/questions`, {
+            await Axios.get(`${Constants.uri}/api/users/${userid}/activity/questions?filterBy=ACTIVE`, {
                 withCredentials: true
             }).then((r) => {
                 setTotalQuestions(r.data.questionsCount)
@@ -97,11 +97,79 @@ const ItemList = (props) => {
         // dispatch(postReducer(res.data.questionsForDashboard))
         setstate(res.data.userQuestions);
     }
+const openActive = async()=>{
+    setTitle("Active")
+    await Axios.get(`${Constants.uri}/api/users/${userid}/activity/questions?filterBy=ACTIVE`, {
+        withCredentials: true
+    }).then((r) => {
+        setTotalQuestions(r.data.questionsCount)
 
+        setTotalPages(r.data.questionsCount / 10)
+
+
+        setstate(r.data.userQuestions)
+        var list = []
+        if ((r.data.questionsCount / 10) < 10) {
+            let end
+            if(r.data.questionsCount % 10 == 0){
+               end = r.data.questionsCount / 10 
+            }else{
+                end = r.data.questionsCount /10 + 1;
+            }
+            setEndOffset(end)
+            for (var i = startOffset; i <= end; i++) {
+                list.push(i)
+            }
+        } else {
+            setEndOffset(10)
+            for (var i = startOffset; i <= 10; i++) {
+                list.push(i)
+            }
+        }
+        setPageCount(list)
+    })
+}
+const openPending = async()=>{
+setTitle("Pending")
+await Axios.get(`${Constants.uri}/api/users/${userid}/activity/questions?filterBy=PENDING`, {
+    withCredentials: true
+}).then((r) => {
+    setTotalQuestions(r.data.questionsCount)
+
+    setTotalPages(r.data.questionsCount / 10)
+
+
+    setstate(r.data.userQuestions)
+    var list = []
+    if ((r.data.questionsCount / 10) < 10) {
+        let end
+        if(r.data.questionsCount % 10 == 0){
+           end = r.data.questionsCount / 10 
+        }else{
+            end = r.data.questionsCount /10 + 1;
+        }
+        setEndOffset(end)
+        for (var i = startOffset; i <= end; i++) {
+            list.push(i)
+        }
+    } else {
+        setEndOffset(10)
+        for (var i = startOffset; i <= 10; i++) {
+            list.push(i)
+        }
+    }
+    setPageCount(list)
+})
+}
     return (
         <div>
             <Row>
-                <h5>{totalQuestions} {props.text}</h5>
+            <Col sm={3}><h5>{totalQuestions} {props.text}</h5></Col>
+            <Col sm={6}></Col>
+            <Col sm={3} style={{ marginTop: "7px" }}>
+            <button style={title == "Active" ? { backgroundColor: "#D0D0D0", marginRight:"1px", borderWidth:"1px" } : { backgroundColor:"white",marginRight:"1px", color:"hsl(210deg 8% 45%)", borderWidth:"1px"  }} onClick={openActive}>Active</button>
+            <button style={title == "Pending" ? { backgroundColor: "#D0D0D0",marginRight:"1px" , borderWidth:"1px" } : { backgroundColor:"white",color:"hsl(210deg 8% 45%)",marginRight:"1px", borderWidth:"1px"  }} onClick={openPending}>Pending</button>
+           </Col>
             </Row>
             {
                 state.map((i) => (
@@ -112,7 +180,7 @@ const ItemList = (props) => {
                                 <Col sm={3} style={{ marginLeft: "-50px" }}><text style={{ fontSize: "15px" }}>{i.score} votes</text></Col>
                                 <Col sm={2}><text style={{ fontSize: 13, color: "hsl(27deg 90% 55%)", marginLeft: "-90px" }}>{i.views_count} views</text></Col>
                             </Row>
-                            <Row className='textLimit3'><text style={{ color: "hsl(206deg 100% 40%)", fontSize: "14px", cursor: "pointer" }} onClick={() => openQuestion(i.id)}>{parse(i.body)}</text></Row>
+                            <Row className='textLimit3'><text style={{ color: "hsl(206deg 100% 40%)", fontSize: "14px", cursor: "pointer" }} onClick={() => openQuestion(i.id)}>{parse(i.title)}</text></Row>
 
                             <Row style={{ marginLeft: "-18px" }}>
                                 <Col sm={7}>

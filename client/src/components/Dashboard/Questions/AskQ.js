@@ -29,7 +29,7 @@ class AskQ extends Component {
         <div>
           <RichTextEditor value={this.state.value} onChange={this.onChange} height={3400} />
           
-          {this.state.value.toString("html")
+          {//this.state.value.toString("html")
           }
           {
             // this.props.dispatch(updatingbody({

@@ -12,6 +12,7 @@ const Reputation = (props) => {
   const { userid } = useParams();
   const [history, setHistory] = useState([]);
   const [flag, setFlag] = useState(true);
+  const [totalreputation, setTotalreputation] = useState();
   const arr = [1, 2, 3, 4, 5];
   const history1 = [
     {
@@ -140,7 +141,9 @@ const Reputation = (props) => {
   useEffect(() => {
     async function getReputationhistory() {
       const res = await axios.get(`${Constants.uri}/api/users/${userid}/activity/reputation`, { withCredentials: true });
-      setHistory(res.data);
+      
+      setHistory(res.data.response);
+      setTotalreputation(res.data.totalReputation);
       console.log(res);
     }
     getReputationhistory();
@@ -156,16 +159,17 @@ const Reputation = (props) => {
   return (
     <div>
       <Row>
-        <h5>{history1.length} {props.text}</h5>
+        <h5>{totalreputation} {props.text}</h5>
       </Row>
       <Accordion defaultActiveKey="0" >
         {
-          history1.map((i, key) => (
+          history.length>0 ?
+          history.map((i, key) => (
             <Accordion.Item eventKey={key}>
               <Accordion.Header>
                 <Row>
                   <Col sm={4} style={{ color: "hsl(140deg 40% 47%)" }}>{i.totalReputation > 0 ? (<text>+{i.totalReputation}</text>) : (<text>{i.totalReputation}</text>)}</Col>
-                  <Col >{moment(i.date).format("MMM Do")}</Col>
+                  <Col >{moment(i.date, 'DD-MM-YYYY').format("MMM Do")}</Col>
                 </Row>
               </Accordion.Header>
               <Accordion.Body>
@@ -175,7 +179,7 @@ const Reputation = (props) => {
                       <Row>
                         <Col style={{color:"hsl(210deg 8% 45%)"}} sm={2}>{hist.postHistoryGrouping[0].type}</Col>
                         <Col style={{ color: "hsl(140deg 40% 47%)" }} sm={1}>{hist.postHistoryGrouping[0].score >0 ? (<text>+{hist.postHistoryGrouping[0].score}</text>) : (<text>{hist.postHistoryGrouping[0].score}</text>) }</Col>
-                        <Col style={{color:"blue", cursor:"pointer"}} onClick={() => openQuestion(hist.postId)} sm={9}>{hist.postTitle}</Col>
+                        <Col style={{color:"blue", cursor:"pointer"}} onClick={() => openQuestion(hist.postParentId ? hist.postParentId:hist.postId)} sm={9}>{hist.postTitle}</Col>
                       </Row>
                       :
                       <Accordion.Item eventKey={key2}>
@@ -183,7 +187,7 @@ const Reputation = (props) => {
                           <Row>
                             <Col sm={2}>{hist.postHistoryGrouping.length} events</Col>
                             <Col sm={1} style={{ color: "hsl(140deg 40% 47%)" }}>{hist.postHistoryGroupingScore > 0 ? (<text>+{hist.postHistoryGroupingScore}</text>) : (<text>{hist.postHistoryGroupingScore}</text>)}</Col>
-                            <Col onClick={() => openQuestion(hist.postId)} sm={9}>{hist.postTitle}</Col>
+                            <Col onClick={() => openQuestion(hist.postParentId ? hist.postParentId:hist.postId)} sm={9}>{hist.postTitle}</Col>
                           </Row>
                         </Accordion.Header>
                         <Accordion.Body>
@@ -202,6 +206,8 @@ const Reputation = (props) => {
               </Accordion.Body>
             </Accordion.Item>
           ))
+          :
+          <h5 style={{marginLeft:"10rem",marginTop:"5rem"}}>Nothing to show</h5>
         }
       </Accordion>
 
