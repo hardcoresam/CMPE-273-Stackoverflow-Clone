@@ -99,7 +99,7 @@ const QuestionOverview = () => {
     console.log(Cookies.get('ID'))
     if (!Cookies.get('ID')) {
       setModalShow(true)
-      toast('Please Login to view Question')
+      toast('Please Login to view Question',{position:'top-center'})
     }
     getQuestion()
   }, [upvoteqflag, downvoteqflag, upvoteaflag, downvoteaflag, acceptanswer])
@@ -417,7 +417,7 @@ const QuestionOverview = () => {
         </>
       )}
 
-      {question && question.status != 'ACTIVE' && userid != question.owner_id && (
+      {question && question.User && question.status != 'ACTIVE' && userid != question.owner_id && (
         <Row style={{marginLeft:"30%",marginRight:"20%",marginTop:'10%'}}>
           <Button variant='outline-danger'> Waiting for Aprroval from Admin. Come back later!</Button>
         </Row>
