@@ -195,7 +195,7 @@ const getQuestion = async (payload, callback) => {
     data = data.dataValues
 
     let isBookmark = await Bookmark.findOne({
-        where: { user_id: data.owner_id, post_id: payload.params.questionId }
+        where: { user_id: payload.USER_ID, post_id: payload.params.questionId }
     })
 
     if (isBookmark == null) isBookmark = false
