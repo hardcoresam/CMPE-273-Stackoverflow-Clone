@@ -152,13 +152,11 @@ const TagOverview = () => {
                             <Col sm={2} style={{ marginRight: "-3rem" }}>
                                 <Row style={{ marginLeft: "50px" }}>{question.score} votes</Row>
                                 <Row>
-                                    {question.answers_count > 0 ?
+                                    {
                                         question.accepted_answer_id ?
-                                            (<button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button>)
-                                            :
-                                            (<button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} > {question.answers_count} answers</button>)
+                                            (<Button style={{ cursor:"default",marginLeft:"12px", backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</Button>)
                                         :
-                                        <button style={{ backgroundColor: "#898989", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} > 0 answers</button>
+                                        (<Button style={{backgroundColor: "white",cursor:"default",marginLeft:"12px", color: "hsl(140deg 40% 47%)", borderColor:"hsl(140deg 40% 47%)", width: "7rem", borderRadius: "3px"}}> {question.answers_count} answers</Button>)
                                     }
 
                                 </Row>
@@ -179,7 +177,7 @@ const TagOverview = () => {
 
                                 </Row>
                                 <Row>
-                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo ? question.User.photo : emptyimage}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
+                                    <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo ? question.User.photo : emptyimage}></img>{question.User.username}</Link> asked  {moment(question.created_date).fromNow()}</span>
                                 </Row>
                                 <Row>
                                     <Col><hr style={{ marginTop: "1rem", marginLeft: "-143px" }}></hr></Col>

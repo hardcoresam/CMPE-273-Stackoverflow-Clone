@@ -112,6 +112,9 @@ const Search = () => {
             setQuestions(res.data.posts)
         }
 
+        const openTag =(tag)=>{
+            navigate(`/tags/${tag}/?show_user_posts=${false}&filterBy=interesting`);
+        }
         return (
             <div>
                 <Row>
@@ -154,25 +157,31 @@ const Search = () => {
                                 <Row>
                                     <Col sm={2} style={{ marginRight: "-3rem" }}>
                                         <Row style={{ marginLeft: "50px" }}>{question.score} votes</Row>
-                                        <Row><button style={{ backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</button></Row>
-                                        <Row><span style={{ marginLeft: "50px", color: "hsl(27,90%,55%)" }}>{question.views_count} views</span></Row>
+                                        {
+                                            question.type==="QUESTION" && (question.accepted_answer_id ? <Row><Button style={{ marginLeft:"12px",cursor:"default", backgroundColor: "hsl(140deg 40% 47%)", border: "0", width: "7rem", borderRadius: "3px", color: "white" }} ><i style={{ color: "white" }} class="fa-solid fa-check"></i> {question.answers_count} answers</Button></Row>
+                                            : <Row><Button style={{backgroundColor: "white",cursor:"default",marginLeft:"12px", color: "hsl(140deg 40% 47%)", borderColor:"hsl(140deg 40% 47%)", width: "7rem", borderRadius: "3px"}}> {question.answers_count} answers</Button></Row>)
+                                        }
                                     </Col>
                                     <Col sm={1}></Col>
                                     <Col sm={9}>
                                         <Row>
                                             <Col>
-                                                <Link to={`/questions/${question.id}`} style={{ textDecoration: "none", fontSize: 20, color: "hsl(206deg 100% 40%)", fontSize: "17px" }}>{question.title}</Link>
+                                            {
+                                                question.type==="QUESTION" ? <Link to={`/questions/${question.id}`} style={{ textDecoration: "none", fontSize: 20, color: "hsl(206deg 100% 40%)", fontSize: "17px" }}>Q: {question.title}</Link>
+                                                : <Link to={`/questions/${question.question.id}`} style={{ textDecoration: "none", fontSize: 20, color: "hsl(206deg 100% 40%)", fontSize: "17px" }}>A: {question.question.title}</Link>
+                                            }
+                                                
                                             </Col>
                                         </Row>
                                         <Row className='textLimit'>
                                             <text style={{ color: "hsl(210deg 8% 25%)", fontSize: "13px" }}>{parse(question.body)}</text>
                                         </Row>
                                         <Row>
-                                            <Col sm={6}>{question.tags.map(tag => (<Button style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</Button>))}&nbsp;&nbsp;&nbsp;</Col>
+                                           {question.type==="QUESTION" &&  <Col sm={6}>{question.tags.map(tag => (<button onClick={()=>openTag(tag)} style={{ padding: 0, fontSize: 13, color: "hsl(205deg 47% 42%)", backgroundColor: "hsl(205deg 46% 92%)", border: "0", marginLeft: "9px", paddingTop: "1px", paddingBottom: "1px", paddingLeft: "6px", paddingRight: "6px" }}>{tag}</button>))}&nbsp;&nbsp;&nbsp;</Col>}
 
                                         </Row>
                                         <Row>
-                                            <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo ?question.User.photo : emptyimage}></img>{question.User.username}</Link> asked,  {moment(question.created_date).fromNow()}</span>
+                                            <span className='text-muted' style={{ fontSize: 13, textAlign: 'right' }}><Link to={`/User/${question.User.id}`}><img style={{ width: "15px", height: "15px" }} src={question.User.photo ?question.User.photo : emptyimage}></img>{question.User.username}</Link> {question.type==="QUESTION" ? <text>asked</text> : <text>answered</text>} {moment(question.created_date).fromNow()}</span>
                                         </Row>
                                         <Row>
                                             <Col><hr style={{ marginTop: "1rem", marginLeft: "-218px" }}></hr></Col>

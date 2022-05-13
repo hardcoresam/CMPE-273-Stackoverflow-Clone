@@ -74,6 +74,67 @@ const Reputation = (props) => {
           postHistoryGroupingScore: 10
         }
       ]
+    },
+    {
+      date: "11/05/2022",
+      totalReputation: 25,
+      history: [
+        {
+          postId: 23934,
+          postTitle: "Python: Efficient unrolling/flattening list of tuples and single floats",
+          postHistoryGrouping: [
+            {
+              type: "UPVOTE",
+              score: 10
+            },
+            {
+              type: "DOWNVOTE",
+              score: 10
+            }
+          ],
+          postHistoryGroupingScore: 10
+        },
+        {
+          postId: 23933,
+          postTitle: "Python: Efficient unrolling/flattening list of tuples and single floats",
+          postHistoryGrouping: [
+            {
+              type: "ACCEPT",
+              score: 15
+            }
+          ],
+          postHistoryGroupingScore: 15
+        },
+        {
+          postId: 23933,
+          postTitle: "What's up San jose?",
+          postHistoryGrouping: [
+            {
+              type: "ACCEPT",
+              score: 15
+            }
+          ],
+          postHistoryGroupingScore: 15
+        }
+
+      ]
+    },
+    {
+      date: "10/05/2022",
+      totalReputation: -10,
+      history: [
+        {
+          postId: 23934,
+          postTitle: "ghjkml",
+          postHistoryGrouping: [
+            {
+              type: "UPVOTE",
+              score: 10
+            }
+          ],
+          postHistoryGroupingScore: 10
+        }
+      ]
     }
   ]
   useEffect(() => {
@@ -109,7 +170,7 @@ const Reputation = (props) => {
               </Accordion.Header>
               <Accordion.Body>
                 {
-                  i.history.map((hist) => (
+                  i.history.map((hist,key2) => (
                     hist.postHistoryGrouping.length == 1 ?
                       <Row>
                         <Col style={{color:"hsl(210deg 8% 45%)"}} sm={2}>{hist.postHistoryGrouping[0].type}</Col>
@@ -117,7 +178,7 @@ const Reputation = (props) => {
                         <Col style={{color:"blue", cursor:"pointer"}} onClick={() => openQuestion(hist.postId)} sm={9}>{hist.postTitle}</Col>
                       </Row>
                       :
-                      <Accordion.Item eventKey={key}>
+                      <Accordion.Item eventKey={key2}>
                         <Accordion.Header>
                           <Row>
                             <Col sm={2}>{hist.postHistoryGrouping.length} events</Col>
