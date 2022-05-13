@@ -128,7 +128,7 @@ const Search = () => {
         setTotalPages(res1.data.postsCount / 10)
         setSearchOptionsString(res1.data.searchOptionsString)
         setTitle(val)
-        if (res1.data.tagDescription) {
+        if (res1.data.tagDescription) { 
             setTagDescription(res1.data.tagDescription)
         }
 
