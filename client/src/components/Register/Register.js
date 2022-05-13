@@ -24,7 +24,7 @@ const Register = (props) => {
 
   const validatePassword = (password) => {
     if (password.length < 3) return false;
-    if (password.length > 8) return false;
+    if (password.length > 20) return false;
     return true;
   };
 
