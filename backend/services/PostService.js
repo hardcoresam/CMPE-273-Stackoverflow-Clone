@@ -282,6 +282,7 @@ const votePost = async (payload, callback) => {
     if (post.owner_id === loggedInUserId) {
         return callback({ error: 'You cannot vote on your own posts' }, null);
     }
+    let message 
     const previousVote = await Vote.findOne({
         where: {
             post_id: postId,
@@ -303,13 +304,16 @@ const votePost = async (payload, callback) => {
                 postScoreToModify = 1;
                 reputationToModify = post.type === "QUESTION" ? 10 : 5;
             }
+            message = "Removed your Vote"
         } else {
             if (voteType === "UPVOTE") {
                 postScoreToModify = 2;
                 reputationToModify = post.type === "QUESTION" ? 20 : 10;
+                message = "Up voted"
             } else {
                 postScoreToModify = -2;
                 reputationToModify = post.type === "QUESTION" ? -20 : -10;
+                message = "Down voted"
             }
             await new Vote({ type: voteType, post_id: postId, user_id: loggedInUserId }).save();
         }
@@ -319,9 +323,11 @@ const votePost = async (payload, callback) => {
         if (voteType === "UPVOTE") {
             postScoreToModify = 1;
             reputationToModify = post.type === "QUESTION" ? 10 : 5;
+            message = "Up voted"
         } else {
             postScoreToModify = -1;
             reputationToModify = post.type === "QUESTION" ? -10 : -5;
+            message = "Down voted"
         }
         await new Vote({ type: voteType, post_id: postId, user_id: loggedInUserId }).save();
     }
@@ -335,7 +341,7 @@ const votePost = async (payload, callback) => {
     }
 
     addReputationHistory(post, loggedInUserId, voteType);
-    return callback(null, { message: "Voted successfully" });
+    return callback(null, { message });
 }
 
 const addReputationHistory = async (post, user_id, voteType) => {
