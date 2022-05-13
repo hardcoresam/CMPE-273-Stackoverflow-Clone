@@ -162,60 +162,93 @@ const getQuestionsForDashboard = async (payload, callback) => {
 }
 
 const getQuestion = async (payload, callback) => {
-    let vote = await Vote.findOne({
-        where: { post_id: payload.params.questionId, user_id: payload.USER_ID }
-    })
-    let isUpVote = false
-    let isDownVote = false
-    console.log(vote)
-    if (vote === null) { }
-    else if (vote.type === "UPVOTE") isUpVote = true
-    else if (vote.type === "DOWNVOTE") isDownVote = true
-    let data = await Post.findOne(
+    //Checking for votes for question
+    let isUpVote = false;
+    let isDownVote = false;
+    if (payload.USER_ID) {
+        let vote = await Vote.findOne({
+            where: {
+                post_id: payload.params.questionId,
+                user_id: payload.USER_ID
+            }
+        });
+        if (vote !== null && vote.type === 'UPVOTE') {
+            isUpVote = true;
+        } else if (vote !== null && vote.type === 'DOWNVOTE') {
+            isDownVote = true;
+        }
+    }
+
+    //Checking for bookmarks for question
+    let bookmarked = false;
+    if (payload.USER_ID) {
+        let isBookmark = await Bookmark.findOne({
+            where: { user_id: payload.USER_ID, post_id: payload.params.questionId }
+        });
+        if (isBookmark !== null) {
+            bookmarked = true;
+        }
+    }
+
+    let postData = await Post.findOne({
+        where: { id: payload.params.questionId },
+        include: [{
+            model: User,
+            attrbutes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
+        },
         {
-            where: { id: payload.params.questionId },
+            model: Comment
+        },
+        {
+            model: Post,
+            as: "answers",
             include: [{
                 model: User,
-                attrbutes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
-            }, {
-                model: Comment
+                attributes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
             },
             {
-                model: Post,
-                as: "answers",
-                include: [{
-                    model: User,
-                    attributes: ['id', 'username', 'photo', 'reputation', 'gold_badges_count', 'silver_badges_count', 'bronze_badges_count']
-                }, {
-                    model: Comment
-                }]
+                model: Comment
             }]
+        }]
+    });
+    postData = postData.dataValues;
+
+    //Checking for votes for answers
+    if (payload.USER_ID && postData.answers.length > 0) {
+        for (let answer of postData.answers) {
+            let isAnswerUpVote = false;
+            let isAnswerDownVote = false;
+            let answerVote = await Vote.findOne({
+                where: {
+                    post_id: answer.id,
+                    user_id: payload.USER_ID
+                }
+            });
+            if (answerVote !== null && answerVote.type === 'UPVOTE') {
+                isAnswerUpVote = true;
+            } else if (answerVote !== null && answerVote.type === 'DOWNVOTE') {
+                isAnswerDownVote = true;
+            }
+            answer.setDataValue('isUpVote', isAnswerUpVote);
+            answer.setDataValue('isDownVote', isAnswerDownVote);
         }
-    )
-    data = data.dataValues
+    }
 
-    let isBookmark = await Bookmark.findOne({
-        where: { user_id: payload.USER_ID, post_id: payload.params.questionId }
-    })
-
-    if (isBookmark == null) isBookmark = false
-    else isBookmark = true
-
-    let count = data.views_count + 1;
+    //Updating the views count for the question
+    let updatedViewsCount = postData.views_count + 1;
     let sqlQuery = "update post set views_count = :count where id = :questionId"
     await sequelize.query(sqlQuery, {
-        replacements: { count: count, questionId: payload.params.questionId },
+        replacements: { count: updatedViewsCount, questionId: payload.params.questionId },
         type: Sequelize.QueryTypes.UPDATE
     });
 
-    if (count > 15 || count > 5) {
+    //Calling the badges calculation logic
+    if (updatedViewsCount > 15 || updatedViewsCount > 5) {
         BadgeService.pushIntoBadgeTopic({
-            action: "QUESTION_VIEWED", viewCount: count,
-            ownerId: data.owner_id
+            action: "QUESTION_VIEWED", viewCount: updatedViewsCount, ownerId: postData.owner_id
         });
     }
-
-    callback(null, { ...data, bookmarked: isBookmark, isUpVote: isUpVote, isDownVote: isDownVote });
+    return callback(null, { ...postData, bookmarked, isUpVote, isDownVote });
 }
 
 
@@ -282,7 +315,7 @@ const votePost = async (payload, callback) => {
     if (post.owner_id === loggedInUserId) {
         return callback({ error: 'You cannot vote on your own posts' }, null);
     }
-    let message 
+    let message
     const previousVote = await Vote.findOne({
         where: {
             post_id: postId,
