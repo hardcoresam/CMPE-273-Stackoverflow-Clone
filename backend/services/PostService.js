@@ -280,7 +280,7 @@ const votePost = async (payload, callback) => {
         }
     });
     if (post.owner_id === loggedInUserId) {
-        return callback({ errors: { vote: { msg: 'You cannot vote on your own posts.' } } }, null);
+        return callback({ error: 'You cannot vote on your own posts' }, null);
     }
     const previousVote = await Vote.findOne({
         where: {
@@ -384,13 +384,13 @@ const acceptAnswer = async (payload, callback) => {
         }
     })
     if (answer === null) {
-        return callback({ errors: { name: { msg: "No such answer found, try again!" } } }, null)
+        return callback({ error: "No such answer found, try again!" }, null)
     }
 
     try {
         const question = await Post.findOne({ where: { id: answer.parent_id } })
         if (question.owner_id !== payload.USER_ID) {
-            return callback({ errors: { name: { msg: "Only owner of the question can accept an answer!" } } }, null)
+            return callback({ error: "Only owner of the question can accept an answer!" }, null)
         }
 
         //Check for previous accepted answers and decrement repuation score -15
@@ -442,7 +442,7 @@ const acceptAnswer = async (payload, callback) => {
         });
         return callback(null, "Accepted answer successfully")
     } catch (error) {
-        return callback({ errors: { name: { msg: "Failed to accept the answer, try again!" } } }, null)
+        return callback({ error: "Failed to accept the answer, try again!" }, null)
     }
 }
 
@@ -470,7 +470,7 @@ const updateQuestion = async (payload, callback) => {
         }).save();
         return callback(null, updateddata);
     }
-    else return callback({ errors: { name: { msg: "Error in updating the question" } } }, null)
+    else return callback({ error: "Only owner can update the question" }, null)
 }
 
 //TODO - Exception handling for bad user input

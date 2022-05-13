@@ -65,7 +65,7 @@ const createUser = async (payload, callback) => {
     where: { email: email.toLowerCase() },
   });
   if (previousMember !== null) {
-    return callback({ errors: { email: { msg: `Email ${email} is already registered. Please login or use a different email` } } }, null);
+    return callback({ error: `Email ${email} is already registered. Please login or use a different email` }, null);
   }
 
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -79,7 +79,7 @@ const createUser = async (payload, callback) => {
   jwt.sign(jwtPayload, process.env.JWT_SECRET_KEY, (err, token) => {
     if (err) {
       console.error(err);
-      return callback({ message: "Server error" }, null);
+      return callback({ error: "Unexpected error. Please try again!" }, null);
     }
     return callback(null, { newMember: newMember, token: token });
   });
@@ -89,17 +89,17 @@ const login = async (payload, callback) => {
   const { email, password } = payload;
   const member = await User.findOne({ where: { email: email.toLowerCase() } });
   if (member === null) {
-    return callback({ errors: { email: { msg: `Email ${email} is not registered with us` } } }, null);
+    return callback({ error: `Email ${email} is not registered with us` }, null);
   }
   if (!bcrypt.compareSync(password, member.password)) {
-    return callback({ errors: { email: { msg: "Incorrect password. Please try again!" } } }, null);
+    return callback({ error: "Incorrect password. Please try again!" }, null);
   }
 
   const jwtPayload = { user: { id: member.id } };
   jwt.sign(jwtPayload, process.env.JWT_SECRET_KEY, async (err, token) => {
     if (err) {
       console.error(err);
-      return callback({ message: "Server error" }, null);
+      return callback({ error: "Unexpected error. Please try again!" }, null);
     }
     member.set({ last_login_time: sequelize.fn('NOW') });
     await member.save();
