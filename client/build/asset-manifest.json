@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/static/css/main.ef3404d5.css",
+    "main.js": "/static/js/main.0587bd00.js",
+    "static/js/787.cda612ba.chunk.js": "/static/js/787.cda612ba.chunk.js",
+    "static/media/santhoshProfPic.jpg": "/static/media/santhoshProfPic.c9d04bde996cbf435ca7.jpg",
+    "static/media/emptyimage.png": "/static/media/emptyimage.185f813e85e989ea5bd3.png",
+    "static/media/questionlogo1.PNG": "/static/media/questionlogo1.d85c92cf456b30da766e.PNG",
+    "static/media/stackoverflow_logo.png": "/static/media/stackoverflow_logo.23048f7754906f1c5cb8.png",
+    "static/media/goldbadge.PNG": "/static/media/goldbadge.5da8f839a5cf3035b6d4.PNG",
+    "static/media/silverbadge.PNG": "/static/media/silverbadge.70f09c15678e42c685bf.PNG",
+    "static/media/bronzebadge.PNG": "/static/media/bronzebadge.90444be4fde752f24a9b.PNG",
+    "static/media/stackoverflowlogo.PNG": "/static/media/stackoverflowlogo.b84cf79df862651fe4f0.PNG",
+    "index.html": "/index.html",
+    "main.ef3404d5.css.map": "/static/css/main.ef3404d5.css.map",
+    "main.0587bd00.js.map": "/static/js/main.0587bd00.js.map",
+    "787.cda612ba.chunk.js.map": "/static/js/787.cda612ba.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ef3404d5.css",
+    "static/js/main.0587bd00.js"
+  ]
+}

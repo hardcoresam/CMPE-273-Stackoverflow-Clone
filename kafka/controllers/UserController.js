@@ -20,10 +20,12 @@ exports.createUser = async (req, res) => {
       res.cookie("ID", data.newMember.id, {
         maxAge: 9000000,
         httpOnly: false,
+        domain:"stackoverflow-LB-564229095.us-east-1.elb.amazonaws.com"
       });
       res.cookie("Username", data.newMember.username, {
         maxAge: 9000000,
         httpOnly: false,
+        domain:"stackoverflow-LB-564229095.us-east-1.elb.amazonaws.com"
       });
       return res.json(data);
     }
@@ -43,10 +45,12 @@ exports.login = async (req, res) => {
       res.cookie("ID", data.member.id, {
         maxAge: 9000000,
         httpOnly: false,
+        domain:"stackoverflow-LB-564229095.us-east-1.elb.amazonaws.com"
       });
       res.cookie("Username", data.member.username, {
         maxAge: 9000000,
         httpOnly: false,
+        domain:"stackoverflow-LB-564229095.us-east-1.elb.amazonaws.com"
       });
       return res.json(data);
     }
