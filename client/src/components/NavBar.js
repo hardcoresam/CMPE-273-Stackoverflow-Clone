@@ -58,6 +58,7 @@ const NavBar = () => {
         Cookies.remove('access-token')
         dispatch(logoutSuccess())
         Cookies.remove('ID')
+        Cookies.remove('Username')
         navigate("/Dashboard")
     }
     const gotouser = () => {
