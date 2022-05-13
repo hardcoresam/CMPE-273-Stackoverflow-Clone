@@ -68,7 +68,10 @@ const createQuestion = async (payload, callback) => {
         }
     }
 
-    let status = (payload.isImage) ? "PENDING" : "ACTIVE"
+    let status = 'ACTIVE';
+    if (payload.body.includes('<img')) {
+        status = 'PENDING';
+    }
     const newQuestion = await new Post({ ...payload, owner_id: payload.USER_ID, status: status }).save();
 
     for (let i = 0; i < tagArr.length; i++) {
@@ -480,12 +483,21 @@ const search = async (payload, callback) => {
     if (payload.query.offset) {
         offset = payload.query.offset
     }
-    const fullSearchString = payload.searchString;
-    const searchType = fullSearchString.substring(0, fullSearchString.indexOf(' '));
-    const searchString = fullSearchString.substring(fullSearchString.indexOf(' ') + 1);
-    let exactSearchString = '%' + searchString + '%';
+    let exactSearchString = "";
     let resultString;
     let searchOptionsString;
+    let fullSearchString = payload.searchString;
+    let searchType = fullSearchString.substring(0, fullSearchString.indexOf(' '));
+    let searchString = fullSearchString.substring(fullSearchString.indexOf(' ') + 1);
+    if (!searchType) {
+        searchType = searchString;
+        searchString = "";
+        resultString = "Results found";
+    }
+    if (searchString.length > 0) {
+        exactSearchString = '%' + searchString + '%';
+    }
+
     let tagDescription;
     let whereStatement = {};
     let includeStatement = [{
@@ -503,7 +515,9 @@ const search = async (payload, callback) => {
         if (tag === null) {
             return callback({ error: `Invalid tag name ${tagName} specified while searching` }, null);
         }
-        resultString = "Results for '" + searchString + "' tagged with " + tagName;
+        if (!resultString) {
+            resultString = "Results for '" + searchString + "' tagged with " + tagName;
+        }
         searchOptionsString = "Search options not deleted";
         tagDescription = tag.description;
         includeStatement.push({
@@ -515,7 +529,9 @@ const search = async (payload, callback) => {
         });
     } else if (searchType.startsWith('is:')) {
         let postType = searchType.slice(3);
-        resultString = "Results for " + searchString;
+        if (!resultString) {
+            resultString = "Results for " + searchString;
+        }
         searchOptionsString = "Search options " + postType + "s" + " only not deleted";
         if (!(postType === "question" || postType === "answer")) {
             return callback({ error: `Invalid posttype ${postType} specified while searching` }, null);
@@ -523,7 +539,9 @@ const search = async (payload, callback) => {
         whereStatement.type = postType.toUpperCase();
     } else if (searchType.startsWith('user:')) {
         let userId = searchType.slice(5);
-        resultString = "Results for " + searchString;
+        if (!resultString) {
+            resultString = "Results for " + searchString;
+        }
         searchOptionsString = "Search options not deleted user " + userId;
         const user = await User.findOne({ where: { id: userId } });
         if (user === null) {
@@ -555,10 +573,14 @@ const search = async (payload, callback) => {
                 [Sequelize.Op.notIn]: acceptedAnswerIds
             };
         }
-        resultString = "Results for " + searchString;
+        if (!resultString) {
+            resultString = "Results for " + searchString;
+        }
         whereStatement.type = 'ANSWER';
     } else {
-        resultString = "Results for " + fullSearchString;
+        if (!resultString) {
+            resultString = "Results for " + fullSearchString;
+        }
         searchOptionsString = "Search options not deleted";
         if (fullSearchString.startsWith('"')) {
             exactSearchString = '%' + fullSearchString.slice(1, -1) + '%';
@@ -567,10 +589,12 @@ const search = async (payload, callback) => {
         }
     }
 
-    whereStatement[Sequelize.Op.or] = [
-        { title: { [Sequelize.Op.like]: exactSearchString } },
-        { body: { [Sequelize.Op.like]: exactSearchString } }
-    ];
+    if (exactSearchString.length > 0) {
+        whereStatement[Sequelize.Op.or] = [
+            { title: { [Sequelize.Op.like]: exactSearchString } },
+            { body: { [Sequelize.Op.like]: exactSearchString } }
+        ];
+    }
     const posts = await Post.findAll({
         where: whereStatement,
         include: includeStatement,
@@ -633,7 +657,10 @@ const getAdminStats = async (payload, callback) => {
 }
 
 const getPendingApprovalQuestions = async (payload, callback) => {
-    const questions = await Post.findAll({ where: { status: "PENDING" } })
+    const questions = await Post.findAll({
+        where: { status: "PENDING" },
+        order: [['modified_date', 'DESC']]
+    })
     return callback(null, questions)
 }
 

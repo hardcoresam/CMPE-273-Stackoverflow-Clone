@@ -6,14 +6,14 @@ import axios from 'axios'
 import Constants from './../util/Constants.json'
 import moment from 'moment'
 import { useSelector } from 'react-redux'
+import Cookies from 'js-cookie'
 
 const Chat = () => {
 
     const params = useParams()
 
     const [messages, setMessages] = useState([])
-    const obj = useSelector(state => state.UserSlice)
-    const { username } = obj.value
+    const  username  = Cookies.get("Username")
 
     const [recipient,setRecipient] = useState("")
 
