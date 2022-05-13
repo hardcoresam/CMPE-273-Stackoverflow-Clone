@@ -24,7 +24,7 @@ const postHistorySchema = new mongoose.Schema({
         type: Date,
         required: true,
         default: Date.now,
-        get: (created_on) => created_on.toLocaleString('en-GB', { timeZone: 'UTC' })
+        //get: (created_on) => created_on.toLocaleString('en-GB', { timeZone: 'UTC' })
     }
 }, {
     toJSON: { virtuals: true, getters: true },
