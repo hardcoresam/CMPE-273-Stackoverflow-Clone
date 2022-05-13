@@ -110,21 +110,22 @@ const QuestionOverview = () => {
     }
     getUser()
     getQuestion()
-  }, [upvoteqflag, downvoteqflag, upvoteaflag, downvoteaflag, acceptanswer])
+  }, [upvoteqflag, downvoteqflag, upvoteaflag, downvoteaflag, acceptanswer,isQuestionBookMarked])
 
   const bookMarkQuestion = async () => {
     if (!isQuestionBookMarked) {
       const res = await axios.post(`${Constants.uri}/api/post/bookmark/${question.id}`, {}, { withCredentials: true })
       if (res.data) {
         toast.success('Quesition added to Bookmarks')
-        window.location.reload()
+        setIsQuestionBookMarked(!isQuestionBookMarked)
+        // window.location.reload()
       }
     } else {
       const res = await axios.post(`${Constants.uri}/api/post/unbookmark/${question.id}`, {}, { withCredentials: true })
       if (res) {
         toast.success("Question removed from Bookmarks")
-        isQuestionBookMarked(false)
-        window.location.reload()
+        setIsQuestionBookMarked(!isQuestionBookMarked)
+        //window.location.reload()
       }
     }
   }
@@ -196,8 +197,10 @@ const QuestionOverview = () => {
 
   const voteAnswer = async (answer, voteType) => {
     const res = await axios.post(`${Constants.uri}/api/post/${answer.id}/vote`, { type: voteType }, { withCredentials: true })
-    console.log(res.data)
+    console.log("//////////////////////////")
+    console.log(res)
     if (res.data) {
+      // console.log(res)
       if (voteType == "UPVOTE")
         toast.success("Up voted the answer")
       else
@@ -226,7 +229,9 @@ const QuestionOverview = () => {
       body: value
     })
   }
-
+const openUser =(id)=>{
+  navigate(`/User/${id}`)
+}
 
   return (
     <div>
@@ -238,8 +243,8 @@ const QuestionOverview = () => {
               <Row><text style={{ fontSize: "2rem" }}>{question.title}</text></Row>
 
               <Row style={{ marginLeft: "1px" }}>Asked  {moment(question.created_date).fromNow()} &nbsp;
-                Modified {moment(question.modified_date).fromNow()} &nbsp; &nbsp; &nbsp; &nbsp;
-                {Cookies.get("ID") == question.owner_id && <Button style={{ width: 'auto' }} className="btn btn-secondary" onClick={() => editQuestion()}>Edit Question</Button>}
+                Modified {moment(question.modified_date).fromNow()} &nbsp; &nbsp; Viewed {question.views_count} times  
+                {Cookies.get("ID") == question.owner_id && <Button style={{ width: 'auto' , marginLeft:"7rem"}} className="btn btn-secondary" onClick={() => editQuestion()}>Edit Question</Button>}
               </Row>
               <hr style={{ marginTop: "1rem", marginLeft: "-45px" }}></hr>
 
@@ -297,8 +302,8 @@ const QuestionOverview = () => {
                             <Col sm={8}>
                               <span className='text-muted' style={{ fontSize: 13 }}>{comment.content}</span>
                             </Col>
-                            <Col sm={1}><Link to={`/User/${comment.user_id}`} style={{ textDecoration: "none", fontSize: 11 }}>{comment.user_display_name}</Link></Col>
-                            <Col><span style={{ textDecoration: "none", fontSize: 11 }}>{comment.posted_on.split('T')[0]}</span></Col>
+                            <Col sm={2}><Link to={`/User/${comment.user_id}`} style={{ textDecoration: "none", fontSize: 11 }}>{comment.user_display_name}</Link></Col>
+                            <Col><span style={{ textDecoration: "none", fontSize: 11 }}>{moment(comment.posted_on).format("MMM Do")} at {moment(comment.posted_on).format("ha")}</span></Col>
                             <hr />
                           </>
                         ))}
@@ -351,11 +356,11 @@ const QuestionOverview = () => {
                         <Row style={{ marginLeft: 60, marginRight: 5 }}>
                           {answer.Comments && answer.Comments.length > 0 && answer.Comments.map(comment => (
                             <>
-                              <Col sm={8}>
+                              <Col sm={7}>
                                 <span className='text-muted' style={{ fontSize: 13 }}>{comment.content}</span>
                               </Col>
                               <Col sm={2}><Link to={`/User/${comment.user_id}`} style={{ textDecoration: "none", fontSize: 11 }}>{comment.user_display_name}</Link></Col>
-                              <Col><span style={{ textDecoration: "none", fontSize: 11 }}>{comment.posted_on.split('T')[0]}</span></Col>
+                              <Col sm={3}><span style={{ textDecoration: "none", fontSize: 11 }}>{moment(comment.posted_on).format("MMM Do")} at {moment(comment.posted_on).format("ha")}</span></Col>
                               <hr />
                             </>
                           ))}
@@ -383,7 +388,7 @@ const QuestionOverview = () => {
                           <Row>
                             <Col sm={3}><img style={{ width: "2rem", height: "2rem", padding: 3 }} src={answer.User.photo ? answer.User.photo : emptyimage}></img></Col>
                             <Col>
-                              <Row>{answer.User && (<text>{answer.User.username}</text>)}</Row>
+                              <Row>{answer.User && (<text style={{cursor:"pointer",color:"blue"}} onClick={() =>openUser(answer.User.id)}>{answer.User.username}</text>)}</Row>
                               <Row>
                                 <Col sm={4}>{answer.User.reputation}</Col>
                                 <Col><span><i class="fa fa-circle" style={{ color: 'gold', fontSize: 10 }} aria-hidden="true"></i>&nbsp;{answer.User.gold_badges_count}&nbsp;</span>

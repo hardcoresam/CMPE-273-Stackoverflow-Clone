@@ -63,7 +63,7 @@ const AskQuestion = () => {
             })
             if (res.status === 200) {
                 toast.success('Posted new question successfully!', { position: "top-center" });
-                navigate("/Dashboard")
+                navigate(`/questions/${res.data.id}`)
             } else {
                 if (res.data.message.error) {
                     toast.error(`${res.data.message.error}`, { position: "top-center" });
