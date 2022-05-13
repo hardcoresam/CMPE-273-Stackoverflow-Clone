@@ -65,21 +65,28 @@ const QuestionOverview = () => {
 
   const postAnswer = async (e) => {
     e.preventDefault()
+    if (!Cookies.get('ID')) {
+      setModalShow(true)
+      toast('Please Login to bookmark this Question', { position: 'top-center' })
+    }else{
+      answerForm.question_id = answerForm.parent_id = question.id
+      answerForm.answers_count = question.answers_count
+      const res = await axios.post(`${Constants.uri}/api/post/answer`, answerForm, { withCredentials: true })
+      if (res.data) {
+        toast.success("Posted your answer!")
+        window.location.reload()
+      }
+    }
+
     // console.log(answerForm)
     // answerForm.title = question.title
-    answerForm.question_id = answerForm.parent_id = question.id
-    answerForm.answers_count = question.answers_count
-    const res = await axios.post(`${Constants.uri}/api/post/answer`, answerForm, { withCredentials: true })
-    if (res.data) {
-      toast.success("Posted your answer!")
-      window.location.reload()
-    }
+
   }
 
 
   useEffect(() => {
     async function getQuestion() {
-      const res = await axios.get(`${Constants.uri}/api/post/${params.qid}`, { withCredentials: true })
+      const res = await axios.get(`${Constants.uri}/api/post/${params.qid}`)
       console.log(res.data)
       if (res.data.User.id == Cookies.get("ID")) {
         setpproveAnswer(true)
@@ -111,7 +118,7 @@ const QuestionOverview = () => {
   const bookMarkQuestion = async () => {
     if (!Cookies.get('ID')) {
       setModalShow(true)
-      toast('Please Login to view Question', { position: 'top-center' })
+      toast('Please Login to bookmark this Question', { position: 'top-center' })
     } else {
       if (!isQuestionBookMarked) {
         const res = await axios.post(`${Constants.uri}/api/post/bookmark/${question.id}`, {}, { withCredentials: true })
@@ -136,7 +143,7 @@ const QuestionOverview = () => {
   const addComment = async () => {
     if (!Cookies.get('ID')) {
       setModalShow(true)
-      toast('Please Login to view Question', { position: 'top-center' })
+      toast('Please Login to add your comment', { position: 'top-center' })
     } else {
       const res = await axios.post(`${Constants.uri}/api/post/${question.id}/comment`, { content: commentForm }, { withCredentials: true })
       window.location.reload()
@@ -146,7 +153,7 @@ const QuestionOverview = () => {
   const enableAnswerComment = async (answer) => {
     if (!Cookies.get('ID')) {
       setModalShow(true)
-      toast('Please Login to view Question', { position: 'top-center' })
+      toast('Please Login to add your comment', { position: 'top-center' })
     } else {
       let anslist = []
       answers.map(ans => {
@@ -172,7 +179,7 @@ const QuestionOverview = () => {
   const addAnswerComment = async (answer) => {
     if (!Cookies.get('ID')) {
       setModalShow(true)
-      toast('Please Login to view Question', { position: 'top-center' })
+      toast('Please Login to add your comment', { position: 'top-center' })
     } else {
       const res = await axios.post(`${Constants.uri}/api/post/${answer.id}/comment`, { content: answer.commentValue }, { withCredentials: true })
       if (res) {
@@ -190,35 +197,41 @@ const QuestionOverview = () => {
   }
 
   const voteQuestion = async (voteType) => {
-    try {
-      const res = await axios.post(`${Constants.uri}/api/post/${question.id}/vote`, { type: voteType }, { withCredentials: true })
-      if (res.data) {
-        if (voteType === "UPVOTE") {
-          setUpVoteQFlag(!upvoteqflag)
-          if (downvoteqflag) {
-            setDownVoteQFlag(false)
+    if (!Cookies.get('ID')) {
+      setModalShow(true)
+      toast('Please Login to cat your vote', { position: 'top-center' })
+    } else {
+      try {
+        const res = await axios.post(`${Constants.uri}/api/post/${question.id}/vote`, { type: voteType }, { withCredentials: true })
+        if (res.data) {
+          if (voteType === "UPVOTE") {
+            setUpVoteQFlag(!upvoteqflag)
+            if (downvoteqflag) {
+              setDownVoteQFlag(false)
+            }
+            toast.success(res.data.message)
           }
-          toast.success(res.data.message)
-        }
-        else {
-          setDownVoteQFlag(!downvoteqflag)
-          if (upvoteqflag) {
-            setUpVoteQFlag(false)
+          else {
+            setDownVoteQFlag(!downvoteqflag)
+            if (upvoteqflag) {
+              setUpVoteQFlag(false)
+            }
+            toast.success(res.data.message)
           }
-          toast.success(res.data.message)
         }
+      } catch (e) {
+        console.log(e)
+        toast.success(e.response.data.message.error)
       }
-    } catch (e) {
-      console.log(e)
-      toast.success(e.response.data.message.error)
     }
+
 
   }
 
   const voteAnswer = async (answer, voteType) => {
     if (!Cookies.get('ID')) {
       setModalShow(true)
-      toast('Please Login to view Question', { position: 'top-center' })
+      toast('Please Login to cast your vote', { position: 'top-center' })
     } else {
       const res = await axios.post(`${Constants.uri}/api/post/${answer.id}/vote`, { type: voteType }, { withCredentials: true })
       console.log("//////////////////////////")
