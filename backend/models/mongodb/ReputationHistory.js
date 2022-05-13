@@ -9,6 +9,9 @@ const reputationHistorySchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    post_parent_id: {
+        type: Number
+    },
     post_title: {
         type: String,
         required: true
