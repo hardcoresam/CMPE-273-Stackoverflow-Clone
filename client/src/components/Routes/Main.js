@@ -24,6 +24,7 @@ const Main = () => {
                 <Route path="/" element={<NavBar />} >
                     {// <Route element={<VerifyAuth />} >
                     }
+                        <Route path="" element={<Home />} />
                         <Route path="/Dashboard" element={<Home />} />
                         <Route path="/Dashboard/Tags" element={<TagsHome />} />
                         <Route path="/Dashboard/search" element={<Search />} />
