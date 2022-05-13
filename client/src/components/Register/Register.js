@@ -14,6 +14,22 @@ const Register = (props) => {
   const [displayName, setDisplayName] = useState("");
   const [errors, setErrors] = useState()
 
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+
+  const validatePassword = (password) => {
+    if (password.length < 5)
+      return false
+    if (password.length > 8)
+      return false
+    return true
+  }
+
   const validate = () => {
     if (!email)
       return false
@@ -25,26 +41,36 @@ const Register = (props) => {
   }
   const registerUser = async () => {
     if (validate()) {
-      await Axios.post(`${Constants.uri}/api/users/register`, {
-        email: email,
-        displayName: displayName,
-        password: password
-      }, {
-        validateStatus: status => status < 500
-      }).then((r) => {
-        if (r.status === 200) {
-          //   dispatch(registerSuccess())
-          props.setregistermodal(false)
-          navigate('/DashBoard')
+      validatePassword(password)
+      if (validateEmail(email)) {
+        if (validatePassword(password)) {
+          await Axios.post(`${Constants.uri}/api/users/register`, {
+            email: email,
+            displayName: displayName,
+            password: password
+          }, {
+            validateStatus: status => status < 500
+          }).then((r) => {
+            if (r.status === 200) {
+              //   dispatch(registerSuccess())
+              props.setregistermodal(false)
+              navigate('/DashBoard')
+            }
+            else {
+              console.log(r)
+              setErrors(`${r.data.message.error}`)
+              //  dispatch(registerFail(r.data.message.error))
+            }
+          }).catch((err) => {
+            //   dispatch(registerFail(err.data.message.msg))
+          })
+        } else {
+          setErrors("Password length must be minimum of 3 and maximum of 8.")
         }
-        else {
-          setErrors(`${r.data.message.error}`)
-        //  dispatch(registerFail(r.data.message.error))
-        }
-      }).catch((err) => {
-        //   dispatch(registerFail(err.data.message.msg))
-      })
-    }else{
+      } else {
+        setErrors("Enter a valid Email")
+      }
+    } else {
       setErrors("Please Enter all the fields")
     }
 
