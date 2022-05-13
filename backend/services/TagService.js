@@ -113,7 +113,7 @@ const createNewTag = async (payload, callback) => {
   const adminUser = await User.findOne({ where: { id: payload.USER_ID } });
   if (adminUser && adminUser.is_admin == 1) {
     if (existingtag) {
-      return callback({ errors: { name: { msg: `Tag ${name} already exists` } } }, null);
+      return callback({ error: `Tag ${name} already exists` }, null);
     }
     const newtag = await new Tag({
       name: name.toLowerCase(),
@@ -122,7 +122,7 @@ const createNewTag = async (payload, callback) => {
     }).save();
     return callback(null, newtag);
   }
-  return callback({ errors: { name: { msg: "You are not authorized to create new tag" } } }, null);
+  return callback({ error: "You are not authorized to create new tag" }, null);
 };
 
 const filterByTagName = async (payload, callback) => {
